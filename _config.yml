@@ -23,9 +23,9 @@ email: stanislaw.szolkowski@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Blog with Episerver and tech stuff
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
-github_username:  Szolkowski
-google_analytics: UA-24537787-11
+url: "https://szolkowski.github.io"
+github_username:  "Szolkowski"
+google_analytics: "UA-24537787-11"
 
 # Build settings
 theme: minima
