@@ -1,1 +1,1 @@
-bundle exec jekyll serve
+Repository for blog [https://szolkowski.github.io](https://szolkowski.github.io).
