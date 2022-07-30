@@ -1,6 +1,7 @@
 ---
 layout: default
 ---
+<link rel="stylesheet" href="/assets/css/custom-styles.css">
 
 {% assign author = site.data.authors[page.author] %}
 {% if page.date_modified %}
@@ -19,11 +20,12 @@ layout: default
     <span class="post-meta" style="text-align: justify;">
     Tags:
     {% assign tags = page.tags | sort %}
-    {% include tagcloud.html %}
+    {% include _tagcloud.html %}
     </span>
     {% endif %}
 </p>
 
 {{content}}
 
-{% include disqus.html %}
+{% include _share-page.html %}
+{% include _disqus.html %}
