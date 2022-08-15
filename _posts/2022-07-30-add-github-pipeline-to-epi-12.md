@@ -102,7 +102,7 @@ That is all, with these steps we can make sure that both our backend and fronten
 
 More details on Github workflows/pipelines can be found [here](https://docs.github.com/en/actions/using-workflows).
 
-## Full workflow snippet and steps to do in simple pill
+## Full workflow snippet and steps to do it in a simple pill
 
 Here is code snipped for my simple workflow described above. Create file: `.github/workflows/ci-episerver.yml` (file name is up to you) and copy below code.
 
@@ -161,3 +161,5 @@ jobs:
 Now the only thing to do is to "git commit & git push". Github workflows will be now building Episerver in both PR's and main branch, so no more broken code in our main branch!
 
 I will extend this pipeline in future post with more interesting features!
+
+SonarCloud integration: [Add SonarCloud/SonarQube to Episerver/Optimizely 12 project]({% post_url 2022-08-15-add-sonarcloud-to-epi-12-pipeline %})
