@@ -1,10 +1,13 @@
 ---
 layout: post
-title:  "Add SonarCloud/SonarQube to Episerver/Optimizely 12 project"
+title:  "Add SonarCloud/SonarQube to Episerver/Optimizely 12 project using Github actions"
 date:   2022-08-15 19:31:48 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+image:
+   path: assets/img/2022-08-15-add-sonarcloud-to-epi-12-pipeline-ogimage.png
+   alt: Add SonarCloud/SonarQube to Episerver/Optimizely 12 project title image
 tags:
 - episerver
 - optimizely
