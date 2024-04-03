@@ -1,12 +1,12 @@
 ---
 layout: post
 title:  "Add SonarCloud/SonarQube to Episerver/Optimizely 12 project using Github actions"
-date:   2022-08-15 19:31:48 +0200
+date:   2023-08-15 19:31:48 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
 image:
-   path: assets/img/2022-08-15-add-sonarcloud-to-epi-12-pipeline-ogimage.png
+   path: assets/img/2023-08-15-add-sonarcloud-to-epi-12-pipeline-ogimage.png
    alt: Add SonarCloud/SonarQube to Episerver/Optimizely 12 project title image
 tags:
 - episerver
@@ -20,8 +20,8 @@ tags:
 - sonarcloud
 ---
 
-In my previous post [Add Github pipelines/workflows to Episerver 12 project]({% post_url 2022-07-30-add-github-pipeline-to-epi-12 %}) I have briefly explained how to add simple pipeline/workflow to Episerver/Optimizely 12 project. Having project build for each PR and on main branch push is nice improvement, but we can make it even better.
-For this example I will add SonarCloud integration to my existing workflow [from my previous post]({% post_url 2022-07-30-add-github-pipeline-to-epi-12 %}). You can see it on [my Foundation fork](https://github.com/szolkowski/Foundation/tree/9f01fd183071e86a96594452ade2e39b034d64e2) - it will be using Github actions on each pull request and on main branch.
+In my previous post [Add Github pipelines/workflows to Episerver 12 project]({% post_url 2023-07-30-add-github-pipeline-to-epi-12 %}) I have briefly explained how to add simple pipeline/workflow to Episerver/Optimizely 12 project. Having project build for each PR and on main branch push is nice improvement, but we can make it even better.
+For this example I will add SonarCloud integration to my existing workflow [from my previous post]({% post_url 2023-07-30-add-github-pipeline-to-epi-12 %}). You can see it on [my Foundation fork](https://github.com/szolkowski/Foundation/tree/9f01fd183071e86a96594452ade2e39b034d64e2) - it will be using Github actions on each pull request and on main branch.
 
 ## What is SonarQube/SonarCloud?
 
@@ -40,19 +40,19 @@ Its great feature is integration with pull requests for most popular source cont
 
 [Official SonarQube list of features](https://www.sonarqube.org/features/clean-as-you-code/)
 
-![SonarCloud pull request integration](/assets/img/2022-08-15-add-sonarcloud-to-epi-12-pipeline-pr-integration.png)
+![SonarCloud pull request integration](/assets/img/2023-08-15-add-sonarcloud-to-epi-12-pipeline-pr-integration.png)
 
 ## Full workflow/pipeline snippet and steps to make it work
 
-Here is code snipped for my workflow enhanced byt SonarCloud integration. To understand what it does you might want to take a look into this post with all steps explained: [Add Github pipelines/workflows to Episerver 12 project]({% post_url 2022-07-30-add-github-pipeline-to-epi-12 %})
+Here is code snipped for my workflow enhanced byt SonarCloud integration. To understand what it does you might want to take a look into this post with all steps explained: [Add Github pipelines/workflows to Episerver 12 project]({% post_url 2023-07-30-add-github-pipeline-to-epi-12 %})
 
 1. Register on [sonarcloud.io](https://sonarcloud.io/)
 2. Create organization and bind it with your Github account following instruction
 3. Create project in SonarCloud
 4. Choose analysis method "with github actions"
-   ![SonarCloud pull request integration](/assets/img/2022-08-15-add-sonarcloud-to-epi-12-pipeline-choose-analysis-merthod.png)
+   ![SonarCloud pull request integration](/assets/img/2023-08-15-add-sonarcloud-to-epi-12-pipeline-choose-analysis-merthod.png)
 5. Setup secret in your repository
-   ![SonarCloud pull request integration](/assets/img/2022-08-15-add-sonarcloud-to-epi-12-pipeline-setup-github-repository.png)
+   ![SonarCloud pull request integration](/assets/img/2023-08-15-add-sonarcloud-to-epi-12-pipeline-setup-github-repository.png)
 6. Create or edit file: `.github/workflows/ci-episerver.yml` (file name is up to you) and copy below code. Remember to replace `YOUR_PROJECT_KEY` and `YOUR_ORGANIZATION` with keys from sonarcloud page.
 
 ```yaml
