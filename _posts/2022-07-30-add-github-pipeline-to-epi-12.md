@@ -35,6 +35,7 @@ name: Episerver CI Build
 ```
 
 Configuration that is deciding when workflow should be executed. Here it is executed on pushes to `main` branch and on each pull request.
+
 ```yaml
 on:
   push:
@@ -45,12 +46,14 @@ on:
 ```
 
 This line let as choose on what runner pipeline will run. Full list of GitHub-hosted runners is available [here](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources).
+
 ```yaml
 runs-on: ubuntu-latest
 ```
 
 Now we are adding sequential steps needed for our build.
 First one is prebuild action that will checkout our repository. Github have a lot of actions availabe in its [marketplace](https://github.com/marketplace?type=actions).
+
 ```yaml
     steps:
       - uses: actions/checkout@v2
@@ -59,6 +62,7 @@ First one is prebuild action that will checkout our repository. Github have a lo
 ```
 
 Here I am preparing base runner for our project, by using predefined actions that will set up `dotnet`, `NodeJS` and my shell command that will add Optimizely feed.
+
 ```yaml
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
@@ -76,6 +80,7 @@ Here I am preparing base runner for our project, by using predefined actions tha
 ```
 
 Dotnet build part, just restoring packages and building Foundation app with `Release` configuration
+
 ```yaml
       - name: Restore dependencies
         run: dotnet restore
@@ -86,6 +91,7 @@ Dotnet build part, just restoring packages and building Foundation app with `Rel
 ```
 
 Java script part, installing `node_modules` (commonly referred as "black hole" by backend developers) and building JS.
+
 ```yaml
       - name: NPM install
         shell: pwsh
