@@ -168,4 +168,4 @@ Now the only thing to do is to "git commit & git push". Github workflows will be
 
 I will extend this pipeline in future post with more interesting features!
 
-SonarCloud integration: [Add SonarCloud/SonarQube to Episerver/Optimizely 12 project]({% post_url 2022-08-15-add-sonarcloud-to-epi-12-pipeline %})
+SonarCloud integration: [Add SonarCloud/SonarQube to Episerver/Optimizely 12 project]({% post_url 2023-08-15-add-sonarcloud-to-epi-12-pipeline %})
