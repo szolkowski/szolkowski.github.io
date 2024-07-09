@@ -29,7 +29,7 @@ I personally think that SonarQube best describe itself in following quote:
 >SonarQube is an open source platform to perform automatic reviews with static analysis of code to detect bugs, code smells and security vulnerabilities on 25+ programming languages
 [SonarQube](https://www.sonarqube.org/about/)
 
-[SonarCloud](https://sonarcloud.io/) is cloud based SonarQube working as SaaS solution, so we don't have to host SonarQube server on premise. It is almost the same in terms of features and the way how it works, so it can be used basically interchangeably with Sonarqube except the way how it is hosted.
+[SonarCloud](https://sonarcloud.io/) is cloud based SonarQube working as SaaS solution, so we don't have to host SonarQube server on premise. It is almost the same in terms of features and the way how it works, so it can be used basically interchangeably with SonarQube except the way how it is hosted.
 
 In my own word it is universal tool for static code analysis that can be used for most popular programming languages, so it can be easily adapted by different sets of projects and be used as company standard tool. It is also relatively easy to use and configure.
 
@@ -53,7 +53,7 @@ Here is code snipped for my workflow enhanced byt SonarCloud integration. To und
    ![SonarCloud pull request integration](/assets/img/2023-08-15-add-sonarcloud-to-epi-12-pipeline-choose-analysis-merthod.png)
 5. Setup secret in your repository
    ![SonarCloud pull request integration](/assets/img/2023-08-15-add-sonarcloud-to-epi-12-pipeline-setup-github-repository.png)
-6. Create or edit file: `.github/workflows/ci-episerver.yml` (file name is up to you) and copy below code. Remember to replace `YOUR_PROJECT_KEY` and `YOUR_ORGANIZATION` with keys from sonarcloud page.
+6. Create or edit file: `.github/workflows/ci-episerver.yml` (file name is up to you) and copy below code. Remember to replace `YOUR_PROJECT_KEY` and `YOUR_ORGANIZATION` with keys from Sonarcloud page.
 
 ```yaml
 name: Episerver CI Build
@@ -200,7 +200,7 @@ This step will install SonarScanner used for collecting data that will be send t
           dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
 ```
 
-For project containing .NET we need to start SonarScanner before project will be build. Token values will be loaded from repository secrets. 
+For project containing .NET we need to start SonarScanner before project will be build. Token values will be loaded from repository secrets.
 
 ```yaml
       - name: Sonar Begin
@@ -228,4 +228,4 @@ After build step we add SonarScanner end steps which will collect and pre-proces
 
 ## Further improvements
 
-Right now we have set up SonarCloud integration with minimal configuration required, but as every mature tool it can be configured to better meets our specific needs. I will explore this in next posts! 
+Right now we have set up SonarCloud integration with minimal configuration required, but as every mature tool it can be configured to better meets our specific needs. I will explore this in next posts!

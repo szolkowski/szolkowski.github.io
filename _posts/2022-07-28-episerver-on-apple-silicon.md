@@ -23,7 +23,7 @@ With introduction of .NET 6 Episerver/Optimizely packages developing it on M1 ma
 - Dotnet 6.0
 - Node JS
 
-## Let's make Episerver run on M1!
+## Let's make Episerver run on M1
 
 Lets start working on Episerver Foundation example site project. I recommend to use this code version from [my Foundation fork](https://github.com/szolkowski/Foundation/tree/e436ac689be335f8ce506cc22d349371de72aba9), but feel free to use Foundation repository as well.
 After cloning repository building it will work however on ARM machine `setup.sh/setup.cmd` script won't work, so we need to work around it.
@@ -38,11 +38,13 @@ docker run -d --name sql_server_optimizely -h localhost -e 'ACCEPT_EULA=Y' -e 'S
 ```
 
 After DB is up and running (it will take a moment after image is up to start DB) connect to DB using `Azure Data studio` using following credentials:
+
 - server: localhost
 - login: SA
 - password: Episerver123!
 
 Then using Data-tier Application Wizard Create databases from following .bacpac files (Import Bacpac):
+
 - FoundationAppleSiliconTest.Cms.bacpac
 - FoundationAppleSiliconTest.Commerce.bacpac
 
@@ -85,5 +87,6 @@ That's it! Now you can run `npm` to build frontend and build and run Foundation 
 ## Known issues
 
 There is a [bug](https://github.com/episerver/Foundation/issues/832) in in Foundation which cause crashing app on initialization of missing Episerver form module. Right now best solution is to manually copy:
+
 - configuration and zip files manually from `.nuget/packages/episerver.forms/5.2.0/contentFiles/any/any/modules/_protected/EPiServer.Forms/` to `/src/Foundation/modules/_protected/episerver.forms/`
-- zip file from `.nuget/packages/episerver.forms.ui/5.2.0/contentFiles/any/any/modules/_protected/EPiServer.Forms.UI/` to `/src/Foundation/modules/_protected/episerver.forms.ui/` 
+- zip file from `.nuget/packages/episerver.forms.ui/5.2.0/contentFiles/any/any/modules/_protected/EPiServer.Forms.UI/` to `/src/Foundation/modules/_protected/episerver.forms.ui/`
