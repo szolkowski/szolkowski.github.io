@@ -5,6 +5,7 @@ date:   2022-07-30 17:31:48 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from: /2022/08/15/add-sonarcloud-to-epi-12-pipeline.html
 tags:
 - episerver
 - optimizely
