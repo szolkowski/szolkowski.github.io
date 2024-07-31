@@ -1,10 +1,14 @@
 ---
 layout: post
 title:  "Adding Hangfire to Episerver/Optimizely CMS 12"
-date:   2024-07-11 12:46:48 +0200
+date:   2024-07-31 14:57:48 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from: /2024-07-11-adding-hangfire-to-epi-12.html
+image:
+   path: assets/img/2024-07-31-hangfire-cms-overview.png
+   alt: Integrated Hangfire dashboard with Optimizely CMS back office
 tags:
 - episerver
 - optimizely
@@ -33,7 +37,7 @@ Hangfire is an open-source framework that helps you to create, process, and mana
 It is also free for commercial usage (has paid extra features) as well as having support for retries policies, different types of jobs, and scaling up. What is also very nice is that we can use any serializable method called a job which is very nice too.
 
 from [Hangfire](https://www.hangfire.io/)
-![Hangfire Overview](/assets/img/2024-07-11-hangfire-overview.png)
+![Hangfire Overview](/assets/img/2024-07-31-hangfire-overview.png)
 
 ## Adding Hangfire to Episerver/Optimizely 12 using the Foundation project as an example in a few steps
 
@@ -190,7 +194,7 @@ public class ExampleRecurringJob
 
 ```
 
-Now that we have all new classes created we need to add the Hangfire configuration to `Startup.cs`. 
+Now that we have all new classes created we need to add the Hangfire configuration to `Startup.cs`.
 
 ```c#
             // Add Hangfire services.
@@ -233,10 +237,10 @@ As well as this configuration.
 
 Now that everything is done we can build&run our application. After logging in to the CMS back office we should do something like this:
 
-![Hangfire CMS Overview](/assets/img/2024-07-11-hangfire-cms-overview.png)
+![Hangfire CMS Overview](/assets/img/2024-07-31-hangfire-cms-overview.png)
 
 Moving to an example job that was created - after triggering it to execute manually in recurring jobs tabs in execution details we can see a similar view showing the live console experience.
 
-![Hangfire - example job with live console](/assets/img/2024-07-11-hangfire-example-job-overview.png)
+![Hangfire - example job with live console](/assets/img/2024-07-31-hangfire-example-job-overview.png)
 
 All code changes from this post can be seen in [Github foundation fork pull request](https://github.com/szolkowski/Foundation/pull/4).
