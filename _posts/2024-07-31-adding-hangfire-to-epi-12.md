@@ -5,7 +5,7 @@ date:   2024-07-31 14:57:48 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
-redirect_from: /2024-07-11-adding-hangfire-to-epi-12.html
+redirect_from: /2024/07/31/adding-hangfire-to-epi-12.html
 image:
    path: assets/img/2024-07-31-hangfire-cms-overview.png
    alt: Integrated Hangfire dashboard with Optimizely CMS back office
