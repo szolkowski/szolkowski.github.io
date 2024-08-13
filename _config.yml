@@ -21,7 +21,7 @@
 title: Szołkowski Blog
 email: stanislaw.szolkowski@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Blog with Episerver and tech stuff
+  Blog with Episerver/Optimizely and tech stuff
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://szolkowski.github.io"
 github_username:  "Szolkowski"
