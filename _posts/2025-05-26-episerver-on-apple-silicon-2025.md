@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Running full Optimizely development setup on M1 (ARM) based machine"
-date:   2025-05-26 11:29:19 +0200
+date:   2025-01-26 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
