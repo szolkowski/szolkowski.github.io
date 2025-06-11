@@ -45,39 +45,39 @@ public sealed class ShortSqlQueriesFilter(ITelemetryProcessor nextProcessor) : I
    private const int DurationThresholdInMilliseconds = 15;
 
    public void Process(ITelemetry item)
- {
+   {
       if (ShouldProcessItem(item))
- {
+      {
             nextProcessor.Process(item);
- }
- }
+      }
+   }
 
    private static bool ShouldProcessItem(ITelemetry item)
- {
+   {
       if (item is not DependencyTelemetry dependency)
- {
+      {
             return true;
- }
+      }
 
       if (dependency.Success == null)
- {
+      {
             return true;
- }
+      }
 
       if (!dependency.Success.Value)
- {
+      {
             return true;
- }
+      }
 
       if (!string.Equals(dependency.Type, "SQL", StringComparison.InvariantCultureIgnoreCase))
- {
+      {
             return true;
- }
+      }
 
       if (dependency.Duration.Milliseconds > DurationThresholdInMilliseconds)
- {
+      {
             return true;
- }
+      }
 
       return false;
  }
@@ -90,28 +90,28 @@ Next, we can exclude certain requests using `IgnoreRequestsFilter` implemented b
 public sealed class IgnoreRequestsFilter(ITelemetryProcessor nextProcessor) : ITelemetryProcessor
 {
    private static readonly string[] IgnoredActionNames = 
- [
-            "GET /episerver/health",
-            "GET NotificationStore/GetUnreadCount [area/module]"
- ];
+   [
+               "GET /episerver/health",
+               "GET NotificationStore/GetUnreadCount [area/module]"
+   ];
 
    public void Process(ITelemetry item)
- {
+   {
       if (ShouldProcessItem(item))
- {
+      {
             nextProcessor.Process(item);
- }
- }
+      }
+   }
 
    private static bool ShouldProcessItem(ITelemetry item)
- {
+   {
       if (item is not RequestTelemetry request)
- {
+      {
             return true;
- }
+      }
 
       return !IgnoredActionNames.Contains(request.Name);
- }
+   }
 }
 ```
 
