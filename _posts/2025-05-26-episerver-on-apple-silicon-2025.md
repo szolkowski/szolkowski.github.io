@@ -7,7 +7,7 @@ comments: true
 published: true
 image:
    path: assets/img/2025-05-26-cms-home-page.png
-   alt: Running full Optimizely development setup on M1 (ARM) based machine"
+   alt: "Running full Optimizely development setup on M1 (ARM) based machine"
 tags:
 - episerver
 - optimizely
