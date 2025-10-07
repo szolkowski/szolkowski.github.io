@@ -13,6 +13,7 @@ tags:
 - optimizely
 - jobs
 - scheduled jobs
+- maintenance
 ---
 
 Optimizely CMS provides a simple yet powerful built-in job system that handles most standard scheduling scenarios with ease. Developers can easily implement these jobs to run automatically on a defined schedule or trigger them manually through the CMS interface. From my experience as an Optimizely/Episerver developer, manual jobs are especially useful for one-off operations or bulk content updates. Typically, these jobs serve a temporary purpose and are removed from the codebase in subsequent releases once they’ve fulfilled their role.
