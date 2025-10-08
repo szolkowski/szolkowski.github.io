@@ -1,0 +1,32 @@
+{% if include.file %}
+  {% capture code_content %}{% include_relative {{ include.file }} %}{% endcapture %}
+{% else %}
+  {% assign code_content = include.code %}
+{% endif %}
+
+<!-- Inline code snippet with both buttons -->
+<div class="code-block-wrapper">
+  <button class="fullscreen-btn open-code-modal" data-target="codeModal-{{ include.id }}">
+    <i class="fas fa-expand"></i> View Fullscreen
+  </button>
+  <button class="copy-btn" onclick="copyCode(this)">
+    <i class="fas fa-copy"></i> Copy
+  </button>
+  <pre><code class="language-{{ include.lang | default: 'csharp' }} hljs">
+{{ code_content | escape }}
+  </code></pre>
+</div>
+
+<!-- Modal structure with only copy and close -->
+<div id="codeModal-{{ include.id }}" class="code-modal">
+  <div class="code-modal-content">
+    <div class="modal-toolbar">
+      <span class="code-modal-close" onclick="this.closest('.code-modal').style.display='none'">&times;</span>
+    </div>
+    <div class="code-block-wrapper">
+      <pre><code class="language-{{ include.lang | default: 'csharp' }} hljs">
+{{ code_content | escape }}
+      </code></pre>
+    </div>
+  </div>
+</div>

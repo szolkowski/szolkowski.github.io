@@ -13,6 +13,7 @@ tags:
 - optimizely
 - jobs
 - scheduled jobs
+- maintenance
 ---
 
 Optimizely CMS provides a simple yet powerful built-in job system that handles most standard scheduling scenarios with ease. Developers can easily implement these jobs to run automatically on a defined schedule or trigger them manually through the CMS interface. From my experience as an Optimizely/Episerver developer, manual jobs are especially useful for one-off operations or bulk content updates. Typically, these jobs serve a temporary purpose and are removed from the codebase in subsequent releases once they’ve fulfilled their role.
@@ -48,7 +49,10 @@ Here’s how it works:
 - Optionally filter by LastExecutionMessage to avoid edge cases.
 - Delete orphaned jobs and log the operation.
 
-```c#
+{% include code-modal.html
+   id="orphaned-job-cleanup"
+   lang="csharp"
+   code="
 [InitializableModule]
 [ModuleDependency(typeof(CmsCoreInitialization))]
 public sealed class OrphanedJobRemoverModule : IInitializableModule
@@ -78,20 +82,20 @@ public sealed class OrphanedJobRemoverModule : IInitializableModule
         // LastExecutionMessage check is optional and was added just to make sure that no extra edge case will be removed. It was a specific requirement, so in a standard project, it can be removed.
         var orphanedJobs = dbJobs
             .Where(job => !codeJobGuids.Contains(job.ID.ToString()))
-            .Where(job => job.LastExecutionMessage != null && job.LastExecutionMessage.StartsWith("Could not load type '<assembly_path_to_jobs_directory>"))
+            .Where(job => job.LastExecutionMessage != null && job.LastExecutionMessage.StartsWith(\"Could not load type '<assembly_path_to_jobs_directory>\"))
             .ToList();
 
         foreach (var job in orphanedJobs)
         {
             try
             {
-                logger.LogInformation("Removing: {JobName} (ID: {JobID})", job.Name, job.ID);
+                logger.LogInformation(\"Removing: {JobName} (ID: {JobID})\", job.Name, job.ID);
                 // removes the job from both tblScheduledItem and tblScheduledItemLog tables
                 jobRepository.Delete(job.ID);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to remove: {JobName} (ID: {JobID}) with message: {Message}", job.Name, job.ID, ex.Message);
+                logger.LogError(ex, \"Failed to remove: {JobName} (ID: {JobID}) with message: {Message}\", job.Name, job.ID, ex.Message);
             }
         }
     }
@@ -100,7 +104,7 @@ public sealed class OrphanedJobRemoverModule : IInitializableModule
     {
     }
 }
-```
+" %}
 
 ### Why Not Use a Scheduled Job?
 
