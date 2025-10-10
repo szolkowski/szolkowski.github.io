@@ -15,7 +15,6 @@ tags:
 - scheduled jobs
 - database
 - db
-- index
 - indexes
 - maintenance
 - performance
