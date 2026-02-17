@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Memory-Efficient Catalog Traversal in Optimizely Commerce. Part 1: Building the Service"
-date:   2026-02-18 10:00:00 +0200
+date:   2026-01-18 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
@@ -265,5 +265,5 @@ Thank you for reading, and stay tuned for Part 2 where we put this service to wo
 ## This Post is Part of a Series
 
 - Part 1: Building the Service - (this post)
-- Part 2: Real-World Scheduled Job Patterns - wait for the future release!
+- [Part 2: Real-World Scheduled Job Patterns]({% post_url 2026-02-24-Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns %})
 - Part 3: Hangfire Integration - wait for the future release!
