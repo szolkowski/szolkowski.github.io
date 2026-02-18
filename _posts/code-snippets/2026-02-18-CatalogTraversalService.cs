@@ -20,10 +20,10 @@ public class CatalogTraversalService : ICatalogTraversalService
     {
         // Initialize a queue with the starting catalog(s)
         var queue = InitializeCatalogQueue(options.CatalogName, options.CatalogLink);
-        
+
         // Track visited nodes to prevent circular references
         var visited = new HashSet<ContentReference>();
-        
+
         var itemCount = 0;
         var stopwatch = Stopwatch.StartNew();
 
@@ -31,7 +31,7 @@ public class CatalogTraversalService : ICatalogTraversalService
         while (queue.Count > 0)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
+
             var current = queue.Dequeue();
 
             // Prevent infinite loops from circular references
@@ -43,7 +43,7 @@ public class CatalogTraversalService : ICatalogTraversalService
 
             // Get all children of the current node
             var children = _contentLoader.GetChildren<IContent>(current);
-            
+
             foreach (var child in children)
             {
                 switch (child)
@@ -54,20 +54,20 @@ public class CatalogTraversalService : ICatalogTraversalService
                         break;
 
                     // If it's a product, process and yield it
-                    case ProductContent product when product is ICatalogTraversalItem:
+                    case ProductContent product when product is ICatalogTraversalItem item:
                         itemCount++;
-                        if (ShouldIncludeItem(product, options.LastUpdated))
+                        if (ShouldIncludeItem(item, options.LastUpdated))
                         {
-                            yield return (ICatalogTraversalItem)product;
+                            yield return item;
                         }
                         break;
 
                     // If it's a variant, process and yield it
-                    case VariationContent variant when variant is ICatalogTraversalItem:
+                    case VariationContent variant when variant is ICatalogTraversalItem item:
                         itemCount++;
-                        if (ShouldIncludeItem(variant, options.LastUpdated))
+                        if (ShouldIncludeItem(item, options.LastUpdated))
                         {
-                            yield return (ICatalogTraversalItem)variant;
+                            yield return item;
                         }
                         break;
 
@@ -121,7 +121,7 @@ public class CatalogTraversalService : ICatalogTraversalService
         foreach (var rootContent in _contentLoader.GetChildren<CatalogContentBase>(rootLink))
         {
             if (rootContent is { } catalog &&
-                (catalogName == null || 
+                (catalogName == null ||
                  string.Equals(catalog.Name, catalogName, StringComparison.OrdinalIgnoreCase)))
             {
                 _logger.LogInformation(
@@ -146,7 +146,7 @@ public class CatalogTraversalService : ICatalogTraversalService
     /// Determines if an item should be included based on the last updated filter.
     /// </summary>
     private static bool ShouldIncludeItem(
-        IContent content,
+        ICatalogTraversalItem item,
         DateTime? filterLastUpdated)
     {
         // If no date filter is specified, include all items
@@ -155,17 +155,11 @@ public class CatalogTraversalService : ICatalogTraversalService
             return true;
         }
 
-        // Try to get the LastUpdated property via reflection
-        // This assumes your catalog items have a LastUpdated property
-        var lastUpdatedProperty = content.GetType()
-            .GetProperty("LastUpdated");
-        
-        if (lastUpdatedProperty == null)
+        if (item.LastUpdated == null)
         {
             return false;
         }
 
-        var lastUpdated = lastUpdatedProperty.GetValue(content) as DateTime?;
-        return lastUpdated > filterLastUpdated;
+        return item.LastUpdated > filterLastUpdated;
     }
 }

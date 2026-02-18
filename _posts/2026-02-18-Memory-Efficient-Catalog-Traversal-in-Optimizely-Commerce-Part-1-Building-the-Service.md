@@ -89,6 +89,7 @@ First, let's define our contracts:
 /// </summary>
 public interface ICatalogTraversalItem
 {
+    DateTime? LastUpdated { get; set; }
 }
 
 /// <summary>
@@ -236,8 +237,7 @@ The `LastUpdated` filter enables incremental syncs. It checks each item's timest
 if (filterLastUpdated == null)
     return true; // No filter - include everything
 
-var lastUpdated = GetLastUpdatedDate(item);
-return lastUpdated > filterLastUpdated; // Only newer items
+return item.LastUpdated > filterLastUpdated; // Only newer items
 ```
 
 ## What's Next?
