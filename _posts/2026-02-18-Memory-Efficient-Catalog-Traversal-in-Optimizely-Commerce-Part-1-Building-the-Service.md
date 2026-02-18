@@ -151,7 +151,7 @@ Now for the main service. I'll show it in parts with detailed comments:
 {% include code-modal.html
    id="2026-02-18-CatalogTraversalService"
    lang="csharp"
-   file="code-snippets/2026-02-18-CatalogTraversalService.cs"
+   file="post_assets/code-snippets/2026-02-18-CatalogTraversalService.cs"
 %}
 
 ### Registering the Service

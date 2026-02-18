@@ -35,9 +35,9 @@ If you're adding custom tables to your CMS database, especially ones that grow o
 Here’s a simple implementation of a scheduled job that performs index and statistics maintenance on selected custom tables. You can trigger it manually or schedule it via Optimizely’s job system.
 
 {% include code-modal.html
-   id="database-index-maintenance-scheduled-job"
+   id="2025-10-08-database-index-maintenance-scheduled-job"
    lang="csharp"
-   file="code-snippets/database-index-maintenance-scheduled-job.cs"
+   file="post_assets/code-snippets/2025-10-08-database-index-maintenance-scheduled-job.cs"
 %}
 
 ## Performance Considerations
