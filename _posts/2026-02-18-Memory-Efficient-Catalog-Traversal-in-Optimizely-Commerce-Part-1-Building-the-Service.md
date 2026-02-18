@@ -149,9 +149,9 @@ public class GenericVariant : VariationContent, ICatalogTraversalItem
 Now for the main service. I'll show it in parts with detailed comments:
 
 {% include code-modal.html
-   id="CatalogTraversalService"
+   id="2026-02-18-CatalogTraversalService"
    lang="csharp"
-   file="code-snippets/CatalogTraversalService.cs"
+   file="post_assets/code-snippets/2026-02-18-CatalogTraversalService.cs"
 %}
 
 ### Registering the Service

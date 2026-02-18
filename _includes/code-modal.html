@@ -1,5 +1,5 @@
 {% if include.file %}
-  {% capture code_content %}{% include_relative {{ include.file }} %}{% endcapture %}
+  {% capture code_content %}{% include {{ include.file }} %}{% endcapture %}
 {% else %}
   {% assign code_content = include.code %}
 {% endif %}
