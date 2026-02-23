@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Catalog Traversal in Action. Part 2: Real-World Scheduled Job Patterns"
-date:   2026-01-24 10:00:00 +0200
+date:   2026-01-03 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
@@ -847,4 +847,4 @@ Thank you for reading, and I hope these patterns help you build robust catalog p
 
 - [Part 1: Building the Service]({% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %})
 - Part 2: Real-World Scheduled Job Patterns - (this post)
-- Part 3: Hangfire Integration - wait for the future release!
+- [Part 3: Hangfire Integration]({% post_url 2026-03-03-Catalog-Traversal-with-Hangfire-Part-3-Advanced-Job-Management %})

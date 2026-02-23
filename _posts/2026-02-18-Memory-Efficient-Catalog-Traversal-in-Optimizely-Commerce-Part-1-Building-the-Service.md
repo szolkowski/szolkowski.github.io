@@ -266,4 +266,4 @@ Thank you for reading, and stay tuned for Part 2 where we put this service to wo
 
 - Part 1: Building the Service - (this post)
 - [Part 2: Real-World Scheduled Job Patterns]({% post_url 2026-02-24-Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns %})
-- Part 3: Hangfire Integration - wait for the future release!
+- [Part 3: Hangfire Integration]({% post_url 2026-03-03-Catalog-Traversal-with-Hangfire-Part-3-Advanced-Job-Management %})
