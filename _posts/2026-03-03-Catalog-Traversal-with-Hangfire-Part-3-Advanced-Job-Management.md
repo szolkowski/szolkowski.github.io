@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Catalog Traversal with Hangfire. Part 3 Advanced Job Management"
-date:   2026-01-03 10:00:00 +0200
+date:   2026-03-03 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
@@ -20,7 +20,7 @@ tags:
 - background-jobs 
 ---
 
-In [Part 1]({% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %}), I showed how to build a memory-efficient catalog traversal service, and in [Part 2]({% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %}), I demonstrated practical patterns using Optimizely's built-in scheduled jobs.
+In [Part 1]({% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %}), I showed how to build a memory-efficient catalog traversal service, and in [Part 2]({% post_url 2026-02-24-Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns %}), I demonstrated practical patterns using Optimizely's built-in scheduled jobs.
 
 While Optimizely's scheduled job system works well for basic scenarios, you might find yourself wanting more: better monitoring, automatic retries, distributed execution, or more flexible scheduling. This is where Hangfire shines.
 
@@ -82,7 +82,7 @@ public void ConfigureServices(IServiceCollection services)
         .UseSimpleAssemblyNameTypeSerializer()
         .UseRecommendedSerializerSettings()
         .UseSqlServerStorage(
-            Configuration.GetConnectionString("EPiServerDB"),
+            _configuration.GetConnectionString("EPiServerDB"),
             new SqlServerStorageOptions
             {
                 CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
@@ -136,94 +136,21 @@ Let's revisit the patterns from Part 2 and see how they work with Hangfire. The 
 
 Here's the full export pattern, now with Hangfire's console output and progress tracking:
 
-```csharp
-public class CatalogExportJob
-{
-    private readonly ICatalogTraversalService _catalogTraversal;
-    private readonly IExternalSystemClient _externalClient;
-    private readonly ILogger<CatalogExportJob> _logger;
-
-    public CatalogExportJob(
-        ICatalogTraversalService catalogTraversal,
-        IExternalSystemClient externalClient,
-        ILogger<CatalogExportJob> logger)
-    {
-        _catalogTraversal = catalogTraversal;
-        _externalClient = externalClient;
-        _logger = logger;
-    }
-
-    public void Execute(PerformContext context, CancellationToken cancellationToken)
-    {
-        var processedCount = 0;
-        var errorCount = 0;
-        var startTime = DateTime.UtcNow;
-
-        try
-        {
-            var options = new CatalogTraversalOptions
-            {
-                CatalogName = "Fashion"
-            };
-
-            context.WriteLine(ConsoleTextColor.Green, "Starting catalog export for '{0}'", options.CatalogName);
-            _logger.LogInformation("Starting catalog export for '{CatalogName}'", options.CatalogName);
-
-            foreach (var item in _catalogTraversal.GetAllProducts(options, cancellationToken))
-            {
-                try
-                {
-                    switch (item)
-                    {
-                        case ProductContent product:
-                            _externalClient.ExportProduct(product);
-                            break;
-                        case VariationContent variant:
-                            _externalClient.ExportVariant(variant);
-                            break;
-                    }
-
-                    processedCount++;
-
-                    // Update progress bar every 100 items
-                    if (processedCount % 100 == 0)
-                    {
-                        context.WriteLine("Processed {0} items...", processedCount);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    context.WriteLine(ConsoleTextColor.Red, "Error processing item: {0}", ex.Message);
-                    _logger.LogError(ex, "Error exporting item");
-                    errorCount++;
-                }
-            }
-
-            var duration = DateTime.UtcNow - startTime;
-            var result = $"Successfully processed {processedCount} items in {duration.TotalMinutes:F1} minutes. Errors: {errorCount}";
-            
-            context.WriteLine(ConsoleTextColor.Green, result);
-            _logger.LogInformation("Catalog export completed: {Result}", result);
-        }
-        catch (Exception ex)
-        {
-            context.WriteLine(ConsoleTextColor.Red, "Fatal error: {0}", ex.Message);
-            _logger.LogError(ex, "Fatal error in catalog export job");
-            throw; // Hangfire will handle retry logic
-        }
-    }
-}
-```
+{% include code-modal.html
+   id="2026-03-03-Hangfire-Catalog-Export-Job"
+   lang="csharp"
+   file="post_assets/code-snippets/2026-03-03-Hangfire-Catalog-Export-Job.cs"
+%}
 
 **Schedule the job:**
 
 ```csharp
 // One-time execution
-BackgroundJob.Enqueue<CatalogExportJob>(job => 
+BackgroundJob.Enqueue<HangfireCatalogExportJob>(job => 
     job.Execute(null, CancellationToken.None));
 
 // Recurring job - runs daily at 2 AM
-RecurringJob.AddOrUpdate<CatalogExportJob>(
+RecurringJob.AddOrUpdate<HangfireCatalogExportJob>(
     "catalog-export-daily",
     job => job.Execute(null, CancellationToken.None),
     "0 2 * * *"); // Cron expression
@@ -240,113 +167,16 @@ RecurringJob.AddOrUpdate<CatalogExportJob>(
 
 The incremental sync pattern works beautifully with Hangfire's persistence:
 
-```csharp
-public class IncrementalCatalogSyncJob
-{
-    private readonly ICatalogTraversalService _catalogTraversal;
-    private readonly ILastSyncRepository _lastSyncRepository;
-    private readonly IExternalSystemClient _externalClient;
-    private readonly ILogger<IncrementalCatalogSyncJob> _logger;
-
-    private const string SyncStateKey = "CatalogSync_Fashion";
-
-    public IncrementalCatalogSyncJob(
-        ICatalogTraversalService catalogTraversal,
-        ILastSyncRepository lastSyncRepository,
-        IExternalSystemClient externalClient,
-        ILogger<IncrementalCatalogSyncJob> logger)
-    {
-        _catalogTraversal = catalogTraversal;
-        _lastSyncRepository = lastSyncRepository;
-        _externalClient = externalClient;
-        _logger = logger;
-    }
-
-    public void Execute(PerformContext context, CancellationToken cancellationToken)
-    {
-        var lastSyncDate = _lastSyncRepository.GetLastSyncDate(SyncStateKey);
-        var currentSyncDate = DateTime.UtcNow;
-
-        var updatedCount = 0;
-        var errorCount = 0;
-
-        try
-        {
-            var options = new CatalogTraversalOptions
-            {
-                CatalogName = "Fashion",
-                LastUpdated = lastSyncDate
-            };
-
-            var syncType = lastSyncDate.HasValue ? "Incremental" : "Full";
-            context.WriteLine(
-                ConsoleTextColor.Cyan,
-                "{0} sync started. Last sync: {1}",
-                syncType,
-                lastSyncDate?.ToString("g") ?? "Never");
-
-            // Create a progress bar
-            using (var progressBar = context.WriteProgressBar())
-            {
-                var items = _catalogTraversal.GetAllProducts(options, cancellationToken).ToList();
-                var totalItems = items.Count;
-
-                context.WriteLine("Found {0} items to sync", totalItems);
-
-                for (int i = 0; i < items.Count; i++)
-                {
-                    try
-                    {
-                        var item = items[i];
-                        
-                        switch (item)
-                        {
-                            case ProductContent product:
-                                _externalClient.SyncProduct(product);
-                                break;
-                            case VariationContent variant:
-                                _externalClient.SyncVariant(variant);
-                                break;
-                        }
-
-                        updatedCount++;
-                        
-                        // Update progress bar
-                        progressBar.SetValue((i + 1) * 100 / totalItems);
-                    }
-                    catch (Exception ex)
-                    {
-                        context.WriteLine(ConsoleTextColor.Yellow, "Error syncing item: {0}", ex.Message);
-                        _logger.LogError(ex, "Error syncing item");
-                        errorCount++;
-                    }
-                }
-            }
-
-            // Only update the last sync date if job completed successfully
-            _lastSyncRepository.SaveLastSyncDate(SyncStateKey, currentSyncDate);
-
-            var result = lastSyncDate.HasValue
-                ? $"Incremental sync complete: {updatedCount} items changed since {lastSyncDate:g}. Errors: {errorCount}"
-                : $"Full sync complete: {updatedCount} items processed. Errors: {errorCount}";
-
-            context.WriteLine(ConsoleTextColor.Green, result);
-            _logger.LogInformation("Sync completed: {Result}", result);
-        }
-        catch (Exception ex)
-        {
-            context.WriteLine(ConsoleTextColor.Red, "Fatal error: {0}", ex.Message);
-            _logger.LogError(ex, "Fatal error in catalog sync job");
-            throw;
-        }
-    }
-}
-```
+{% include code-modal.html
+   id="2026-03-03-Hangfire-Incremental-Catalog-Sync-Job"
+   lang="csharp"
+   file="post_assets/code-snippets/2026-03-03-Hangfire-Incremental-Catalog-Sync-Job.cs"
+%}
 
 **Schedule with automatic retries:**
 
 ```csharp
-RecurringJob.AddOrUpdate<IncrementalCatalogSyncJob>(
+RecurringJob.AddOrUpdate<HangfireIncrementalCatalogSyncJob>(
     "catalog-sync-incremental",
     job => job.Execute(null, CancellationToken.None),
     "0 */4 * * *", // Every 4 hours
@@ -362,289 +192,45 @@ RecurringJob.AddOrUpdate<IncrementalCatalogSyncJob>(
 
 Hangfire's job continuation feature lets you chain jobs together. Here's a pattern that processes batches and then runs a cleanup job:
 
-```csharp
-public class BatchCatalogExportJob
-{
-    private readonly ICatalogTraversalService _catalogTraversal;
-    private readonly IExternalBatchClient _batchClient;
-    private readonly ILogger<BatchCatalogExportJob> _logger;
-
-    private const int BatchSize = 50;
-
-    public BatchCatalogExportJob(
-        ICatalogTraversalService catalogTraversal,
-        IExternalBatchClient batchClient,
-        ILogger<BatchCatalogExportJob> logger)
-    {
-        _catalogTraversal = catalogTraversal;
-        _batchClient = batchClient;
-        _logger = logger;
-    }
-
-    public string Execute(PerformContext context, CancellationToken cancellationToken)
-    {
-        var totalProcessed = 0;
-        var batchCount = 0;
-        var errorCount = 0;
-
-        try
-        {
-            var options = new CatalogTraversalOptions
-            {
-                CatalogName = "Fashion"
-            };
-
-            context.WriteLine(ConsoleTextColor.Cyan, "Starting batch export with batch size: {0}", BatchSize);
-
-            var batch = new List<ICatalogTraversalItem>(BatchSize);
-
-            foreach (var item in _catalogTraversal.GetAllProducts(options, cancellationToken))
-            {
-                batch.Add(item);
-
-                if (batch.Count >= BatchSize)
-                {
-                    var result = ProcessBatch(context, batch, ++batchCount);
-                    totalProcessed += result.Processed;
-                    errorCount += result.Errors;
-                    
-                    batch.Clear();
-
-                    context.WriteLine("Processed {0} items in {1} batches", totalProcessed, batchCount);
-                }
-            }
-
-            // Process remaining items
-            if (batch.Count > 0)
-            {
-                var result = ProcessBatch(context, batch, ++batchCount);
-                totalProcessed += result.Processed;
-                errorCount += result.Errors;
-            }
-
-            var summary = $"Processed {totalProcessed} items in {batchCount} batches. Errors: {errorCount}";
-            context.WriteLine(ConsoleTextColor.Green, summary);
-            
-            return summary;
-        }
-        catch (Exception ex)
-        {
-            context.WriteLine(ConsoleTextColor.Red, "Fatal error: {0}", ex.Message);
-            _logger.LogError(ex, "Fatal error in batch export job");
-            throw;
-        }
-    }
-
-    private (int Processed, int Errors) ProcessBatch(
-        PerformContext context, 
-        List<ICatalogTraversalItem> batch, 
-        int batchNumber)
-    {
-        try
-        {
-            context.WriteLine("Processing batch {0} with {1} items", batchNumber, batch.Count);
-            
-            _batchClient.ExportBatch(batch);
-            
-            return (batch.Count, 0);
-        }
-        catch (Exception ex)
-        {
-            context.WriteLine(ConsoleTextColor.Yellow, "Batch {0} failed, attempting individual processing", batchNumber);
-            _logger.LogError(ex, "Error processing batch {BatchNumber}", batchNumber);
-            
-            return ProcessBatchIndividually(context, batch, batchNumber);
-        }
-    }
-
-    private (int Processed, int Errors) ProcessBatchIndividually(
-        PerformContext context,
-        List<ICatalogTraversalItem> batch, 
-        int batchNumber)
-    {
-        var processed = 0;
-        var errors = 0;
-
-        foreach (var item in batch)
-        {
-            try
-            {
-                _batchClient.ExportSingle(item);
-                processed++;
-            }
-            catch (Exception ex)
-            {
-                context.WriteLine(ConsoleTextColor.Red, "Error processing item from batch {0}", batchNumber);
-                _logger.LogError(ex, "Error processing individual item");
-                errors++;
-            }
-        }
-
-        return (processed, errors);
-    }
-}
-
-public class CleanupJob
-{
-    private readonly ILogger<CleanupJob> _logger;
-
-    public CleanupJob(ILogger<CleanupJob> logger)
-    {
-        _logger = logger;
-    }
-
-    public void Execute(PerformContext context, string exportSummary)
-    {
-        context.WriteLine(ConsoleTextColor.Cyan, "Running post-export cleanup...");
-        context.WriteLine("Export summary: {0}", exportSummary);
-        
-        // Perform cleanup tasks
-        // ...
-        
-        context.WriteLine(ConsoleTextColor.Green, "Cleanup completed");
-    }
-}
-```
+{% include code-modal.html
+   id="2026-03-03-Hangfire-Batch-Catalog-Export-Job"
+   lang="csharp"
+   file="post_assets/code-snippets/2026-03-03-Hangfire-Batch-Catalog-Export-Job.cs"
+%}
 
 **Schedule with continuation:**
 
 ```csharp
 // Schedule main job
-var jobId = BackgroundJob.Enqueue<BatchCatalogExportJob>(job => 
+var jobId = BackgroundJob.Enqueue<HangfireBatchCatalogExportJob>(job => 
     job.Execute(null, CancellationToken.None));
 
 // Schedule cleanup job to run after main job completes
-BackgroundJob.ContinueJobWith<CleanupJob>(
-    jobId,
-    job => job.Execute(null, null));
+BackgroundJob.ContinueJobWith<HangfireCleanupJob>(
+        jobId,
+        job => job.Execute(null, null));
 ```
 
 ## Pattern 4: Multi-Catalog with Parallel Processing
 
 Hangfire makes it easy to process multiple catalogs in parallel:
 
-```csharp
-public class ParallelMultiCatalogSyncJob
-{
-    private readonly ICatalogTraversalService _catalogTraversal;
-    private readonly IContentLoader _contentLoader;
-    private readonly ReferenceConverter _referenceConverter;
-    private readonly IExternalSystemClient _externalClient;
-    private readonly ILogger<ParallelMultiCatalogSyncJob> _logger;
-
-    public ParallelMultiCatalogSyncJob(
-        ICatalogTraversalService catalogTraversal,
-        IContentLoader contentLoader,
-        ReferenceConverter referenceConverter,
-        IExternalSystemClient externalClient,
-        ILogger<ParallelMultiCatalogSyncJob> logger)
-    {
-        _catalogTraversal = catalogTraversal;
-        _contentLoader = contentLoader;
-        _referenceConverter = referenceConverter;
-        _externalClient = externalClient;
-        _logger = logger;
-    }
-
-    public void ExecuteOrchestrator(PerformContext context)
-    {
-        var catalogs = _contentLoader
-            .GetChildren<CatalogContentBase>(_referenceConverter.GetRootLink())
-            .ToList();
-
-        context.WriteLine(ConsoleTextColor.Cyan, "Found {0} catalogs to process", catalogs.Count);
-
-        var jobIds = new List<string>();
-
-        // Create a background job for each catalog
-        foreach (var catalog in catalogs)
-        {
-            var jobId = BackgroundJob.Enqueue<ParallelMultiCatalogSyncJob>(job =>
-                job.ExecuteSingleCatalog(null, catalog.ContentLink, catalog.Name));
-            
-            jobIds.Add(jobId);
-            context.WriteLine("Queued job for catalog: {0} (Job ID: {1})", catalog.Name, jobId);
-        }
-
-        context.WriteLine(ConsoleTextColor.Green, "Queued {0} catalog processing jobs", jobIds.Count);
-    }
-
-    public void ExecuteSingleCatalog(
-        PerformContext context, 
-        ContentReference catalogLink,
-        string catalogName)
-    {
-        context.WriteLine(ConsoleTextColor.Cyan, "Processing catalog: {0}", catalogName);
-        
-        var processed = 0;
-        var errors = 0;
-        var startTime = DateTime.UtcNow;
-
-        try
-        {
-            var options = new CatalogTraversalOptions
-            {
-                CatalogLink = catalogLink
-            };
-
-            foreach (var item in _catalogTraversal.GetAllProducts(options, CancellationToken.None))
-            {
-                try
-                {
-                    switch (item)
-                    {
-                        case ProductContent product:
-                            _externalClient.SyncProduct(product);
-                            break;
-                        case VariationContent variant:
-                            _externalClient.SyncVariant(variant);
-                            break;
-                    }
-
-                    processed++;
-
-                    if (processed % 100 == 0)
-                    {
-                        context.WriteLine("  {0}: Processed {1} items", catalogName, processed);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    context.WriteLine(ConsoleTextColor.Yellow, "  {0}: Error processing item", catalogName);
-                    _logger.LogError(ex, "Error processing item in catalog {CatalogName}", catalogName);
-                    errors++;
-                }
-            }
-
-            var duration = DateTime.UtcNow - startTime;
-            context.WriteLine(
-                ConsoleTextColor.Green,
-                "Completed {0}: {1} items in {2:F1} minutes. Errors: {3}",
-                catalogName,
-                processed,
-                duration.TotalMinutes,
-                errors);
-        }
-        catch (Exception ex)
-        {
-            context.WriteLine(ConsoleTextColor.Red, "Fatal error processing catalog {0}: {1}", catalogName, ex.Message);
-            _logger.LogError(ex, "Fatal error in catalog {CatalogName}", catalogName);
-            throw;
-        }
-    }
-}
-```
+{% include code-modal.html
+   id="2026-03-03-Hangfire-Parallel-Multi-Catalog-Sync-Job"
+   lang="csharp"
+   file="post_assets/code-snippets/2026-03-03-Hangfire-Parallel-Multi-Catalog-Sync-Job.cs"
+%}
 
 **Schedule the orchestrator:**
 
 ```csharp
 // Schedule orchestrator job that creates individual catalog jobs
-BackgroundJob.Enqueue<ParallelMultiCatalogSyncJob>(job => 
+BackgroundJob.Enqueue<HangfireParallelMultiCatalogSyncJob>(job => 
     job.ExecuteOrchestrator(null));
 
 // Or as recurring job
-RecurringJob.AddOrUpdate<ParallelMultiCatalogSyncJob>(
-    "multi-catalog-parallel",
+RecurringJob.AddOrUpdate<HangfireParallelMultiCatalogSyncJob>(
+    "hangfire-multi-catalog-parallel",
     job => job.ExecuteOrchestrator(null),
     "0 3 * * *"); // Daily at 3 AM
 ```
@@ -723,9 +309,6 @@ public class JobExecutionLogFilter : IElectStateFilter, IApplyStateFilter
     {
     }
 }
-
-// Register in Startup.cs
-GlobalJobFilters.Filters.Add(new JobExecutionLogFilter(logger));
 ```
 
 ### Delayed Jobs
@@ -734,12 +317,12 @@ Schedule a job to run after a specific delay:
 
 ```csharp
 // Run in 5 minutes
-BackgroundJob.Schedule<CatalogExportJob>(
+BackgroundJob.Schedule<HangfireCatalogExportJob>(
     job => job.Execute(null, CancellationToken.None),
     TimeSpan.FromMinutes(5));
 
 // Run at specific time
-BackgroundJob.Schedule<CatalogExportJob>(
+BackgroundJob.Schedule<HangfireCatalogExportJob>(
     job => job.Execute(null, CancellationToken.None),
     DateTimeOffset.Now.AddHours(2));
 ```
@@ -779,10 +362,10 @@ The dashboard makes it easy for operations teams to monitor catalog processing w
 
 ```csharp
 // Good - simple method signature
-public void Execute(PerformContext context, CancellationToken cancellationToken)
+public void Execute(PerformContext context, int complexObjectId, CancellationToken cancellationToken)
 
 // Avoid - complex parameters that need serialization
-public void Execute(PerformContext context, ComplexObject data)
+public void Execute(PerformContext context, ComplexObject data, CancellationToken cancellationToken)
 ```
 
 **Use Dependency Injection:**
@@ -800,23 +383,10 @@ public class MyJob
 }
 ```
 
-**Handle Long-Running Jobs:**
-
-```csharp
-// Set appropriate timeout
-[JobDisplayName("Long Catalog Export")]
-[AutomaticRetry(Attempts = 0)] // Don't retry long jobs
-public void ExecuteLongRunning(PerformContext context)
-{
-    context.WriteLine("This may take a while...");
-    // Process large catalog
-}
-```
-
 **Use Meaningful Job Names:**
 
 ```csharp
-[JobDisplayName("Catalog Export - {0}")]
+[JobDisplayName("Catalog Export - {1}")]
 public void Execute(PerformContext context, string catalogName)
 {
     // Job will show as "Catalog Export - Fashion" in dashboard
