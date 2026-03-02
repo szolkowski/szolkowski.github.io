@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "Catalog Traversal with Hangfire. Part 3 Advanced Job Management"
+title:  "Catalog Traversal with Hangfire. Part 3: Advanced Job Management"
 date:   2026-03-03 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
 image:
    path: assets/img/2026-03-03-Catalog-Traversal-with-Hangfire-Part-3-Advanced-Job-Management.png
-   alt: "Catalog Traversal with Hangfire. Part 3 Advanced Job Management"
+   alt: "Catalog Traversal with Hangfire. Part 3: Advanced Job Management"
 tags:
 - episerver
 - optimizely
@@ -432,5 +432,5 @@ Do you have other Hangfire patterns you've found useful for Optimizely Commerce?
 Thank you for reading, and I hope this series helps you build robust, scalable catalog processing solutions.
 
 - [Part 1: Building the Service]({% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %})
-- [Part 2: Real-World Scheduled Job Patterns ]({% post_url 2026-02-24-Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns%})
+- [Part 2: Real-World Scheduled Job Patterns]({% post_url 2026-02-24-Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns %})
 - Part 3: Hangfire Integration - (this post)
