@@ -1,10 +1,11 @@
 ---
 layout: post
 title:  "Memory-Efficient Catalog Traversal in Optimizely Commerce. Part 1: Building the Service"
-date:   2026-01-18 10:00:00 +0200
+date:   2026-02-18 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from: /2026/01/18/Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service.html
 image:
    path: assets/img/2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service.png
    alt: "Memory-Efficient Catalog Traversal in Optimizely Commerce. Part 1: Building the Service"
