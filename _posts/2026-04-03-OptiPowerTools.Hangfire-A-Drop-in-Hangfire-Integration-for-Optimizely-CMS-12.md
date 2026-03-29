@@ -25,6 +25,10 @@ What I didn't expect was the interest it would generate. The post kept getting t
 
 Fair point. So I built one. Meet **OptiPowerTools.Hangfire** — a drop-in NuGet package that turns all of that manual setup into two lines of code.
 
+<p style="text-align: center;">
+  <img src="/assets/img/2026-04-03-OptiPowerTools.Hangfire-icon.png" alt="OptiPowerTools.Hangfire icon" style="max-width: 200px;" />
+</p>
+
 ## Getting started
 
 The package wraps everything from the original blog post — and more — into two extension methods. Here's the minimal setup in `Program.cs` or `Startup.cs`:
