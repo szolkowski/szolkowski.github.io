@@ -17,7 +17,7 @@ tags:
 - scheduled jobs
 - .NET
 - hangfire
-- background-jobs 
+- background jobs 
 ---
 
 In [Part 1]({% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %}), I showed how to build a memory-efficient catalog traversal service, and in [Part 2]({% post_url 2026-02-24-Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns %}), I demonstrated practical patterns using Optimizely's built-in scheduled jobs.

@@ -11,6 +11,7 @@ tags:
 - m1
 - arm
 - apple silicon
+- sql server
 ---
 
 With introduction of .NET 6 Episerver/Optimizely packages developing it on M1 machine is now possible, however there are still some problems with initial configuration, but lets not go ahead of ourself.

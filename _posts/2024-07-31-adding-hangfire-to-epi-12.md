@@ -13,8 +13,9 @@ tags:
 - episerver
 - optimizely
 - hangfire
-- jobs
 - background jobs
+- scheduled jobs
+- .NET
 ---
 
 Episerver/Optimizely contains build ScheduledJobs support which does its job for internal EPI jobs and simple custom cases, however, when the app grows and we need more and more jobs it fails behind dedicated solutions.

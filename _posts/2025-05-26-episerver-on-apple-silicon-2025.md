@@ -14,7 +14,6 @@ tags:
 - m1
 - arm
 - apple silicon
-- ms sql server
 - sql server
 ---
 

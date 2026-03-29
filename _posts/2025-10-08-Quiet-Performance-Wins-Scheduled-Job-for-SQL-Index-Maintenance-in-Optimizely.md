@@ -11,10 +11,9 @@ image:
 tags:
 - episerver
 - optimizely
-- jobs
 - scheduled jobs
 - database
-- db
+- sql server
 - indexes
 - maintenance
 - performance
