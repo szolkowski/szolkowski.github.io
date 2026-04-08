@@ -6,8 +6,7 @@ permalink: /about/
 
 Hi! I'm Stanisław Szołkowski, a software developer and **Optimizely Most Valuable Professional (OMVP)** with over 10 years of experience building high-performance web applications that make a real difference in people's lives.
 
-<div data-iframe-width="150" data-iframe-height="270" data-share-badge-id="e8a0f3fa-3500-49a7-a484-9eb541cc1a19" data-share-badge-host="https://www.credly.com"></div>
-<script type="text/javascript" async src="//cdn.credly.com/assets/utilities/embed.js"></script>
+{% include _badges.html %}
 
 ## My Journey
 

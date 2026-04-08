@@ -14,10 +14,10 @@ layout: default
   </span>
 
     <h2>
-        <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+        <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
     </h2>
     {{ post.excerpt }}
-    <a href="{{ post.url | prepend: site.baseurl }}">Read more ...</a>
+    <a href="{{ post.url | relative_url }}">Read more ...</a>
     <hr />
     {% endfor %}
     <br />
@@ -26,7 +26,7 @@ layout: default
     <ul>
         {% for post in site.posts offset:3 limit:10 %}
         <li>
-            {{ post.date | date: "%B %d, %Y" }}: <a href="{{ post.url }}">{{ post.title }}</a>
+            {{ post.date | date: "%B %d, %Y" }}: <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
         </li>
         {% endfor %}
     </ul>

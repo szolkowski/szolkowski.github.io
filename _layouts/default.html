@@ -3,9 +3,9 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}" media="screen" type="text/css">
-    <link rel="stylesheet" href="{{ '/assets/css/print.css' | relative_url }}" media="print" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}" media="screen">
+    <link rel="stylesheet" href="{{ '/assets/css/print.css' | relative_url }}" media="print">
 
     <link rel="icon" type="image/png" sizes="512x512" href="/assets/icons/favicon512.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/favicon180.png">
@@ -14,18 +14,15 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon16.png">
 
     <!-- Highlight.js CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" integrity="sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH" crossorigin="anonymous">
 
     <!-- Highlight.js JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp" crossorigin="anonymous"></script>
 
     <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha384-/o6I2CkkWC//PSjvWC/eYN7l3xM3tJm8ZzVkCOfp//W05QcE3mlGskpoHB6XqI+B" crossorigin="anonymous">
 
-    <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" href="{{ '/assets/css/custom-styles.css' | relative_url }}">
 
     {% seo %}
 
@@ -35,9 +32,9 @@
 {% include _header.html %}
 <div id="content-wrapper">
     <div class="inner clearfix">
-        <section id="main-content">
+        <main id="main-content">
             {{ content }}
-        </section>
+        </main>
 
         <aside id="sidebar">
             <p class="repo-owner">Tags</p>
@@ -52,15 +49,21 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+    if (typeof hljs !== "undefined") {
+        hljs.highlightAll();
+    }
+
     document.querySelectorAll(".open-code-modal").forEach(button => {
         button.addEventListener("click", () => {
         const targetId = button.getAttribute("data-target");
         const modal = document.getElementById(targetId);
         if (modal) {
             modal.style.display = "block";
+            if (typeof hljs !== "undefined") {
             modal.querySelectorAll("pre code").forEach(block => {
                 hljs.highlightElement(block);
-        });
+            });
+            }
         } else {
             console.warn("Modal not found for target:", targetId);
         }
@@ -80,24 +83,41 @@
         }
         });
     });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+        document.querySelectorAll(".code-modal").forEach(modal => {
+            if (modal.style.display === "block") {
+            modal.style.display = "none";
+            }
+        });
+        }
+    });
     });
 </script>
 
 <script>
-    function copyCode(button) {
-    const code = button.nextElementSibling.querySelector("code");
+    document.addEventListener("click", function (event) {
+    var button = event.target.closest(".copy-btn");
+    if (!button) return;
+    var code = button.nextElementSibling.querySelector("code");
     if (!code) return;
-    const text = code.innerText;
+    var text = code.innerText;
 
-    navigator.clipboard.writeText(text).then(() => {
+    navigator.clipboard.writeText(text).then(function () {
         button.classList.add("copied");
         button.innerHTML = "<i class='fas fa-check'></i> Copied!";
-        setTimeout(() => {
+        setTimeout(function () {
         button.classList.remove("copied");
         button.innerHTML = "<i class='fas fa-copy'></i> Copy";
         }, 1500);
+    }).catch(function () {
+        button.innerHTML = "<i class='fas fa-times'></i> Failed";
+        setTimeout(function () {
+        button.innerHTML = "<i class='fas fa-copy'></i> Copy";
+        }, 1500);
     });
-    }
+    });
 </script>
 
 </body>

@@ -9,7 +9,7 @@
   <button class="fullscreen-btn open-code-modal" data-target="codeModal-{{ include.id }}">
     <i class="fas fa-expand"></i> View Fullscreen
   </button>
-  <button class="copy-btn" onclick="copyCode(this)">
+  <button class="copy-btn" aria-label="Copy code to clipboard">
     <i class="fas fa-copy"></i> Copy
   </button>
   <pre><code class="language-{{ include.lang | default: 'csharp' }} hljs">
@@ -18,10 +18,10 @@
 </div>
 
 <!-- Modal structure with only copy and close -->
-<div id="codeModal-{{ include.id }}" class="code-modal">
+<div id="codeModal-{{ include.id }}" class="code-modal" role="dialog" aria-modal="true" aria-label="Code viewer">
   <div class="code-modal-content">
     <div class="modal-toolbar">
-      <span class="code-modal-close" onclick="this.closest('.code-modal').style.display='none'">&times;</span>
+      <button class="code-modal-close" aria-label="Close code viewer">&times;</button>
     </div>
     <div class="code-block-wrapper">
       <pre><code class="language-{{ include.lang | default: 'csharp' }} hljs">
