@@ -51,17 +51,6 @@ ul.share-buttons img{
   overflow-x: auto;
 }
 
-.code-modal-close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-}
-.code-modal-close:hover {
-  color: #000;
-}
-
 .code-block-wrapper {
   position: relative;
 }
@@ -84,10 +73,6 @@ ul.share-buttons img{
 .open-code-modal:hover {
   background-color: #eaeaea;
   border-color: #999;
-}
-
-.code-block-wrapper {
-  position: relative;
 }
 
 .copy-btn,
@@ -156,19 +141,109 @@ i.fas {
 .code-modal-close {
   font-size: 1.5em;
   font-weight: bold;
-  color: #999;
+  color: #555;
   cursor: pointer;
   margin-left: auto;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1;
 }
 
 .code-modal-close:hover {
-  color: #333;
+  color: #000;
 }
 
-.inner.clearfix{
-  width: 70%;
+header .inner > a h1 {
+  white-space: nowrap;
+}
+
+.site-nav {
+  float: right;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    display: block;
+    margin-bottom: 0.3em;
+    text-align: right;
+  }
+
+  .page-link {
+    color: white;
+    font-weight: bold;
+    font-size: 1.7em;
+  }
+}
+
+.tag-cloud-item {
+  white-space: nowrap;
+  padding: 0.2em 0.4em;
+  display: inline-block;
+  line-height: 1.2;
+}
+
+.post-tags .tag-cloud-item {
+  font-size: 1em !important;
+  padding: 0.1em 0.3em;
+}
+
+.footer-links {
+  font-size: 15px;
+
+  a {
+    color: #2879d0;
+  }
+}
+
+.inner.clearfix {
+  width: 90%;
+  max-width: 1200px;
 }
 
 #main-content {
-    width: 75%;
+  width: calc(100% - 230px);
+}
+
+@media (max-width: 768px) {
+  header .inner > a h1 {
+    white-space: normal;
+  }
+
+  .site-nav .page-link {
+    font-size: 1.2em;
+  }
+
+  .inner.clearfix {
+    width: 95%;
+  }
+
+  #main-content,
+  aside#sidebar {
+    float: none;
+    width: 100% !important;
+  }
+
+  aside#sidebar {
+    min-height: 0;
+    padding: 20px 0;
+    margin-top: 20px;
+    background-image: none;
+    border-top: solid 1px #ddd;
+  }
+
+  .code-modal-content {
+    width: 98%;
+    margin: 5% auto;
+  }
+
+  .copy-btn,
+  .fullscreen-btn {
+    padding: 3px 6px;
+    font-size: 0.75em;
+  }
 }

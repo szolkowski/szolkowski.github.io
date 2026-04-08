@@ -1,14 +1,6 @@
 ---
 layout: default
 ---
-<link rel="stylesheet" href="/assets/css/custom-styles.css">
-
-{% assign author = site.data.authors[page.author] %}
-{% if page.date_modified %}
-{% assign modified = page.date_modified %}
-{% else %}
-{% assign modified = page.date %}
-{% endif %}
 
 <small>{{ page.date | date: "%-d %B %Y" }}</small>
 <h1>{{ page.title }}</h1>
@@ -17,7 +9,7 @@ layout: default
     <span>by {{ page.author | default: site.author }}</span>
     {% if page.tags %}
     <br>
-    <span class="post-meta" style="text-align: justify;">
+    <span class="post-meta post-tags">
     Tags:
     {% assign tags = page.tags | sort %}
     {% include _tagcloud.html %}
