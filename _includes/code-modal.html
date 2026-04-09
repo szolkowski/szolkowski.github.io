@@ -12,21 +12,14 @@
   <button class="copy-btn" aria-label="Copy code to clipboard">
     <i class="fas fa-copy"></i> Copy
   </button>
-  <pre><code class="language-{{ include.lang | default: 'csharp' }} hljs">
-{{ code_content | escape }}
-  </code></pre>
-</div>
-
-<!-- Modal structure with only copy and close -->
-<div id="codeModal-{{ include.id }}" class="code-modal" role="dialog" aria-modal="true" aria-label="Code viewer">
+  <pre><code class="language-{{ include.lang | default: 'csharp' }} hljs">{{ code_content | escape }}</code></pre>
+</div><!-- Modal structure with only copy and close --><div id="codeModal-{{ include.id }}" class="code-modal" role="dialog" aria-modal="true" aria-label="Code viewer">
   <div class="code-modal-content">
     <div class="modal-toolbar">
       <button class="code-modal-close" aria-label="Close code viewer">&times;</button>
     </div>
     <div class="code-block-wrapper">
-      <pre><code class="language-{{ include.lang | default: 'csharp' }} hljs">
-{{ code_content | escape }}
-      </code></pre>
+      <pre><code class="language-{{ include.lang | default: 'csharp' }} hljs">{{ code_content | escape }}</code></pre>
     </div>
   </div>
 </div>
