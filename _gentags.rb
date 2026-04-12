@@ -13,7 +13,7 @@ Dir.glob(File.join('_posts','*.markdown')).each do |file|
 end
 
 tags.uniq { |t| t.downcase }.each do |tag|
-	slug = tag.downcase.gsub(/^\./, '')
+	slug = tag.downcase.gsub(/^\./, '').gsub(/[^a-z0-9\-]/, '-').gsub(/-+/, '-').gsub(/^-|-$/, '')
 	File.write File.join('tags', "#{slug}.html"), <<-EOF
 ---
 layout: tagpage
