@@ -12,6 +12,12 @@ Run locally:
 Run locally with live changes update:
 `bundle exec jekyll serve --livereload`
 
+### Generating tag pages
+
+After adding new tags to posts, run:
+
+`ruby _gentags.rb`
+
 ### Updating Jekyll
 
 `gem update jekyll`

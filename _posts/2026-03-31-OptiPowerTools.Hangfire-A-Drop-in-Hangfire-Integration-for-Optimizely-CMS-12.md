@@ -17,6 +17,8 @@ tags:
 - .NET
 - nuget
 - open-source
+- OptiPowerTools
+- OptiPowerTools.Hangfire
 ---
 
 Back in 2024, I wrote a post on [Adding Hangfire to Episerver/Optimizely CMS 12]({% post_url 2024-07-31-adding-hangfire-to-epi-12 %}), walking through each step of integrating Hangfire into an Optimizely project — the authorization filter, the controller, the view with an iframe, the menu provider, the startup wiring. It was a fair amount of boilerplate, but it worked and people found it useful.
