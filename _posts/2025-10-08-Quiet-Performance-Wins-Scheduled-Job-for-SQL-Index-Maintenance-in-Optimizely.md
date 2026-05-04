@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Quiet Performance Wins: Scheduled Job for SQL Index Maintenance in Optimizely"
+description: "A scheduled job that rebuilds fragmented indexes and refreshes statistics on custom Optimizely CMS tables — quiet wins for query speed and editor happiness."
 date:   2025-10-08 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true

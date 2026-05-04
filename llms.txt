@@ -1,0 +1,29 @@
+---
+permalink: /llms.txt
+sitemap: false
+---
+# Szołkowski's Blog
+
+> Stanisław Szołkowski — Optimizely MVP and .NET engineer with 10+ years of experience. Long-form technical posts on Optimizely (Episerver) CMS & Commerce, scheduled jobs, Hangfire integration, catalog traversal, SQL Server performance, Apple Silicon dev setups, and CI/CD.
+
+## Author
+- [About / Bio]({{ site.url }}/about/)
+- LinkedIn: https://www.linkedin.com/in/stanis%C5%82aw-szo%C5%82kowski-554a60164/
+- Optimizely World: https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=7329f76b-c577-49d5-aa09-c8aff3c0610d
+- GitHub: https://github.com/szolkowski
+
+## Posts
+{% for post in site.posts %}- [{{ post.title }}]({{ post.url | absolute_url }}){% if post.description %} — {{ post.description }}{% endif %}
+{% endfor %}
+
+## Topical hubs
+- [Optimizely]({{ site.url }}/tags/optimizely)
+- [Episerver]({{ site.url }}/tags/episerver)
+- [Hangfire]({{ site.url }}/tags/hangfire)
+- [Scheduled jobs]({{ site.url }}/tags/scheduled-jobs)
+- [.NET]({{ site.url }}/tags/net)
+- [SQL Server]({{ site.url }}/tags/sql-server)
+
+## Feeds
+- Atom: {{ site.url }}/feed.xml
+- Sitemap: {{ site.url }}/sitemap.xml

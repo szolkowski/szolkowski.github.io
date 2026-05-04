@@ -19,30 +19,53 @@
 # in the templates via {{ site.myvariable }}.
 
 title: "Szołkowski's Blog"
-author: "Stanisław Szołkowski"
 email: stanislaw.szolkowski@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Blog about Optimizely CMS development, .NET, and technical content
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://szolkowski.github.io"
+lang: en-US
+logo: /assets/img/og-default.png
+image: /assets/img/og-default.png
 github_username:  "Szolkowski"
 google_analytics: "G-TD33G35VRK"
 credly_badge_id: "e8a0f3fa-3500-49a7-a484-9eb541cc1a19"
 disqus_username: "szolkowski"
 
+author:
+  name: Stanisław Szołkowski
+  email: stanislaw.szolkowski@gmail.com
+  url: https://szolkowski.github.io/about/
+
+social:
+  name: Stanisław Szołkowski
+  links:
+    - https://www.linkedin.com/in/stanis%C5%82aw-szo%C5%82kowski-554a60164/
+    - https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=7329f76b-c577-49d5-aa09-c8aff3c0610d
+    - https://github.com/szolkowski
+
 # Build settings
 remote_theme: pages-themes/architect@v0.2.0
 plugins:
-  - jekyll-remote-theme # add this line to the plugins list if you already have one
+  - jekyll-remote-theme
   - jekyll-feed
   - jekyll-sitemap
+  - jekyll-seo-tag
   - jekyll-redirect-from
-    
+  - jekyll-last-modified-at
+
 defaults:
   - scope:
       path: "assets/img"
     values:
       image: true
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      author: Stanisław Szołkowski
+      comments: true
 
 # Exclude from processing.
 # The following items will not be processed, by default.

@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Add SonarCloud/SonarQube to Episerver/Optimizely 12 project using Github actions"
+description: "Wire SonarCloud static analysis into a GitHub Actions pipeline for Episerver/Optimizely 12 to catch bugs, code smells, and security issues on every PR."
 date:   2023-08-15 19:31:48 +0200
 author: Stanisław Szołkowski
 comments: true

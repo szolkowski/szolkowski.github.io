@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Catalog Traversal in Action. Part 2: Real-World Scheduled Job Patterns"
+description: "Part 2: applying the catalog traversal service to real Optimizely Commerce scheduled jobs with error handling, progress reporting, and resilience patterns."
 date:   2026-02-24 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true

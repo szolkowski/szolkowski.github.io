@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Tunning Application Insights telemetry filtering in Optimizely"
+description: "Tune Application Insights for Optimizely DXP: filter noisy internal requests and SQL dependencies to cut telemetry volume and surface real performance issues."
 date:   2025-06-12 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true

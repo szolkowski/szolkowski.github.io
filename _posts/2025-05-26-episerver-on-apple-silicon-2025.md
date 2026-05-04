@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Running full Optimizely development setup on M1 (ARM) based machine"
+description: "A 2025 revisit: running a full Optimizely Foundation dev setup on Apple Silicon (M1/ARM) — what changed in three years and what still needs workarounds."
 date:   2025-05-26 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true

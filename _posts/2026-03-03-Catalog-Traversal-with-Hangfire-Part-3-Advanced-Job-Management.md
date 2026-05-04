@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Catalog Traversal with Hangfire. Part 3: Advanced Job Management"
+description: "Part 3: using Hangfire for advanced catalog traversal job management in Optimizely Commerce — retries, monitoring, distributed execution, flexible scheduling."
 date:   2026-03-03 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true

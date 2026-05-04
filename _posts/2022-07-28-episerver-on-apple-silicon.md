@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Episerver Foundation on Apple Silicon (M1)!"
+description: "How to run Episerver/Optimizely Foundation on an Apple Silicon (M1) Mac with .NET 6, Docker, and azure-sql-edge — a working dev setup walkthrough."
 date:   2022-07-28 21:29:19 +0200
 author: Stanisław Szołkowski
 comments: true
