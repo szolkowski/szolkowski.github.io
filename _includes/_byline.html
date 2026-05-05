@@ -1,9 +1,11 @@
 <span class="byline">
     by <a href="{{ '/about/' | relative_url }}" rel="author">{{ page.author | default: site.author.name }}</a>
     {% if page.last_modified_at %}
-        {% assign modified_day = page.last_modified_at | date: '%Y-%m-%d' %}
-        {% assign published_day = page.date | date: '%Y-%m-%d' %}
-        {% if modified_day > published_day %}
+        {% assign published_seconds = page.date | date: '%s' | plus: 0 %}
+        {% assign modified_seconds = page.last_modified_at | date: '%s' | plus: 0 %}
+        {% assign diff_seconds = modified_seconds | minus: published_seconds %}
+        {% comment %} 7 days = 604800 seconds — only show "Last updated" for substantive edits {% endcomment %}
+        {% if diff_seconds > 604800 %}
     <span class="post-modified"> · Last updated {{ page.last_modified_at | date: "%-d %B %Y" }}</span>
         {% endif %}
     {% endif %}

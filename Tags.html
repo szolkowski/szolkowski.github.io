@@ -3,24 +3,19 @@ layout: default
 title: Tags
 permalink: /tags/
 description: "Browse all topics on Szołkowski's Blog — Optimizely CMS, Hangfire, scheduled jobs, .NET, SQL Server, Apple Silicon, and more."
+seo:
+  type: CollectionPage
+  name: "All topics — Szołkowski's Blog"
 ---
 
 <div class="home">
     <h1 class="page-heading">Browse by tag</h1>
 
-    <p>All topics covered on this blog. Top tags get a richer landing page (Optimizely, Hangfire, scheduled jobs, performance).</p>
+    <p>All topics covered on this blog. Tag size reflects the number of posts. Top tags get a richer landing page (Optimizely, Hangfire, scheduled jobs, performance).</p>
 
-    {% capture site_tags %}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{% endcapture %}
-    {% assign tags = site_tags | split:',' | sort_natural %}
-
-    <ul class="tag-index">
-        {% for tag in tags %}
-        {% assign slug = tag | downcase | replace: '.', '' | replace: ' ', '-' %}
-        {% assign count = site.tags[tag] | size %}
-        <li>
-            <a href="{{ '/tags/' | append: slug | relative_url }}">{{ tag }}</a>
-            <span class="tag-count">({{ count }})</span>
-        </li>
-        {% endfor %}
-    </ul>
+    <p class="tag-cloud">
+        {% capture site_tags %}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{% endcapture %}
+        {% assign tags = site_tags | split:',' | sort %}
+        {% include _tagcloud.html %}
+    </p>
 </div>

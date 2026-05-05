@@ -37,12 +37,24 @@ author:
   email: stanislaw.szolkowski@gmail.com
   url: https://szolkowski.github.io/about/
 
+# Single source of truth for the author's social/professional profiles.
+# Iterated by _includes/_footer.html, _includes/head-custom.html (Person sameAs on /about), and /llms.txt.
+social_profiles:
+  - name: LinkedIn
+    url: https://www.linkedin.com/in/stanis%C5%82aw-szo%C5%82kowski-554a60164/
+  - name: GitHub
+    url: https://github.com/szolkowski
+  - name: Optimizely World
+    url: https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=7329f76b-c577-49d5-aa09-c8aff3c0610d
+
+# jekyll-seo-tag reads site.social.links as a flat array of URL strings (used for
+# Person sameAs in the homepage WebSite JSON-LD). Keep these in sync with social_profiles above.
 social:
   name: Stanisław Szołkowski
   links:
     - https://www.linkedin.com/in/stanis%C5%82aw-szo%C5%82kowski-554a60164/
-    - https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=7329f76b-c577-49d5-aa09-c8aff3c0610d
     - https://github.com/szolkowski
+    - https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=7329f76b-c577-49d5-aa09-c8aff3c0610d
 
 # Build settings
 remote_theme: pages-themes/architect@v0.2.0
