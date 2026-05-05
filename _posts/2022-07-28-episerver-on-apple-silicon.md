@@ -52,7 +52,7 @@ Then using Data-tier Application Wizard Create databases from following .bacpac 
 
 Files are available on my Foundation fork linked above in `db_backups` directory.
 
-![My helpful screenshot](/assets/img/2022-07-28-episerver-on-apple-silicon-db-import-1.png)
+![Azure Data Studio Data-tier Application Wizard with the Import Bacpac option selected on Step 1](/assets/img/2022-07-28-episerver-on-apple-silicon-db-import-1.png)
 
 After import is done execute following SQL query on database which will create login and users used by our Foundation site:
 
@@ -84,7 +84,7 @@ As last configuration step copy following configuration to `appsettings.Developm
 
 That's it! Now you can run `npm` to build frontend and build and run Foundation site itself!
 
-![My helpful screenshot](/assets/img/2022-07-28-episerver-on-apple-silicon-episerver-running-on-m1-1.png)
+![Optimizely Foundation site running in the CMS Edit view on an Apple Silicon (M1) Mac, showing the Mosey demo home page](/assets/img/2022-07-28-episerver-on-apple-silicon-episerver-running-on-m1-1.png)
 
 ## Known issues
 

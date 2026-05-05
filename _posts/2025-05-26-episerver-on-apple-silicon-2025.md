@@ -80,7 +80,7 @@ Lets follow steps from [my previous post]({% post_url 2022-07-28-episerver-on-ap
 >
 > Files are available on my Foundation fork linked above in `db_backups` directory.
 >
-> ![My helpful screenshot](/assets/img/2022-07-28-episerver-on-apple-silicon-db-import-1.png)
+> ![Azure Data Studio Data-tier Application Wizard with the Import Bacpac option selected on Step 1](/assets/img/2022-07-28-episerver-on-apple-silicon-db-import-1.png)
 >
 > After import is done execute following SQL query on database which will create login and users used by our Foundation site:
 >
