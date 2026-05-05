@@ -72,14 +72,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # Playwright's jammy image is slim and ships without libyaml, which the
-      # prebuilt Ruby toolcache binary links against (psych.so → YAML parsing).
-      # Without this, ruby/setup-ruby fails on `gem install bundler` with
-      # "libyaml-0.so.2: cannot open shared object file".
-      - name: Install Ruby runtime deps
+      # Playwright's jammy image is slim and ships without:
+      #   - libyaml-0-2:    psych.so (YAML parsing) needs it at runtime
+      #   - build-essential: native gem extensions (http_parser.rb) need make + gcc
+      #   - libssl-dev:     eventmachine native ext needs OpenSSL headers (-lcrypto)
+      # Without these, ruby/setup-ruby + bundle install fail.
+      - name: Install Ruby runtime + build deps
         run: |
           apt-get update -qq
-          apt-get install -y -qq libyaml-0-2
+          apt-get install -y -qq --no-install-recommends \
+            libyaml-0-2 \
+            build-essential \
+            libssl-dev
       - name: Setup Ruby
         uses: ruby/setup-ruby@086ffb1a2090c870a3f881cc91ea83aa4243d408 # v1.195.0
         with:
