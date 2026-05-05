@@ -1,25 +1,31 @@
 ---
 permalink: /404.html
 layout: default
+title: "Page not found"
+description: "The page you're looking for doesn't exist on Szołkowski's Blog. Browse recent posts or topics."
+sitemap: false
+nav_exclude: true
 ---
 
-<style type="text/css" media="screen">
-  .container {
-    margin: 10px auto;
-    max-width: 600px;
-    text-align: center;
-  }
-  h1 {
-    margin: 30px 0;
-    font-size: 4em;
-    line-height: 1;
-    letter-spacing: -1px;
-  }
-</style>
+<div class="not-found">
+    <h1>404</h1>
+    <p class="lead"><strong>The page you're looking for doesn't exist.</strong></p>
+    <p>It may have moved, or the URL might have a typo. Try one of these:</p>
 
-<div class="container">
-  <h1>404</h1>
+    <ul class="not-found-nav">
+        <li><a href="{{ '/' | relative_url }}">Home</a></li>
+        <li><a href="{{ '/archive/' | relative_url }}">All posts</a></li>
+        <li><a href="{{ '/tags/' | relative_url }}">Browse by topic</a></li>
+        <li><a href="{{ '/about/' | relative_url }}">About me</a></li>
+    </ul>
 
-  <p><strong>Page not found :(</strong></p>
-  <p>The requested page could not be found.</p>
+    <h2>Recent posts</h2>
+    <ul class="not-found-recent">
+        {% for post in site.posts limit:5 %}
+        <li>
+            <span class="post-meta">{{ post.date | date: "%B %d, %Y" }}</span>:
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        </li>
+        {% endfor %}
+    </ul>
 </div>
