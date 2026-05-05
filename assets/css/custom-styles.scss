@@ -158,8 +158,13 @@ i.fas {
   color: #000;
 }
 
-header .inner > a h1 {
+header .inner > a .site-title {
   white-space: nowrap;
+  font-size: 3.25rem;
+  font-weight: normal;
+  line-height: 1.1;
+  margin: 0 0 0.5rem;
+  color: #fff;
 }
 
 .site-nav {
@@ -364,8 +369,9 @@ header .inner > a h1 {
 }
 
 @media (max-width: 768px) {
-  header .inner > a h1 {
+  header .inner > a .site-title {
     white-space: normal;
+    font-size: 2.25rem;
   }
 
   .site-nav .page-link {

@@ -6,9 +6,9 @@
     "name": "Stanisław Szołkowski",
     "url": "https://szolkowski.github.io/about/"
   },
-  "description": "Blog about Optimizely CMS development, .NET, and technical content",
-  "headline": "Szołkowski’s Blog",
-  "name": "Stanisław Szołkowski",
+  "description": "Optimizely (Episerver) CMS &amp; Commerce, Hangfire, scheduled jobs, SQL Server performance, and .NET tips from Optimizely MVP Stanisław Szołkowski.",
+  "headline": "Optimizely MVP Blog: Episerver, Hangfire &amp; .NET — Stanisław Szołkowski",
+  "name": "Szołkowski’s Blog",
   "publisher": {
     "@type": "Organization",
     "logo": {

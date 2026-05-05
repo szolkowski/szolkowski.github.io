@@ -7,8 +7,11 @@ author: Stanisław Szołkowski
 comments: true
 published: true
 image:
-   path: assets/img/2025-06-12-episerver-and_application_insights_filters_data_digestion_size.png
+   path: assets/img/2025-06-12-application-insights-data-digestion-size.png
    alt: "Tunning Application Insights telemetry filtering in Optimizely"
+redirect_from:
+  - /2025/06/12/episerver-and_application_insights_filters.html
+  - /2025/06/12/episerver-and_application_insights_filters
 tags:
 - episerver
 - optimizely
