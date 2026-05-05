@@ -3,8 +3,9 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-# Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy Jekyll site to Pages
+# Builds the Jekyll site, runs UI regression tests on PRs, and deploys to
+# GitHub Pages on pushes to master.
+name: Build, test & deploy
 
 on:
   # Runs on pushes targeting the default branch
@@ -18,7 +19,7 @@ on:
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-# and posting sticky comments on PRs from the ui-tests job.
+# and posting sticky comments on PRs from the ui-regression-tests job.
 permissions:
   contents: read
   pages: write
@@ -32,8 +33,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Build job
-  build:
+  # Builds the site with the GitHub Pages base path and uploads the Pages
+  # artifact consumed by deploy-pages.
+  build-pages:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -47,18 +49,18 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
-      - name: Build with Jekyll
+      - name: Build site for Pages
         # Outputs to the './_site' directory by default
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
-      - name: Upload artifact
+      - name: Upload Pages artifact
         # Automatically uploads an artifact from the './_site' directory by default
         uses: actions/upload-pages-artifact@v3
 
-  # UI regression tests (PRs only). Independent build so it doesn't depend on
-  # the GitHub Pages artifact (which is built with a base path).
-  ui-tests:
+  # UI regression tests (PRs only). Builds the site without a base path so
+  # tested URLs match production paths exactly; independent of build-pages.
+  ui-regression-tests:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     # Run inside Playwright's official image — it ships with Node + Chromium +
@@ -76,7 +78,7 @@ jobs:
           ruby-version: '3.1'
           bundler-cache: true
           cache-version: 0
-      - name: Build site (no base path)
+      - name: Build site for tests
         run: bundle exec jekyll build
         env:
           JEKYLL_ENV: production
@@ -109,14 +111,14 @@ jobs:
           header: ui-tests
           path: /tmp/ui-test-summary.md
 
-  # Deployment job
-  deploy:
+  # Publishes the Pages artifact from build-pages. Runs only on master pushes.
+  deploy-pages:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
-    needs: build
+    needs: build-pages
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
