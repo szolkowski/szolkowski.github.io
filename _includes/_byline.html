@@ -1,0 +1,10 @@
+<span class="byline">
+    by <a href="{{ '/about/' | relative_url }}" rel="author">{{ page.author | default: site.author.name }}</a>
+    {% if page.last_modified_at %}
+        {% assign modified_day = page.last_modified_at | date: '%Y-%m-%d' %}
+        {% assign published_day = page.date | date: '%Y-%m-%d' %}
+        {% if modified_day > published_day %}
+    <span class="post-modified"> · Last updated {{ page.last_modified_at | date: "%-d %B %Y" }}</span>
+        {% endif %}
+    {% endif %}
+</span>

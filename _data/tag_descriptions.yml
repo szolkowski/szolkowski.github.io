@@ -1,0 +1,37 @@
+# Tag-specific intros for tag pages.
+# Key = tag slug (lowercase, jakim emit by _gentags.rb).
+# - description: 140-160 char SEO meta description
+# - intro:       rich HTML displayed at the top of the tag page (above the post list)
+# Tags without an entry here get a generic meta description and no on-page intro.
+
+optimizely:
+  description: "Posts tagged Optimizely — CMS 12/13, Commerce, scheduled jobs, Hangfire integration, performance, and developer experience for the .NET-based platform."
+  intro: "Posts about <strong>Optimizely</strong> (formerly Episerver) CMS and Commerce — practical patterns from real enterprise projects, including catalog traversal, scheduled jobs, performance work, and CMS 13 / .NET 10 developer setups."
+
+episerver:
+  description: "Posts tagged Episerver — the legacy name for what is now Optimizely CMS and Commerce. All ongoing CMS 12/13 work uses both tags interchangeably."
+  intro: "Posts tagged <strong>Episerver</strong> — the legacy name for what is now Optimizely CMS and Commerce. Older posts use this tag; newer posts are usually tagged Optimizely. Both cover the same platform."
+
+hangfire:
+  description: "Posts tagged Hangfire — integration patterns, dashboards, advanced job management, and the OptiPowerTools.Hangfire NuGet package for Optimizely CMS."
+  intro: "Posts about <strong>Hangfire</strong> — the open-source background-job framework — and how to integrate it cleanly into Optimizely CMS. The series spawned the open-source <a href='https://github.com/szolkowski/OptiPowerTools.Hangfire'>OptiPowerTools.Hangfire</a> NuGet package."
+
+scheduled-jobs:
+  description: "Posts tagged scheduled jobs — built-in Optimizely jobs, custom jobs, Hangfire integration, catalog traversal, and database-maintenance patterns."
+  intro: "Posts about <strong>scheduled jobs</strong> in Optimizely CMS — both the built-in job system and Hangfire-based alternatives. Topics include catalog traversal, orphan-job cleanup, SQL index maintenance, and progress reporting."
+
+net:
+  description: "Posts tagged .NET — ASP.NET Core, Entity Framework Core, C# patterns, and tooling applied to Optimizely CMS and Commerce projects."
+  intro: "Posts about the <strong>.NET</strong> stack — ASP.NET Core, Entity Framework Core, C# patterns, and tooling — applied to Optimizely CMS and Commerce projects."
+
+sql-server:
+  description: "Posts tagged SQL Server — index maintenance, performance tuning, and database tooling for Optimizely CMS / Commerce databases."
+  intro: "Posts about <strong>SQL Server</strong> — index maintenance, performance tuning, and database tooling for Optimizely CMS / Commerce projects. Includes a scheduled job for automated index and statistics maintenance."
+
+performance:
+  description: "Posts tagged performance — memory-efficient catalog traversal, SQL index maintenance, Application Insights filtering, and other quiet wins."
+  intro: "Posts about <strong>performance</strong> in Optimizely projects — memory-efficient catalog traversal, SQL index and statistics maintenance, and Application Insights telemetry tuning. Quiet wins, not silver bullets."
+
+apple-silicon:
+  description: "Posts tagged Apple Silicon — running Optimizely / Episerver CMS development on M1 / M2 Macs with Docker, .NET, and azure-sql-edge."
+  intro: "Posts about <strong>Apple Silicon</strong> (M1 / M2 / ARM Macs) for Optimizely / Episerver development — Docker setups, azure-sql-edge workarounds, and the CMS 13 Alloy Site running cross-platform on .NET."

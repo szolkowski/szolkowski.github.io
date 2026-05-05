@@ -4,7 +4,23 @@ layout: default
 
 <div class="home">
 
-    <h1 class="page-heading">Latest post</h1>
+    <section class="hero">
+        <h1>Stanisław Szołkowski — Optimizely MVP &amp; .NET engineer</h1>
+        <p class="lead">
+            I write about <strong>Optimizely (Episerver) CMS / Commerce</strong>, <strong>Hangfire</strong>, scheduled jobs, SQL Server performance, and developer setups for .NET teams &mdash; ten-plus years of enterprise CMS work, quietly made faster.
+        </p>
+        <p>
+            New here? Start with <a href="{% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %}">Memory-Efficient Catalog Traversal (Part 1)</a>, or browse by topic:
+            <a href="{{ '/tags/optimizely' | relative_url }}">Optimizely</a>,
+            <a href="{{ '/tags/hangfire' | relative_url }}">Hangfire</a>,
+            <a href="{{ '/tags/scheduled-jobs' | relative_url }}">scheduled jobs</a>,
+            <a href="{{ '/tags/performance' | relative_url }}">performance</a>,
+            <a href="{{ '/tags/sql-server' | relative_url }}">SQL Server</a>.
+            More <a href="{{ '/about/' | relative_url }}">about me</a>.
+        </p>
+    </section>
+
+    <h2 class="page-heading">Latest posts</h2>
     {% for post in site.posts limit:5 %}
     <hr />
     <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
@@ -13,18 +29,22 @@ layout: default
     Tags: {{ post.tags | sort | join: ", " }}
   </span>
 
-    <h2>
+    <h3>
         <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-    </h2>
+    </h3>
+    {% if post.description %}
+    <p>{{ post.description }}</p>
+    {% else %}
     {{ post.excerpt }}
+    {% endif %}
     <a href="{{ post.url | relative_url }}">Read more ...</a>
     <hr />
     {% endfor %}
     <br />
 
-    <h1 class="page-heading">Recent posts</h1>
+    <h2 class="page-heading">Earlier posts</h2>
     <ul>
-        {% for post in site.posts offset:3 limit:10 %}
+        {% for post in site.posts offset:5 %}
         <li>
             {{ post.date | date: "%B %d, %Y" }}: <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
         </li>
