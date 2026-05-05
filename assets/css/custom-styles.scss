@@ -301,6 +301,59 @@ header .inner > a h1 {
   line-height: 1.5;
 }
 
+/* ---------- Related posts (post footer) ---------- */
+.related-posts {
+  border-top: 1px solid #ddd;
+  margin-top: 2rem;
+  padding-top: 1rem;
+
+  h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    margin: 0.25rem 0;
+  }
+
+  .post-meta {
+    color: #777;
+    font-size: 0.9em;
+  }
+}
+
+/* ---------- 404 page ---------- */
+.not-found {
+  max-width: 600px;
+  margin: 1rem auto;
+
+  h1 {
+    margin: 1rem 0 0.5rem;
+    font-size: 4em;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .lead {
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    margin-top: 2rem;
+    font-size: 1.2rem;
+  }
+
+  ul {
+    padding-left: 1.25rem;
+  }
+}
+
 .inner.clearfix {
   width: 90%;
   max-width: 1200px;
