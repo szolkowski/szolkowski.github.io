@@ -43,10 +43,16 @@ Stable @id URIs cross-referenced from every page's @graph.
       "@type": "Person",
       "@id": "{{ person_id }}",
       "name": "Stanisław Szołkowski",
+      "givenName": "Stanisław",
+      "familyName": "Szołkowski",
+      "knowsLanguage": ["en", "pl"],
       "url": "{{ '/about/' | absolute_url }}",
       "image": "{{ person_image | absolute_url }}",
       "jobTitle": "Principal .NET/Optimizely Engineer",
-      "award": "Optimizely MVP",
+      "award": [
+        "Optimizely MVP 2025",
+        "Optimizely MVP 2026"
+      ],
       "description": "Optimizely MVP and .NET engineer writing about Optimizely (Episerver) CMS / Commerce, Hangfire, scheduled jobs, and SQL Server performance.",
       "knowsAbout": [
         "Optimizely CMS",
@@ -74,6 +80,7 @@ Stable @id URIs cross-referenced from every page's @graph.
       "@id": "{{ page_id }}",
       "url": "{{ page.url | absolute_url }}",
       "name": {{ page.title | jsonify }},
+      "inLanguage": "en-US",
       "isPartOf": { "@id": "{{ website_id }}" },
       "about": { "@id": "{{ person_id }}" },
       "primaryImageOfPage": "{{ '/assets/img/og-default.png' | absolute_url }}"
@@ -86,8 +93,24 @@ Stable @id URIs cross-referenced from every page's @graph.
       "url": "{{ page.url | absolute_url }}",
       "name": "About Stanisław Szołkowski",
       "description": {{ page.description | jsonify }},
+      "inLanguage": "en-US",
+      "dateCreated": "2022-07-28",
+      "dateModified": "{{ page.last_modified_at | default: site.time | date_to_xmlschema }}",
       "isPartOf": { "@id": "{{ website_id }}" },
-      "mainEntity": { "@id": "{{ person_id }}" }
+      "mainEntity": { "@id": "{{ person_id }}" },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "{{ person_image | absolute_url }}"
+      },
+      "breadcrumb": { "@id": "{{ page.url | absolute_url }}#breadcrumb" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page.url | absolute_url }}#breadcrumb",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ '/' | absolute_url }}"},
+        {"@type": "ListItem", "position": 2, "name": "About"}
+      ]
     }
     {%- elsif page.layout == "post" -%}
     ,
@@ -97,6 +120,7 @@ Stable @id URIs cross-referenced from every page's @graph.
       "url": "{{ page.url | absolute_url }}",
       "headline": {{ page.title | jsonify }},
       "description": {{ page.description | jsonify }},
+      "inLanguage": "en-US",
       "datePublished": "{{ page.date | date_to_xmlschema }}",
       "dateModified": "{{ page.last_modified_at | default: page.date | date_to_xmlschema }}",
       "author": { "@id": "{{ person_id }}" },
@@ -128,6 +152,7 @@ Stable @id URIs cross-referenced from every page's @graph.
       "url": "{{ page.url | absolute_url }}",
       "name": "All topics — Szołkowski's Blog",
       "description": {{ page.description | jsonify }},
+      "inLanguage": "en-US",
       "isPartOf": { "@id": "{{ website_id }}" },
       "mainEntity": {
         "@type": "ItemList",
@@ -156,6 +181,7 @@ Stable @id URIs cross-referenced from every page's @graph.
       "@id": "{{ page_id }}",
       "url": "{{ page.url | absolute_url }}",
       "name": {{ page.title | jsonify }},
+      "inLanguage": "en-US",
       "isPartOf": { "@id": "{{ website_id }}" }
     },
     {
@@ -166,6 +192,25 @@ Stable @id URIs cross-referenced from every page's @graph.
         {"@type": "ListItem", "position": 3, "name": {{ page.tag | jsonify }}, "item": "{{ page.url | absolute_url }}"}
       ]
     }
+    {%- elsif page.url == "/archive/" -%}
+    ,
+    {
+      "@type": "WebPage",
+      "@id": "{{ page_id }}",
+      "url": "{{ page.url | absolute_url }}",
+      "name": {{ page.title | jsonify }},
+      "inLanguage": "en-US",
+      "isPartOf": { "@id": "{{ website_id }}" },
+      "breadcrumb": { "@id": "{{ page.url | absolute_url }}#breadcrumb" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page.url | absolute_url }}#breadcrumb",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ '/' | absolute_url }}"},
+        {"@type": "ListItem", "position": 2, "name": "Archive"}
+      ]
+    }
     {%- else -%}
     ,
     {
@@ -173,6 +218,7 @@ Stable @id URIs cross-referenced from every page's @graph.
       "@id": "{{ page_id }}",
       "url": "{{ page.url | absolute_url }}",
       "name": {{ page.title | jsonify }},
+      "inLanguage": "en-US",
       "isPartOf": { "@id": "{{ website_id }}" }
     }
     {%- endif -%}

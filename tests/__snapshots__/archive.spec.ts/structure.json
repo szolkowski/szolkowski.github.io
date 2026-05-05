@@ -30,6 +30,7 @@
     "https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=7329f76b-c577-49d5-aa09-c8aff3c0610d"
   ],
   "jsonLdTypes": [
+    "BreadcrumbList",
     "Person",
     "WebPage",
     "WebSite"
