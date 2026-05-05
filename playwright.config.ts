@@ -10,6 +10,7 @@ export default defineConfig({
   workers: process.env.CI ? 2 : undefined,
   reporter: [
     ['list'],
+    ...(process.env.GITHUB_ACTIONS ? [['github'] as const] : []),
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['json', { outputFile: 'playwright-report/results.json' }],
   ],

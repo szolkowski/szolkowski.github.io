@@ -18,10 +18,12 @@ on:
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# and posting sticky comments on PRs from the ui-tests job.
 permissions:
   contents: read
   pages: write
   id-token: write
+  pull-requests: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -82,7 +84,19 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Run UI tests
+        id: ui_tests
         run: npm test
+      - name: Generate test summary
+        if: always() && steps.ui_tests.conclusion != 'skipped'
+        run: |
+          node scripts/ci-test-summary.mjs > /tmp/ui-test-summary.md
+          cat /tmp/ui-test-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Post UI tests comment on PR
+        if: always() && github.event_name == 'pull_request' && steps.ui_tests.conclusion != 'skipped'
+        uses: marocchino/sticky-pull-request-comment@52423e01640425a022ef5fd42c6fb5f633a02728 # v2.9.0
+        with:
+          header: ui-tests
+          path: /tmp/ui-test-summary.md
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
