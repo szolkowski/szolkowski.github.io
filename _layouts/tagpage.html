@@ -2,12 +2,37 @@
 layout: default
 ---
 
-<h1>Posts tagged '{{ page.tag }}':</h1>
+{% assign tag_posts = site.tags[page.tag] %}
+{% assign post_count = tag_posts | size %}
 
-<ul>
-    {% for post in site.tags[page.tag] %}
-    <li>
-        {{ post.date | date: "%B %d, %Y" }}: <a href="{{ post.url }}">{{ post.title }}</a>
-    </li>
-    {% endfor %}
-</ul>
+<section itemscope itemtype="https://schema.org/CollectionPage">
+    <h1 itemprop="name">Posts tagged &lsquo;{{ page.tag }}&rsquo;</h1>
+
+    {% if page.intro %}
+    <div class="tag-intro" itemprop="description">
+        <p>{{ page.intro }}</p>
+    </div>
+    {% endif %}
+
+    {% if post_count > 0 %}
+    {% assign first_post = tag_posts | first %}
+    {% assign last_post = tag_posts | last %}
+    <p class="tag-meta">
+        <strong>{{ post_count }}</strong> post{% if post_count != 1 %}s{% endif %}
+        · earliest: {{ last_post.date | date: "%B %Y" }}
+        · latest: {{ first_post.date | date: "%B %Y" }}
+    </p>
+    {% endif %}
+
+    <ul itemprop="hasPart">
+        {% for post in tag_posts %}
+        <li>
+            <span class="post-meta">{{ post.date | date: "%B %d, %Y" }}</span>:
+            <a href="{{ post.url | relative_url }}" itemprop="url"><span itemprop="name">{{ post.title }}</span></a>
+            {% if post.description %}
+            <p class="tag-post-description">{{ post.description }}</p>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</section>

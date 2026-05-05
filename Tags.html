@@ -2,14 +2,25 @@
 layout: default
 title: Tags
 permalink: /tags/
+description: "Browse all topics on Szołkowski's Blog — Optimizely CMS, Hangfire, scheduled jobs, .NET, SQL Server, Apple Silicon, and more."
 ---
 
 <div class="home">
-    <h1 class="page-heading">All tags</h1>
+    <h1 class="page-heading">Browse by tag</h1>
 
-    <p class="post-meta" style="text-align: justify;">
-        {% capture site_tags %}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{% endcapture %}
-        {% assign tags = site_tags | split:',' | sort %}
-        {% include _tagcloud.html %}
-    </p>
+    <p>All topics covered on this blog. Top tags get a richer landing page (Optimizely, Hangfire, scheduled jobs, performance).</p>
+
+    {% capture site_tags %}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{% endcapture %}
+    {% assign tags = site_tags | split:',' | sort_natural %}
+
+    <ul class="tag-index">
+        {% for tag in tags %}
+        {% assign slug = tag | downcase | replace: '.', '' | replace: ' ', '-' %}
+        {% assign count = site.tags[tag] | size %}
+        <li>
+            <a href="{{ '/tags/' | append: slug | relative_url }}">{{ tag }}</a>
+            <span class="tag-count">({{ count }})</span>
+        </li>
+        {% endfor %}
+    </ul>
 </div>
