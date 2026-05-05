@@ -3,6 +3,9 @@ layout: default
 title: About
 permalink: /about/
 description: "About Stanisław Szołkowski — Optimizely MVP and .NET engineer with 10+ years building Optimizely CMS / Commerce, Hangfire integrations, and SQL Server performance work."
+seo:
+  type: ProfilePage
+  name: "About Stanisław Szołkowski"
 ---
 
 # About Stanisław Szołkowski

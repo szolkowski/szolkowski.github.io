@@ -31,6 +31,6 @@
   ],
   "jsonLdTypes": [
     "Person",
-    "WebSite"
+    "ProfilePage"
   ]
 }

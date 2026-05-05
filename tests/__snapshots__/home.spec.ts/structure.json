@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "Optimizely MVP Blog: Episerver, Hangfire & .NET — Stanisław Szołkowski",
-    "description": "Optimizely (Episerver) CMS & Commerce, Hangfire, scheduled jobs, SQL Server performance, and .NET tips from Optimizely MVP Stanisław Szołkowski.",
+    "title": "Optimizely MVP Blog: Episerver, Hangfire, .NET — Stanisław Szołkowski",
+    "description": "Optimizely (Episerver) CMS and Commerce, Hangfire, scheduled jobs, SQL Server performance, and .NET tips from Optimizely MVP Stanisław Szołkowski.",
     "canonical": "https://szolkowski.github.io/",
-    "ogTitle": "Optimizely MVP Blog: Episerver, Hangfire & .NET — Stanisław Szołkowski",
-    "ogDescription": "Optimizely (Episerver) CMS & Commerce, Hangfire, scheduled jobs, SQL Server performance, and .NET tips from Optimizely MVP Stanisław Szołkowski.",
+    "ogTitle": "Optimizely MVP Blog: Episerver, Hangfire, .NET — Stanisław Szołkowski",
+    "ogDescription": "Optimizely (Episerver) CMS and Commerce, Hangfire, scheduled jobs, SQL Server performance, and .NET tips from Optimizely MVP Stanisław Szołkowski.",
     "ogImage": "https://szolkowski.github.io/assets/img/og-default.png",
     "ogType": "website",
     "twitterCard": "summary",

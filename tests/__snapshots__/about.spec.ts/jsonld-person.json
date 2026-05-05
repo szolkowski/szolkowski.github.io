@@ -1,8 +1,10 @@
 {
   "@context": "https://schema.org",
   "@type": "Person",
+  "@id": "https://szolkowski.github.io/about/#stanislaw",
   "name": "Stanisław Szołkowski",
   "url": "https://szolkowski.github.io/about/",
+  "image": "https://szolkowski.github.io/assets/img/og-default.png",
   "jobTitle": "Principal .NET/Optimizely Engineer",
   "award": "Optimizely MVP",
   "description": "Optimizely MVP and .NET engineer writing about Optimizely (Episerver) CMS / Commerce, Hangfire, scheduled jobs, and SQL Server performance.",
