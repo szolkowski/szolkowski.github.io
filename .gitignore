@@ -1,4 +1,5 @@
 _site
+_site_test
 .sass-cache
 .jekyll-cache
 .jekyll-metadata
@@ -6,3 +7,6 @@ vendor
 .git/
 .idea/
 .DS_Store
+node_modules/
+playwright-report/
+test-results/
