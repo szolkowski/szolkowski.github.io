@@ -4,7 +4,7 @@
   "@id": "https://szolkowski.github.io/about/#stanislaw",
   "name": "Stanisław Szołkowski",
   "url": "https://szolkowski.github.io/about/",
-  "image": "https://szolkowski.github.io/assets/img/og-default.png",
+  "image": "https://szolkowski.github.io/assets/img/stanislaw-szolkowski.jpg",
   "jobTitle": "Principal .NET/Optimizely Engineer",
   "award": "Optimizely MVP",
   "description": "Optimizely MVP and .NET engineer writing about Optimizely (Episerver) CMS / Commerce, Hangfire, scheduled jobs, and SQL Server performance.",
