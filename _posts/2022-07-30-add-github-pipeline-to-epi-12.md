@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Add Github pipelines/workflows to Episerver 12 project"
+description: "How to add a GitHub Actions CI workflow to an Episerver/Optimizely 12 (.NET 6) project — build on every PR and main branch push, step by step."
 date:   2022-07-30 17:31:48 +0200
 author: Stanisław Szołkowski
 comments: true

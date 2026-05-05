@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Adding Hangfire to Episerver/Optimizely CMS 12"
+description: "Step-by-step guide to integrating Hangfire into Optimizely/Episerver CMS 12 with menu provider, controller, and authorization filter for background jobs."
 date:   2024-07-31 14:57:48 +0200
 author: Stanisław Szołkowski
 comments: true

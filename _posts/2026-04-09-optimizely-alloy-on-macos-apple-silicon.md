@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Running the Optimizely CMS 13 Alloy Site on macOS with Docker"
+description: "A working setup for the official Optimizely CMS 13 Alloy template on macOS Apple Silicon using Docker Compose — minimal adjustments, all changes on GitHub."
 date:   2026-04-09 11:00:00 +0200
 author: Stanisław Szołkowski
 comments: true

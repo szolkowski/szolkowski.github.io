@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Memory-Efficient Catalog Traversal in Optimizely Commerce. Part 1: Building the Service"
+description: "Part 1 of a series on streaming catalog traversal in Optimizely Commerce — a memory-efficient service that processes large catalogs without OOM errors."
 date:   2026-02-18 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true

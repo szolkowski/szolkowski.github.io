@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "How to automatically remove orphaned Opti jobs from the DB"
+description: "Automate cleanup of orphaned Optimizely scheduled jobs left behind in tblScheduledItem — a small scheduled job that keeps your CMS database tidy at startup."
 date:   2025-09-04 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true

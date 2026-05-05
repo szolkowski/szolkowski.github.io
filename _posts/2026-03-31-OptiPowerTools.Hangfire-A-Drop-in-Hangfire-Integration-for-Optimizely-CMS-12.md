@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "OptiPowerTools.Hangfire: A Drop-in Hangfire Integration for Optimizely CMS 12"
+description: "OptiPowerTools.Hangfire is an open-source NuGet package that turns the manual Hangfire-on-Optimizely-CMS-12 setup into two lines of code."
 date:   2026-03-31 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true

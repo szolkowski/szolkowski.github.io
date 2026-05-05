@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "OptiPowerTools.Hangfire 2.0.0: CMS 13 Support and Sample Jobs"
+description: "OptiPowerTools.Hangfire 2.0 adds Optimizely CMS 13 / .NET 10 support and ships ready-to-run sample jobs to shorten Hangfire setup on Optimizely projects."
 date:   2026-04-13 11:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
