@@ -133,3 +133,18 @@ export async function captureStructure(page: Page): Promise<StructuralSnapshot> 
 export function asJson(value: unknown): string {
   return JSON.stringify(value, null, 2);
 }
+
+const VOLATILE_KEYS = new Set(['dateModified', 'datePublished']);
+
+export function stripVolatileFields<T>(value: T): T {
+  if (Array.isArray(value)) return value.map(stripVolatileFields) as unknown as T;
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (VOLATILE_KEYS.has(k)) continue;
+      out[k] = stripVolatileFields(v);
+    }
+    return out as T;
+  }
+  return value;
+}

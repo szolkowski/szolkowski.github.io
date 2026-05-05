@@ -45,7 +45,7 @@ test.describe(`post page (${POST_PATH})`, () => {
   test('visual: above the fold', async ({ page }) => {
     await page.goto(POST_PATH);
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('post-above-fold.png', {
+    await expect(page).toHaveScreenshot(`post-above-fold-${process.platform}.png`, {
       fullPage: false,
     });
   });

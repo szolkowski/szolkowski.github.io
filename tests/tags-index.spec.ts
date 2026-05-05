@@ -57,6 +57,6 @@ test.describe('tags index (/tags/)', () => {
   test('visual: full page', async ({ page }) => {
     await page.goto('/tags/');
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('tags-index.png', { fullPage: true });
+    await expect(page).toHaveScreenshot(`tags-index-${process.platform}.png`, { fullPage: true });
   });
 });

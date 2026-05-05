@@ -37,7 +37,7 @@ test.describe(`tag page (${TAG_PATH})`, () => {
   test('visual: above the fold', async ({ page }) => {
     await page.goto(TAG_PATH);
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('tag-page-above-fold.png', {
+    await expect(page).toHaveScreenshot(`tag-page-above-fold-${process.platform}.png`, {
       fullPage: false,
     });
   });

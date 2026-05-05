@@ -38,6 +38,6 @@ test.describe('about page (/about/)', () => {
   test('visual: full page', async ({ page }) => {
     await page.goto('/about/');
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('about.png', { fullPage: true });
+    await expect(page).toHaveScreenshot(`about-${process.platform}.png`, { fullPage: true });
   });
 });

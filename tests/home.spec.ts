@@ -4,6 +4,7 @@ import {
   captureStructure,
   extractJsonLd,
   jsonLdTypes,
+  stripVolatileFields,
 } from './fixtures';
 
 test.describe('home page (/)', () => {
@@ -40,13 +41,13 @@ test.describe('home page (/)', () => {
     const blocks = await extractJsonLd(page);
     const website = blocks.find((b) => b['@type'] === 'WebSite');
     expect(website).toBeDefined();
-    expect(asJson(website)).toMatchSnapshot('jsonld-website.json');
+    expect(asJson(stripVolatileFields(website))).toMatchSnapshot('jsonld-website.json');
     void jsonLdTypes;
   });
 
   test('visual: full page', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('home.png', { fullPage: true });
+    await expect(page).toHaveScreenshot(`home-${process.platform}.png`, { fullPage: true });
   });
 });

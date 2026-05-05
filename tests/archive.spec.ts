@@ -22,6 +22,6 @@ test.describe('archive page (/archive/)', () => {
   test('visual: full page', async ({ page }) => {
     await page.goto('/archive/');
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('archive.png', { fullPage: true });
+    await expect(page).toHaveScreenshot(`archive-${process.platform}.png`, { fullPage: true });
   });
 });
