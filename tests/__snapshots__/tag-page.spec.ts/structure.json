@@ -31,6 +31,8 @@
   ],
   "jsonLdTypes": [
     "BreadcrumbList",
-    "WebPage"
+    "CollectionPage",
+    "Person",
+    "WebSite"
   ]
 }
