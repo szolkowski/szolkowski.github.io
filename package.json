@@ -5,8 +5,7 @@
   "description": "UI regression tests for the Jekyll blog at szolkowski.github.io.",
   "scripts": {
     "test": "playwright test",
-    "test:update": "playwright test --update-snapshots && npm run compress:baselines",
-    "compress:baselines": "bash scripts/compress-baselines.sh",
+    "test:update": "playwright test --update-snapshots",
     "report": "playwright show-report"
   },
   "devDependencies": {
