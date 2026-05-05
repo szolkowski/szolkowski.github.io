@@ -24,12 +24,19 @@
 
     <link rel="stylesheet" href="{{ '/assets/css/custom-styles.css' | relative_url }}">
 
-    {% if page.url == "/" %}
-    <title>{{ page.title | default: site.title }}</title>
-    {% seo title=false %}
-    {% else %}
-    {% seo %}
-    {% endif %}
+    {%- comment -%}
+    Capture {% seo %}'s output and strip its auto JSON-LD block. We emit a single
+    consolidated @graph block from head-custom.html instead. Gem pinned to
+    jekyll-seo-tag 2.8.0 in Gemfile so the split tokens stay stable.
+    {%- endcomment -%}
+    {%- if page.url == "/" -%}
+      {%- capture seo_output -%}<title>{{ page.title | default: site.title }}</title>{% seo title=false %}{%- endcapture -%}
+    {%- else -%}
+      {%- capture seo_output -%}{% seo %}{%- endcapture -%}
+    {%- endif -%}
+    {%- assign seo_before = seo_output | split: '<script type="application/ld+json">' | first -%}
+    {%- assign seo_after = seo_output | split: '</script>' | last -%}
+    {{ seo_before }}{{ seo_after }}
 
     {% include head-custom.html %}
 </head>

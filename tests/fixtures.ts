@@ -46,8 +46,13 @@ export async function extractJsonLd(page: Page): Promise<JsonLdBlock[]> {
     if (!text.trim()) continue;
     try {
       const obj = JSON.parse(text);
-      if (Array.isArray(obj)) parsed.push(...obj);
-      else parsed.push(obj);
+      if (Array.isArray(obj)) {
+        parsed.push(...obj);
+      } else if (Array.isArray((obj as { '@graph'?: unknown })['@graph'])) {
+        parsed.push(...((obj as { '@graph': JsonLdBlock[] })['@graph']));
+      } else {
+        parsed.push(obj);
+      }
     } catch {
       parsed.push({ '@type': 'INVALID_JSON', raw: text.slice(0, 200) });
     }

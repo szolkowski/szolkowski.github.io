@@ -18,7 +18,11 @@ gem "minima", "~> 2.5"
 group :jekyll_plugins do
   gem "jekyll-feed"
   gem 'jekyll-sitemap'
-  gem 'jekyll-seo-tag'
+  # Pinned: _layouts/default.html captures {% seo %}'s output and strips its
+  # auto JSON-LD block via Liquid split. A gem bump that changes template.html
+  # formatting could break that split silently. Re-verify the capture/strip
+  # logic in default.html before bumping the upper bound.
+  gem 'jekyll-seo-tag', '~> 2.8.0'
   gem 'jekyll-remote-theme'
   gem 'jekyll-last-modified-at'
 end
