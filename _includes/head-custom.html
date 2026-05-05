@@ -68,6 +68,12 @@
 {% endif %}
 
 {% if page.url == "/" or page.url == "/about/" %}
+{%- assign person_image = '/assets/img/og-default.png' -%}
+{%- for f in site.static_files -%}
+  {%- if f.path == '/assets/img/stanislaw-szolkowski.jpg' -%}
+    {%- assign person_image = '/assets/img/stanislaw-szolkowski.jpg' -%}
+  {%- endif -%}
+{%- endfor -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -75,7 +81,7 @@
   "@id": "{{ site.url }}/about/#stanislaw",
   "name": "Stanisław Szołkowski",
   "url": "{{ site.url }}/about/",
-  "image": "{{ '/assets/img/og-default.png' | absolute_url }}",
+  "image": "{{ person_image | absolute_url }}",
   "jobTitle": "Principal .NET/Optimizely Engineer",
   "award": "Optimizely MVP",
   "description": "Optimizely MVP and .NET engineer writing about Optimizely (Episerver) CMS / Commerce, Hangfire, scheduled jobs, and SQL Server performance.",
