@@ -2,6 +2,12 @@
 {% include head-custom-google-analytics.html %}
 {% endif %}
 
+{% unless page.image %}
+<meta property="og:image" content="{{ '/assets/img/og-default.png' | absolute_url }}" />
+<meta property="og:image:alt" content="{{ site.title | escape }}" />
+<meta name="twitter:image" content="{{ '/assets/img/og-default.png' | absolute_url }}" />
+{% endunless %}
+
 {% if page.url == "/about/" %}
 <script type="application/ld+json">
 {
