@@ -72,6 +72,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      # Playwright's jammy image is slim and ships without libyaml, which the
+      # prebuilt Ruby toolcache binary links against (psych.so → YAML parsing).
+      # Without this, ruby/setup-ruby fails on `gem install bundler` with
+      # "libyaml-0.so.2: cannot open shared object file".
+      - name: Install Ruby runtime deps
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq libyaml-0-2
       - name: Setup Ruby
         uses: ruby/setup-ruby@086ffb1a2090c870a3f881cc91ea83aa4243d408 # v1.195.0
         with:
