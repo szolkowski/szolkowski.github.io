@@ -9,9 +9,9 @@
                             <a href="{{ '/about/' | relative_url }}">More about me &rarr;</a>
                         </p>
                         <p class="footer-social">
-                            <a href="https://www.linkedin.com/in/stanis%C5%82aw-szo%C5%82kowski-554a60164/" rel="me noopener" target="_blank">LinkedIn</a> ·
-                            <a href="https://github.com/szolkowski" rel="me noopener" target="_blank">GitHub</a> ·
-                            <a href="https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=7329f76b-c577-49d5-aa09-c8aff3c0610d" rel="me noopener" target="_blank">Optimizely World</a>
+                            {% for profile in site.social_profiles %}
+                            <a href="{{ profile.url }}" rel="me noopener" target="_blank">{{ profile.name }}</a>{% unless forloop.last %} ·{% endunless %}
+                            {% endfor %}
                         </p>
                     </div>
                     <p class="footer-links">
