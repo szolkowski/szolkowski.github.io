@@ -95,8 +95,20 @@ jobs:
       - name: Run UI tests
         id: ui_tests
         run: npm test
+      - name: Upload Playwright report
+        id: upload_report
+        if: always() && steps.ui_tests.conclusion != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
       - name: Generate test summary
         if: always() && steps.ui_tests.conclusion != 'skipped'
+        env:
+          ARTIFACT_URL: ${{ steps.upload_report.outputs.artifact-url }}
         run: |
           node scripts/ci-test-summary.mjs > /tmp/ui-test-summary.md
           cat /tmp/ui-test-summary.md >> "$GITHUB_STEP_SUMMARY"
@@ -106,15 +118,6 @@ jobs:
         with:
           header: ui-tests
           path: /tmp/ui-test-summary.md
-      - name: Upload Playwright report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 14
 
   # Deployment job
   deploy:
