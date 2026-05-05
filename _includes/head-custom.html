@@ -6,6 +6,7 @@
 <meta property="og:image" content="{{ '/assets/img/og-default.png' | absolute_url }}" />
 <meta property="og:image:alt" content="{{ site.title | escape }}" />
 <meta name="twitter:image" content="{{ '/assets/img/og-default.png' | absolute_url }}" />
+<meta name="twitter:card" content="summary_large_image" />
 {% endunless %}
 
 {% if page.url == "/tags/" %}
@@ -66,14 +67,24 @@
 </script>
 {% endif %}
 
-{% if page.url == "/about/" %}
+{% if page.url == "/" or page.url == "/about/" %}
+{%- assign person_image = '/assets/img/og-default.png' -%}
+{%- for f in site.static_files -%}
+  {%- if f.path == '/assets/img/stanislaw-szolkowski.jpg' -%}
+    {%- assign person_image = '/assets/img/stanislaw-szolkowski.jpg' -%}
+  {%- endif -%}
+{%- endfor -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Person",
+  "@id": "{{ site.url }}/about/#stanislaw",
   "name": "Stanisław Szołkowski",
   "url": "{{ site.url }}/about/",
-  "jobTitle": "Optimizely MVP / Senior .NET Engineer",
+  "image": "{{ person_image | absolute_url }}",
+  "jobTitle": "Principal .NET/Optimizely Engineer",
+  "award": "Optimizely MVP",
+  "description": "Optimizely MVP and .NET engineer writing about Optimizely (Episerver) CMS / Commerce, Hangfire, scheduled jobs, and SQL Server performance.",
   "knowsAbout": [
     "Optimizely CMS",
     "Optimizely Commerce",

@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "Szołkowski’s Blog | Blog about Optimizely CMS development, .NET, and technical content",
-    "description": "Blog about Optimizely CMS development, .NET, and technical content",
+    "title": "Optimizely MVP Blog: Episerver, Hangfire, .NET — Stanisław Szołkowski",
+    "description": "Optimizely (Episerver) CMS and Commerce, Hangfire, scheduled jobs, SQL Server performance, and .NET tips from Optimizely MVP Stanisław Szołkowski.",
     "canonical": "https://szolkowski.github.io/",
-    "ogTitle": "Szołkowski’s Blog",
-    "ogDescription": "Blog about Optimizely CMS development, .NET, and technical content",
+    "ogTitle": "Optimizely MVP Blog: Episerver, Hangfire, .NET — Stanisław Szołkowski",
+    "ogDescription": "Optimizely (Episerver) CMS and Commerce, Hangfire, scheduled jobs, SQL Server performance, and .NET tips from Optimizely MVP Stanisław Szołkowski.",
     "ogImage": "https://szolkowski.github.io/assets/img/og-default.png",
     "ogType": "website",
     "twitterCard": "summary",
@@ -30,6 +30,7 @@
     "https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=7329f76b-c577-49d5-aa09-c8aff3c0610d"
   ],
   "jsonLdTypes": [
+    "Person",
     "WebSite"
   ]
 }
