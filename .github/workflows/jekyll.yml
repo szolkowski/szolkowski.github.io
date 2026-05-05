@@ -61,6 +61,12 @@ jobs:
   ui-tests:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    # Run inside Playwright's official image — it ships with Node + Chromium +
+    # all system deps preinstalled, eliminating the ~5min apt step on the bare
+    # runner. IMPORTANT: keep this tag in sync with @playwright/test in
+    # package.json. Bump both together.
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-jammy
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -74,24 +80,8 @@ jobs:
         run: bundle exec jekyll build
         env:
           JEKYLL_ENV: production
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
       - name: Install npm deps
         run: npm ci
-      - name: Cache Playwright browsers
-        id: pw-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - name: Install Playwright Chromium
-        if: steps.pw-cache.outputs.cache-hit != 'true'
-        run: npx playwright install chromium
-      - name: Install Playwright system deps
-        run: npx playwright install-deps chromium
       - name: Run UI tests
         id: ui_tests
         run: npm test
