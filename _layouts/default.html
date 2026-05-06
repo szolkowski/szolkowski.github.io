@@ -54,8 +54,8 @@
 
         <aside id="sidebar">
             <p class="repo-owner">Tags</p>
-            {% capture site_tags %}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{% endcapture %}
-            {% assign tags = site_tags | split:',' | sort %}
+            {% include _all-tags.html %}
+            {% assign tags = all_tag_names | sort %}
             {% include _tagcloud.html %}
             {% include _badges.html %}
         </aside>
@@ -63,78 +63,9 @@
 </div>
 {% include _footer.html %}
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-    if (typeof hljs !== "undefined") {
-        hljs.highlightAll();
-    }
-
-    document.querySelectorAll(".open-code-modal").forEach(button => {
-        button.addEventListener("click", () => {
-        const targetId = button.getAttribute("data-target");
-        const modal = document.getElementById(targetId);
-        if (modal) {
-            modal.style.display = "block";
-            if (typeof hljs !== "undefined") {
-            modal.querySelectorAll("pre code").forEach(block => {
-                hljs.highlightElement(block);
-            });
-            }
-        } else {
-            console.warn("Modal not found for target:", targetId);
-        }
-        });
-    });
-
-    document.querySelectorAll(".code-modal-close").forEach(closeBtn => {
-        closeBtn.addEventListener("click", () => {
-        closeBtn.closest(".code-modal").style.display = "none";
-        });
-    });
-
-    window.addEventListener("click", function (event) {
-        document.querySelectorAll(".code-modal").forEach(modal => {
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
-        });
-    });
-
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape") {
-        document.querySelectorAll(".code-modal").forEach(modal => {
-            if (modal.style.display === "block") {
-            modal.style.display = "none";
-            }
-        });
-        }
-    });
-    });
-</script>
-
-<script>
-    document.addEventListener("click", function (event) {
-    var button = event.target.closest(".copy-btn");
-    if (!button) return;
-    var code = button.nextElementSibling.querySelector("code");
-    if (!code) return;
-    var text = code.innerText;
-
-    navigator.clipboard.writeText(text).then(function () {
-        button.classList.add("copied");
-        button.innerHTML = "<i class='fas fa-check'></i> Copied!";
-        setTimeout(function () {
-        button.classList.remove("copied");
-        button.innerHTML = "<i class='fas fa-copy'></i> Copy";
-        }, 1500);
-    }).catch(function () {
-        button.innerHTML = "<i class='fas fa-times'></i> Failed";
-        setTimeout(function () {
-        button.innerHTML = "<i class='fas fa-copy'></i> Copy";
-        }, 1500);
-    });
-    });
-</script>
+{%- if page.layout == "post" -%}
+<script defer src="{{ '/assets/js/code-modal.js' | relative_url }}"></script>
+{%- endif -%}
 
 </body>
 </html>
