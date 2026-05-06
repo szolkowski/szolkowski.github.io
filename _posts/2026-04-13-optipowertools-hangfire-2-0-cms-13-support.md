@@ -8,6 +8,7 @@ comments: true
 published: true
 redirect_from:
   - /2026/04/13/OptiPowerTools-Hangfire-2.0-CMS-13-Support.html
+  - /2026/04/13/optipowertools-hangfire-2-0-cms-13-support.html
 image:
    path: assets/img/2026-04-13-optipowertools-hangfire-2-0-0.png
    alt: "OptiPowerTools.Hangfire 2.0.0: CMS 13 Support and Sample Jobs"

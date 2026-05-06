@@ -8,7 +8,7 @@ import {
 } from './fixtures';
 
 const POST_PATH =
-  '/2026/04/13/optipowertools-hangfire-2-0-cms-13-support.html';
+  '/2026/04/13/optipowertools-hangfire-2-0-cms-13-support/';
 
 test.describe(`post page (${POST_PATH})`, () => {
   test('invariants: BlogPosting + BreadcrumbList, canonical, og:image, description', async ({

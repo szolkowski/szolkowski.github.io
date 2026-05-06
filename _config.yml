@@ -56,6 +56,11 @@ social:
     - https://github.com/szolkowski
     - https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=7329f76b-c577-49d5-aa09-c8aff3c0610d
 
+# Pretty post URLs. Post canonical URL becomes /YYYY/MM/DD/slug/ (no .html).
+# Existing posts carry a redirect_from entry for their old /YYYY/MM/DD/slug.html
+# URL so prior inbound links and Search Console results keep resolving.
+permalink: /:year/:month/:day/:title/
+
 # Build settings
 remote_theme: pages-themes/architect@v0.2.0
 plugins:

@@ -8,6 +8,7 @@ comments: true
 published: true
 redirect_from:
   - /2026/03/31/OptiPowerTools.Hangfire-A-Drop-in-Hangfire-Integration-for-Optimizely-CMS-12.html
+  - /2026/03/31/optipowertools-hangfire-a-drop-in-hangfire-integration-for-optimizely-cms-12.html
 image:
    path: assets/img/2026-03-31-optipowertools-hangfire-dashboard.png
    alt: "OptiPowerTools.Hangfire: A Drop-in Hangfire Integration for Optimizely CMS 12"

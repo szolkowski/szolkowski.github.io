@@ -15,6 +15,7 @@ primary_tag: application insights
 redirect_from:
   - /2025/06/12/episerver-and_application_insights_filters.html
   - /2025/06/12/episerver-and_application_insights_filters
+  - /2025/06/12/episerver-and-application-insights-filters.html
 tags:
 - episerver
 - optimizely
