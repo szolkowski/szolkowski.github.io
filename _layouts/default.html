@@ -26,6 +26,14 @@
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha384-/o6I2CkkWC//PSjvWC/eYN7l3xM3tJm8ZzVkCOfp//W05QcE3mlGskpoHB6XqI+B" crossorigin="anonymous">
 
+    <!-- Pagefind search (header input mounts itself in #search via assets/js/search.js) -->
+    <link rel="stylesheet" href="{{ '/pagefind/pagefind-ui.css' | relative_url }}">
+    <script defer src="{{ '/pagefind/pagefind-ui.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/search.js' | relative_url }}"></script>
+
+    <!-- custom-styles.css MUST load after pagefind-ui.css so our `.sidebar-search`
+         overrides (icon centring, placeholder color, border reset) win on
+         equal specificity. -->
     <link rel="stylesheet" href="{{ '/assets/css/custom-styles.css' | relative_url }}">
 
     {%- comment -%}
@@ -53,6 +61,7 @@
         </main>
 
         <aside id="sidebar">
+            <div id="search" class="sidebar-search" role="search"></div>
             <p class="repo-owner">Tags</p>
             {% include _all-tags.html %}
             {% assign tags = all_tag_names | sort %}
@@ -63,8 +72,13 @@
 </div>
 {% include _footer.html %}
 
+{% include _consent-banner.html %}
+
 {%- if page.layout == "post" -%}
 <script defer src="{{ '/assets/js/code-modal.js' | relative_url }}"></script>
+{%- endif -%}
+{%- if site.google_analytics -%}
+<script defer src="{{ '/assets/js/consent.js' | relative_url }}"></script>
 {%- endif -%}
 
 </body>

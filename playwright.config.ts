@@ -27,6 +27,20 @@ export default defineConfig({
     // worker contention. macOS chromium typically settles in <2s; this is a
     // headroom value, not a target.
     navigationTimeout: 30_000,
+    // Pre-seed the GA consent banner as already-declined so visual snapshots
+    // and a11y scans don't have to dismiss it on every test. Real users still
+    // see the banner on first visit.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: 'http://localhost:4321',
+          localStorage: [
+            { name: 'analytics_consent', value: 'denied' },
+          ],
+        },
+      ],
+    },
   },
   expect: {
     toHaveScreenshot: {
@@ -71,7 +85,7 @@ export default defineConfig({
   ],
   webServer: {
     command:
-      'bundle exec jekyll build --destination _site_test && npx http-server _site_test -p 4321 -s --no-dotfiles -c-1',
+      'bundle exec jekyll build --destination _site_test && npx pagefind --site _site_test && npx http-server _site_test -p 4321 -s --no-dotfiles -c-1',
     url: 'http://localhost:4321/',
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

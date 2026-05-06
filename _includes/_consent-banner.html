@@ -1,0 +1,11 @@
+{%- if site.google_analytics -%}
+<div id="consent-banner" class="consent-banner" hidden role="region" aria-label="Cookie consent">
+  <p class="consent-banner__copy">
+    This site uses Google Analytics to understand which posts are useful. No ads, no tracking across other sites. You can decline and the rest of the page works exactly the same.
+  </p>
+  <div class="consent-banner__actions">
+    <button type="button" id="consent-decline" class="consent-banner__button consent-banner__button--decline">Decline</button>
+    <button type="button" id="consent-accept" class="consent-banner__button consent-banner__button--accept">Accept analytics</button>
+  </div>
+</div>
+{%- endif -%}

@@ -40,12 +40,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install webp encoder
+        # _plugins/webp_generator.rb shells out to cwebp to write .webp
+        # siblings of every PNG/JPEG into the deployed _site. The plugin
+        # no-ops gracefully if cwebp is missing, but production should ship
+        # the WebP siblings so future <picture> markup can use them.
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq webp
       - name: Setup Ruby
         uses: ruby/setup-ruby@086ffb1a2090c870a3f881cc91ea83aa4243d408 # v1.195.0
         with:
           ruby-version: '3.1' # Not needed with a .ruby-version file
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           cache-version: 0 # Increment this number if you need to re-download cached gems
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Install npm deps
+        run: npm ci
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
@@ -54,6 +67,10 @@ jobs:
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
+      - name: Generate Pagefind search index
+        # Pagefind crawls the built _site/ and writes /_site/pagefind/* — the
+        # static UI bundle + WASM index that the header search input loads.
+        run: npx pagefind --site _site
       - name: Upload Pages artifact
         # Automatically uploads an artifact from the './_site' directory by default
         uses: actions/upload-pages-artifact@v3
@@ -159,6 +176,10 @@ jobs:
           JEKYLL_ENV: production
       - name: Install npm deps
         run: npm ci
+      - name: Generate Pagefind search index
+        # lhci serves _site/, so the search bundle must exist there or the
+        # header search input would 404 on every URL it audits.
+        run: npx pagefind --site _site
       - name: Run Lighthouse CI
         id: lhci
         # The Playwright image ships chromium at /ms-playwright/chromium-*/...
