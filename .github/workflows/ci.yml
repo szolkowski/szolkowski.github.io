@@ -99,6 +99,12 @@ jobs:
       - name: Run UI tests
         id: ui_tests
         run: npm test
+        env:
+          # GitHub Actions sets $HOME=/github/home (uid 1001), but the
+          # Playwright container runs as root — firefox refuses to launch
+          # under a $HOME it doesn't own. /root is owned by the running
+          # user, satisfies firefox, and chromium/webkit don't care.
+          HOME: /root
       - name: Upload Playwright report
         id: upload_report
         if: always() && steps.ui_tests.conclusion != 'skipped'
@@ -155,7 +161,14 @@ jobs:
         run: npm ci
       - name: Run Lighthouse CI
         id: lhci
-        run: npx lhci autorun --config=lighthouserc.json
+        # The Playwright image ships chromium at /ms-playwright/chromium-*/...
+        # rather than /usr/bin/google-chrome, so chrome-launcher (used by lhci)
+        # can't auto-detect it. Resolve the binary via the playwright Node API
+        # and pass it through as CHROME_PATH.
+        run: |
+          export CHROME_PATH="$(node -e 'console.log(require("playwright").chromium.executablePath())')"
+          echo "Using Chrome at: $CHROME_PATH"
+          npx lhci autorun --config=lighthouserc.json
         env:
           # Optional — set this secret to post lhci status checks via the
           # Lighthouse CI GitHub App. Without it, lhci runs but skips the

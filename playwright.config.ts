@@ -8,6 +8,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : undefined,
+  // 60s per-test budget covers the slowest page (firefox + Linux headless on
+  // /tags/<slug> with the full tag-cloud) while still failing fast on real
+  // hangs.
+  timeout: 60_000,
   reporter: [
     ['list'],
     ...(process.env.GITHUB_ACTIONS ? [['github'] as const] : []),
@@ -19,7 +23,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     actionTimeout: 10_000,
-    navigationTimeout: 15_000,
+    // 30s navigation covers Linux Docker firefox load times under parallel
+    // worker contention. macOS chromium typically settles in <2s; this is a
+    // headroom value, not a target.
+    navigationTimeout: 30_000,
   },
   expect: {
     toHaveScreenshot: {
