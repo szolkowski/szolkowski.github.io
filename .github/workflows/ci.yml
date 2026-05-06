@@ -123,6 +123,66 @@ jobs:
           header: ui-tests
           path: /tmp/ui-test-summary.md
 
+  # Lighthouse CI (PRs only). Runs against the freshly-built site and asserts
+  # against budgets in lighthouserc.json. Reuses the Playwright container
+  # because it already ships Chrome + Node 20+ (lhci 0.15 needs both).
+  lighthouse-ci:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-jammy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Ruby runtime + build deps
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends \
+            libyaml-0-2 \
+            build-essential \
+            libssl-dev
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@086ffb1a2090c870a3f881cc91ea83aa4243d408 # v1.195.0
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+          cache-version: 0
+      - name: Build site
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+      - name: Install npm deps
+        run: npm ci
+      - name: Run Lighthouse CI
+        id: lhci
+        run: npx lhci autorun --config=lighthouserc.json
+        env:
+          # Optional — set this secret to post lhci status checks via the
+          # Lighthouse CI GitHub App. Without it, lhci runs but skips the
+          # status-check post.
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+      - name: Upload Lighthouse reports
+        id: upload_lhci
+        if: always() && steps.lhci.conclusion != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          retention-days: 14
+      - name: Generate Lighthouse summary
+        if: always() && steps.lhci.conclusion != 'skipped'
+        env:
+          ARTIFACT_URL: ${{ steps.upload_lhci.outputs.artifact-url }}
+        run: |
+          node scripts/ci-lighthouse-summary.mjs > /tmp/lighthouse-summary.md
+          cat /tmp/lighthouse-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Post Lighthouse comment on PR
+        if: always() && github.event_name == 'pull_request' && steps.lhci.conclusion != 'skipped'
+        uses: marocchino/sticky-pull-request-comment@52423e01640425a022ef5fd42c6fb5f633a02728 # v2.9.0
+        with:
+          header: lighthouse
+          path: /tmp/lighthouse-summary.md
+
   # Publishes the Pages artifact from build-pages. Runs only on master pushes.
   deploy-pages:
     environment:

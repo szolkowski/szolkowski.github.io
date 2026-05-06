@@ -32,6 +32,10 @@ export default defineConfig({
       maxDiffPixelRatio: 0,
     },
   },
+  // chromium is the source of truth for visual snapshots — those specs
+  // self-skip on firefox/webkit via `test.skip(browserName !== 'chromium')`.
+  // firefox/webkit cover structural, a11y, JSON-LD, and link tests so we
+  // catch browser-specific CSS/JS regressions cheaply.
   projects: [
     {
       name: 'chromium',
@@ -40,6 +44,22 @@ export default defineConfig({
         viewport: { width: 1280, height: 800 },
         deviceScaleFactor: 1,
       },
+    },
+    {
+      name: 'firefox',
+      use: {
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1280, height: 800 },
+      },
+      grepInvert: /visual:/,
+    },
+    {
+      name: 'webkit',
+      use: {
+        ...devices['Desktop Safari'],
+        viewport: { width: 1280, height: 800 },
+      },
+      grepInvert: /visual:/,
     },
   ],
   webServer: {
