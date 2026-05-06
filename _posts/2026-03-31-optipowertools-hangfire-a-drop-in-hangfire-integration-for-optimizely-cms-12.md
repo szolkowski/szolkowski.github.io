@@ -13,7 +13,7 @@ image:
    alt: "OptiPowerTools.Hangfire: A Drop-in Hangfire Integration for Optimizely CMS 12"
    width: 2858
    height: 1338
-primary_tag: hangfire
+primary_tag: OptiPowerTools.Hangfire
 tags:
 - episerver
 - optimizely

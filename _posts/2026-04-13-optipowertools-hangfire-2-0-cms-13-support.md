@@ -13,7 +13,7 @@ image:
    alt: "OptiPowerTools.Hangfire 2.0.0: CMS 13 Support and Sample Jobs"
    width: 1376
    height: 768
-primary_tag: hangfire
+primary_tag: OptiPowerTools.Hangfire
 tags:
 - episerver
 - optimizely
