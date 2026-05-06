@@ -9,6 +9,9 @@ published: true
 image:
    path: assets/img/2025-05-26-cms-home-page.png
    alt: "Running full Optimizely development setup on M1 (ARM) based machine"
+   width: 2153
+   height: 1192
+primary_tag: apple silicon
 tags:
 - episerver
 - optimizely

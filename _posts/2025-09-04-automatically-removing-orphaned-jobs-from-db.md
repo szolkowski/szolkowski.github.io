@@ -9,6 +9,9 @@ published: true
 image:
    path: assets/img/2025-06-12-optimizely-scheduled-jobs-dashboard.png
    alt: "How to automatically remove orphaned Opti jobs from the DB"
+   width: 1221
+   height: 372
+primary_tag: scheduled jobs
 tags:
 - episerver
 - optimizely

@@ -6,9 +6,14 @@ date:   2025-10-08 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from:
+  - /2025/10/08/Quiet-Performance-Wins-Scheduled-Job-for-SQL-Index-Maintenance-in-Optimizely.html
 image:
-   path: assets/img/2025-10-08-Quiet-Performance-Wins-Scheduled-Job-for-SQL-Index-Maintenance-in-Optimizely.jpeg
+   path: assets/img/2025-10-08-quiet-performance-wins-scheduled-job-for-sql-index-maintenance-in-optimizely.jpeg
    alt: "Quiet Performance Wins: Scheduled Job for SQL Index Maintenance in Optimizely"
+   width: 1024
+   height: 628
+primary_tag: performance
 tags:
 - episerver
 - optimizely

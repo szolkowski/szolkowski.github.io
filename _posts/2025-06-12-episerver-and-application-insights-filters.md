@@ -9,6 +9,9 @@ published: true
 image:
    path: assets/img/2025-06-12-application-insights-data-digestion-size.png
    alt: "Tunning Application Insights telemetry filtering in Optimizely"
+   width: 2423
+   height: 888
+primary_tag: application insights
 redirect_from:
   - /2025/06/12/episerver-and_application_insights_filters.html
   - /2025/06/12/episerver-and_application_insights_filters

@@ -6,9 +6,14 @@ date:   2026-04-13 11:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from:
+  - /2026/04/13/OptiPowerTools-Hangfire-2.0-CMS-13-Support.html
 image:
-   path: assets/img/2026-04-13-OptiPowerTools-Hangfire-2.0.0.png
+   path: assets/img/2026-04-13-optipowertools-hangfire-2-0-0.png
    alt: "OptiPowerTools.Hangfire 2.0.0: CMS 13 Support and Sample Jobs"
+   width: 1376
+   height: 768
+primary_tag: hangfire
 tags:
 - episerver
 - optimizely
@@ -22,7 +27,7 @@ tags:
 - OptiPowerTools.Hangfire
 ---
 
-When I [released OptiPowerTools.Hangfire]({% post_url 2026-03-31-OptiPowerTools.Hangfire-A-Drop-in-Hangfire-Integration-for-Optimizely-CMS-12 %}) back in March, it targeted Optimizely CMS 12. With CMS 13 now out and running on .NET 10, it was time to bring the package along. Version 2.0.0 adds full CMS 13 support, and I also shipped 1.0.1 on the CMS 12 line with sample jobs to help people get started faster.
+When I [released OptiPowerTools.Hangfire]({% post_url 2026-03-31-optipowertools-hangfire-a-drop-in-hangfire-integration-for-optimizely-cms-12 %}) back in March, it targeted Optimizely CMS 12. With CMS 13 now out and running on .NET 10, it was time to bring the package along. Version 2.0.0 adds full CMS 13 support, and I also shipped 1.0.1 on the CMS 12 line with sample jobs to help people get started faster.
 
 ## What's new in 2.0.0
 

@@ -9,6 +9,9 @@ published: true
 image:
    path: assets/img/2026-04-09-optimizely-alloy-on-macos-apple-silicon.png
    alt: "Running the Optimizely CMS 13 Alloy Site on macOS with Docker"
+   width: 1376
+   height: 768
+primary_tag: apple silicon
 tags:
 - optimizely
 - episerver

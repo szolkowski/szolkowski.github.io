@@ -10,6 +10,9 @@ redirect_from: /2024/07/11/adding-hangfire-to-epi-12.html
 image:
    path: assets/img/2024-07-31-hangfire-cms-overview.png
    alt: Integrated Hangfire dashboard with Optimizely CMS back office
+   width: 2172
+   height: 1458
+primary_tag: hangfire
 tags:
 - episerver
 - optimizely
