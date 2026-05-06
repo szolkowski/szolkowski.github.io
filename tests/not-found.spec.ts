@@ -22,7 +22,7 @@ test.describe('404 page (/404.html)', () => {
 
   test('visual: full page', async ({ page }) => {
     await page.goto('/404.html');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await expect(page).toHaveScreenshot(`not-found-${process.platform}.png`, { fullPage: true });
   });
 });
