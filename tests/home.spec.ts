@@ -47,7 +47,7 @@ test.describe('home page (/)', () => {
 
   test('visual: full page', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await expect(page).toHaveScreenshot(`home-${process.platform}.png`, { fullPage: true });
   });
 });
