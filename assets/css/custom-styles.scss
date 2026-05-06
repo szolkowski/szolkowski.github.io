@@ -13,8 +13,7 @@ ul.share-buttons li{
 
 ul.share-buttons .sr-only{
   position: absolute;
-  clip: rect(1px 1px 1px 1px);
-  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
   padding: 0;
   border: 0;
   height: 1px;

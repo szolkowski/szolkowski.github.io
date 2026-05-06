@@ -14,6 +14,9 @@ Resolve Person.image: prefer headshot if present, else og-default.png.
 
 {% unless page.image %}
 <meta property="og:image" content="{{ '/assets/img/og-default.png' | absolute_url }}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:type" content="image/png" />
 <meta property="og:image:alt" content="{{ site.title | escape }}" />
 <meta name="twitter:image" content="{{ '/assets/img/og-default.png' | absolute_url }}" />
 <meta name="twitter:card" content="summary_large_image" />
@@ -140,6 +143,7 @@ everything else → #webpage.
       "@type": "BlogPosting",
       "@id": "{{ page_id }}",
       "url": "{{ page.url | absolute_url }}",
+      "isAccessibleForFree": true,
       "headline": {{ page.title | jsonify }},
       "description": {{ page.description | jsonify }},
       "inLanguage": "en-US",
@@ -179,6 +183,7 @@ everything else → #webpage.
       "@type": "CollectionPage",
       "@id": "{{ page_id }}",
       "url": "{{ page.url | absolute_url }}",
+      "isAccessibleForFree": true,
       "name": "All topics — Szołkowski's Blog",
       "description": {{ page.description | jsonify }},
       "inLanguage": "en-US",
@@ -211,6 +216,7 @@ everything else → #webpage.
       "@type": "CollectionPage",
       "@id": "{{ page_id }}",
       "url": "{{ page.url | absolute_url }}",
+      "isAccessibleForFree": true,
       "name": {{ page.title | jsonify }},
       "inLanguage": "en-US",
       "isPartOf": { "@id": "{{ website_id }}" },
