@@ -2,6 +2,38 @@
 ---
 
 @import "{{ site.theme }}";
+
+// Skip-to-main-content link — visually hidden until keyboard-focused so
+// screen-reader and keyboard users can bypass the site nav on every page.
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: #2879d0;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+// Uniform :focus-visible ring on interactive elements. currentColor adapts to
+// the surrounding text colour (dark ring on light backgrounds, light ring on
+// the dark hero), which keeps WCAG 2.1 AA contrast everywhere.
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 ul.share-buttons{
   list-style: none;
   padding: 0;
