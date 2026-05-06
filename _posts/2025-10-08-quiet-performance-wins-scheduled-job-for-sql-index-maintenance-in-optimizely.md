@@ -8,6 +8,7 @@ comments: true
 published: true
 redirect_from:
   - /2025/10/08/Quiet-Performance-Wins-Scheduled-Job-for-SQL-Index-Maintenance-in-Optimizely.html
+  - /2025/10/08/quiet-performance-wins-scheduled-job-for-sql-index-maintenance-in-optimizely.html
 image:
    path: assets/img/2025-10-08-quiet-performance-wins-scheduled-job-for-sql-index-maintenance-in-optimizely.jpeg
    alt: "Quiet Performance Wins: Scheduled Job for SQL Index Maintenance in Optimizely"

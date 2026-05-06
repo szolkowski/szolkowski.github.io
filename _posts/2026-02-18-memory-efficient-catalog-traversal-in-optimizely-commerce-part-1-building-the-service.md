@@ -9,6 +9,7 @@ published: true
 redirect_from:
   - /2026/01/18/Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service.html
   - /2026/02/18/Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service.html
+  - /2026/02/18/memory-efficient-catalog-traversal-in-optimizely-commerce-part-1-building-the-service.html
 image:
    path: assets/img/2026-02-18-memory-efficient-catalog-traversal-in-optimizely-commerce-part-1-building-the-service.png
    alt: "Memory-Efficient Catalog Traversal in Optimizely Commerce. Part 1: Building the Service"

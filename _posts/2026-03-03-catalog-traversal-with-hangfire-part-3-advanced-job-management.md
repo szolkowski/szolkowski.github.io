@@ -8,6 +8,7 @@ comments: true
 published: true
 redirect_from:
   - /2026/03/03/Catalog-Traversal-with-Hangfire-Part-3-Advanced-Job-Management.html
+  - /2026/03/03/catalog-traversal-with-hangfire-part-3-advanced-job-management.html
 image:
    path: assets/img/2026-03-03-catalog-traversal-with-hangfire-part-3-advanced-job-management.png
    alt: "Catalog Traversal with Hangfire. Part 3: Advanced Job Management"

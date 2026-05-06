@@ -6,6 +6,8 @@ date:   2022-07-28 21:29:19 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from:
+  - /2022/07/28/episerver-on-apple-silicon.html
 image:
    path: assets/img/2022-07-28-episerver-on-apple-silicon-episerver-running-on-m1-1.png
    alt: "Optimizely Foundation site running in the CMS Edit view on an Apple Silicon (M1) Mac, showing the Mosey demo home page"

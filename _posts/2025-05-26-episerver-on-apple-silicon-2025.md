@@ -6,6 +6,8 @@ date:   2025-05-26 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from:
+  - /2025/05/26/episerver-on-apple-silicon-2025.html
 image:
    path: assets/img/2025-05-26-cms-home-page.png
    alt: "Running full Optimizely development setup on M1 (ARM) based machine"

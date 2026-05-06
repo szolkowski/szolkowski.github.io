@@ -6,6 +6,8 @@ date:   2025-09-04 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from:
+  - /2025/09/04/automatically-removing-orphaned-jobs-from-db.html
 image:
    path: assets/img/2025-06-12-optimizely-scheduled-jobs-dashboard.png
    alt: "How to automatically remove orphaned Opti jobs from the DB"

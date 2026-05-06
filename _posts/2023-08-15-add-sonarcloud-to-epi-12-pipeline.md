@@ -6,6 +6,8 @@ date:   2023-08-15 19:31:48 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from:
+  - /2023/08/15/add-sonarcloud-to-epi-12-pipeline.html
 image:
    path: assets/img/2023-08-15-add-sonarcloud-to-epi-12-pipeline-ogimage.png
    alt: Add SonarCloud/SonarQube to Episerver/Optimizely 12 project title image

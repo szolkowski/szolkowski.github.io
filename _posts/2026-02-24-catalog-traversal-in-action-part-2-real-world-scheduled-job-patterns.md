@@ -8,6 +8,7 @@ comments: true
 published: true
 redirect_from:
   - /2026/02/24/Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns.html
+  - /2026/02/24/catalog-traversal-in-action-part-2-real-world-scheduled-job-patterns.html
 image:
    path: assets/img/2026-02-24-catalog-traversal-in-action-part-2-real-world-scheduled-job-patterns.png
    alt: "Catalog Traversal in Action. Part 2: Real-World Scheduled Job Patterns"

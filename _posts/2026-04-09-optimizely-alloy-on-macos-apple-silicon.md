@@ -6,6 +6,8 @@ date:   2026-04-09 11:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from:
+  - /2026/04/09/optimizely-alloy-on-macos-apple-silicon.html
 image:
    path: assets/img/2026-04-09-optimizely-alloy-on-macos-apple-silicon.png
    alt: "Running the Optimizely CMS 13 Alloy Site on macOS with Docker"
