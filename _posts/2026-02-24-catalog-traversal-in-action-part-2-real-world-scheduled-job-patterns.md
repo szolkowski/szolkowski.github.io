@@ -6,9 +6,14 @@ date:   2026-02-24 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from:
+  - /2026/02/24/Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns.html
 image:
-   path: assets/img/2026-02-24-Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns.png
+   path: assets/img/2026-02-24-catalog-traversal-in-action-part-2-real-world-scheduled-job-patterns.png
    alt: "Catalog Traversal in Action. Part 2: Real-World Scheduled Job Patterns"
+   width: 1200
+   height: 630
+primary_tag: commerce
 tags:
 - episerver
 - optimizely
@@ -19,7 +24,7 @@ tags:
 - .NET
 ---
 
-In my [previous post]({% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %}), I showed how to build a memory-efficient catalog traversal service for Optimizely Commerce. The service uses streaming to process large catalogs without loading everything into memory at once.
+In my [previous post]({% post_url 2026-02-18-memory-efficient-catalog-traversal-in-optimizely-commerce-part-1-building-the-service %}), I showed how to build a memory-efficient catalog traversal service for Optimizely Commerce. The service uses streaming to process large catalogs without loading everything into memory at once.
 
 But having a well-designed service is only half the battle. The real value comes from knowing how to use it effectively in production scenarios. In this post, I'll walk through practical patterns for scheduled jobs that process catalog data—complete with error handling, progress reporting, and resilience strategies.
 
@@ -250,6 +255,6 @@ Thank you for reading, and I hope these patterns help you build robust catalog p
 
 ## This Post is Part of a Series
 
-- [Part 1: Building the Service]({% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %})
+- [Part 1: Building the Service]({% post_url 2026-02-18-memory-efficient-catalog-traversal-in-optimizely-commerce-part-1-building-the-service %})
 - Part 2: Real-World Scheduled Job Patterns - (this post)
-- [Part 3: Hangfire Integration]({% post_url 2026-03-03-Catalog-Traversal-with-Hangfire-Part-3-Advanced-Job-Management %})
+- [Part 3: Hangfire Integration]({% post_url 2026-03-03-catalog-traversal-with-hangfire-part-3-advanced-job-management %})

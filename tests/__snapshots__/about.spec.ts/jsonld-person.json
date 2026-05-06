@@ -2,6 +2,7 @@
   "@type": "Person",
   "@id": "https://szolkowski.github.io/about/#stanislaw",
   "name": "Stanisław Szołkowski",
+  "alternateName": "Stanislaw Szolkowski",
   "givenName": "Stanisław",
   "familyName": "Szołkowski",
   "knowsLanguage": [
@@ -9,7 +10,14 @@
     "pl"
   ],
   "url": "https://szolkowski.github.io/about/",
-  "image": "https://szolkowski.github.io/assets/img/stanislaw-szolkowski.jpg",
+  "image": {
+    "@type": "ImageObject",
+    "@id": "https://szolkowski.github.io/about/#stanislaw-photo",
+    "url": "https://szolkowski.github.io/assets/img/stanislaw-szolkowski.jpg",
+    "width": 400,
+    "height": 400,
+    "caption": "Stanisław Szołkowski"
+  },
   "jobTitle": "Principal .NET/Optimizely Engineer",
   "award": [
     "Optimizely MVP 2025",

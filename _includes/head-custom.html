@@ -20,11 +20,23 @@ Resolve Person.image: prefer headshot if present, else og-default.png.
 {% endunless %}
 
 {%- comment -%}
-Stable @id URIs cross-referenced from every page's @graph.
+Stable @id URIs cross-referenced from every page's @graph. The page_id suffix
+matches the page's primary @type so the graph reads naturally:
+post → #article, /about/ → #profilepage, /tags/ + tagpages → #collection,
+everything else → #webpage.
 {%- endcomment -%}
 {%- assign person_id = site.url | append: '/about/#stanislaw' -%}
 {%- assign website_id = site.url | append: '/#website' -%}
-{%- assign page_id = page.url | absolute_url | append: '#webpage' -%}
+{%- assign breadcrumb_id = page.url | absolute_url | append: '#breadcrumb' -%}
+{%- if page.layout == "post" -%}
+  {%- assign page_id = page.url | absolute_url | append: '#article' -%}
+{%- elsif page.url == "/about/" -%}
+  {%- assign page_id = page.url | absolute_url | append: '#profilepage' -%}
+{%- elsif page.url == "/tags/" or page.layout == "tagpage" -%}
+  {%- assign page_id = page.url | absolute_url | append: '#collection' -%}
+{%- else -%}
+  {%- assign page_id = page.url | absolute_url | append: '#webpage' -%}
+{%- endif -%}
 
 <script type="application/ld+json">
 {
@@ -43,11 +55,19 @@ Stable @id URIs cross-referenced from every page's @graph.
       "@type": "Person",
       "@id": "{{ person_id }}",
       "name": "Stanisław Szołkowski",
+      "alternateName": "Stanislaw Szolkowski",
       "givenName": "Stanisław",
       "familyName": "Szołkowski",
       "knowsLanguage": ["en", "pl"],
       "url": "{{ '/about/' | absolute_url }}",
-      "image": "{{ person_image | absolute_url }}",
+      "image": {
+        "@type": "ImageObject",
+        "@id": "{{ site.url }}/about/#stanislaw-photo",
+        "url": "{{ person_image | absolute_url }}",
+        "width": 400,
+        "height": 400,
+        "caption": "Stanisław Szołkowski"
+      },
       "jobTitle": "Principal .NET/Optimizely Engineer",
       "award": [
         "Optimizely MVP 2025",
@@ -102,17 +122,19 @@ Stable @id URIs cross-referenced from every page's @graph.
         "@type": "ImageObject",
         "url": "{{ person_image | absolute_url }}"
       },
-      "breadcrumb": { "@id": "{{ page.url | absolute_url }}#breadcrumb" }
+      "breadcrumb": { "@id": "{{ breadcrumb_id }}" }
     },
     {
       "@type": "BreadcrumbList",
-      "@id": "{{ page.url | absolute_url }}#breadcrumb",
+      "@id": "{{ breadcrumb_id }}",
       "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ '/' | absolute_url }}"},
         {"@type": "ListItem", "position": 2, "name": "About"}
       ]
     }
     {%- elsif page.layout == "post" -%}
+    {%- assign primary = page.primary_tag | default: page.tags.first -%}
+    {%- assign primary_slug = primary | slugify -%}
     ,
     {
       "@type": "BlogPosting",
@@ -126,21 +148,28 @@ Stable @id URIs cross-referenced from every page's @graph.
       "author": { "@id": "{{ person_id }}" },
       "publisher": { "@id": "{{ person_id }}" },
       "isPartOf": { "@id": "{{ website_id }}" },
-      "mainEntityOfPage": { "@id": "{{ page_id }}" }
+      "mainEntityOfPage": { "@id": "{{ page_id }}" },
+      "breadcrumb": { "@id": "{{ breadcrumb_id }}" },
+      "keywords": {{ page.tags | join: ", " | jsonify }},
+      "articleSection": {{ primary | jsonify }},
+      "wordCount": {{ content | strip_html | number_of_words }}
       {%- if page.image -%}
       ,
       "image": {
         "@type": "ImageObject",
         "url": "{{ page.image.path | absolute_url }}",
-        "description": {{ page.image.alt | jsonify }}
+        "width": {{ page.image.width | plus: 0 }},
+        "height": {{ page.image.height | plus: 0 }},
+        "caption": {{ page.image.alt | jsonify }}
       }
       {%- endif -%}
     },
     {
       "@type": "BreadcrumbList",
+      "@id": "{{ breadcrumb_id }}",
       "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ '/' | absolute_url }}"},
-        {"@type": "ListItem", "position": 2, "name": "Archive", "item": "{{ '/archive/' | absolute_url }}"},
+        {"@type": "ListItem", "position": 2, "name": {{ primary | jsonify }}, "item": "{{ '/tags/' | append: primary_slug | absolute_url }}"},
         {"@type": "ListItem", "position": 3, "name": {{ page.title | jsonify }}, "item": "{{ page.url | absolute_url }}"}
       ]
     }
@@ -154,6 +183,7 @@ Stable @id URIs cross-referenced from every page's @graph.
       "description": {{ page.description | jsonify }},
       "inLanguage": "en-US",
       "isPartOf": { "@id": "{{ website_id }}" },
+      "breadcrumb": { "@id": "{{ breadcrumb_id }}" },
       "mainEntity": {
         "@type": "ItemList",
         "numberOfItems": {{ site.tags | size }},
@@ -169,6 +199,7 @@ Stable @id URIs cross-referenced from every page's @graph.
     },
     {
       "@type": "BreadcrumbList",
+      "@id": "{{ breadcrumb_id }}",
       "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ '/' | absolute_url }}"},
         {"@type": "ListItem", "position": 2, "name": "Tags", "item": "{{ '/tags/' | absolute_url }}"}
@@ -182,10 +213,12 @@ Stable @id URIs cross-referenced from every page's @graph.
       "url": "{{ page.url | absolute_url }}",
       "name": {{ page.title | jsonify }},
       "inLanguage": "en-US",
-      "isPartOf": { "@id": "{{ website_id }}" }
+      "isPartOf": { "@id": "{{ website_id }}" },
+      "breadcrumb": { "@id": "{{ breadcrumb_id }}" }
     },
     {
       "@type": "BreadcrumbList",
+      "@id": "{{ breadcrumb_id }}",
       "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ '/' | absolute_url }}"},
         {"@type": "ListItem", "position": 2, "name": "Tags", "item": "{{ '/tags/' | absolute_url }}"},
@@ -201,11 +234,11 @@ Stable @id URIs cross-referenced from every page's @graph.
       "name": {{ page.title | jsonify }},
       "inLanguage": "en-US",
       "isPartOf": { "@id": "{{ website_id }}" },
-      "breadcrumb": { "@id": "{{ page.url | absolute_url }}#breadcrumb" }
+      "breadcrumb": { "@id": "{{ breadcrumb_id }}" }
     },
     {
       "@type": "BreadcrumbList",
-      "@id": "{{ page.url | absolute_url }}#breadcrumb",
+      "@id": "{{ breadcrumb_id }}",
       "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ '/' | absolute_url }}"},
         {"@type": "ListItem", "position": 2, "name": "Archive"}

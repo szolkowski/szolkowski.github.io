@@ -6,9 +6,14 @@ date:   2026-03-03 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from:
+  - /2026/03/03/Catalog-Traversal-with-Hangfire-Part-3-Advanced-Job-Management.html
 image:
-   path: assets/img/2026-03-03-Catalog-Traversal-with-Hangfire-Part-3-Advanced-Job-Management.png
+   path: assets/img/2026-03-03-catalog-traversal-with-hangfire-part-3-advanced-job-management.png
    alt: "Catalog Traversal with Hangfire. Part 3: Advanced Job Management"
+   width: 1200
+   height: 630
+primary_tag: hangfire
 tags:
 - episerver
 - optimizely
@@ -21,7 +26,7 @@ tags:
 - background jobs 
 ---
 
-In [Part 1]({% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %}), I showed how to build a memory-efficient catalog traversal service, and in [Part 2]({% post_url 2026-02-24-Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns %}), I demonstrated practical patterns using Optimizely's built-in scheduled jobs.
+In [Part 1]({% post_url 2026-02-18-memory-efficient-catalog-traversal-in-optimizely-commerce-part-1-building-the-service %}), I showed how to build a memory-efficient catalog traversal service, and in [Part 2]({% post_url 2026-02-24-catalog-traversal-in-action-part-2-real-world-scheduled-job-patterns %}), I demonstrated practical patterns using Optimizely's built-in scheduled jobs.
 
 While Optimizely's scheduled job system works well for basic scenarios, you might find yourself wanting more: better monitoring, automatic retries, distributed execution, or more flexible scheduling. This is where Hangfire shines.
 
@@ -432,6 +437,6 @@ Do you have other Hangfire patterns you've found useful for Optimizely Commerce?
 
 Thank you for reading, and I hope this series helps you build robust, scalable catalog processing solutions.
 
-- [Part 1: Building the Service]({% post_url 2026-02-18-Memory-Efficient-Catalog-Traversal-in-Optimizely-Commerce-Part-1-Building-the-Service %})
-- [Part 2: Real-World Scheduled Job Patterns]({% post_url 2026-02-24-Catalog-Traversal-in-Action-Part-2-Real-World-Scheduled-Job-Patterns %})
+- [Part 1: Building the Service]({% post_url 2026-02-18-memory-efficient-catalog-traversal-in-optimizely-commerce-part-1-building-the-service %})
+- [Part 2: Real-World Scheduled Job Patterns]({% post_url 2026-02-24-catalog-traversal-in-action-part-2-real-world-scheduled-job-patterns %})
 - Part 3: Hangfire Integration - (this post)

@@ -2,10 +2,10 @@
   "meta": {
     "title": "OptiPowerTools.Hangfire 2.0.0: CMS 13 Support and Sample Jobs | Szołkowski’s Blog",
     "description": "OptiPowerTools.Hangfire 2.0 adds Optimizely CMS 13 / .NET 10 support and ships ready-to-run sample jobs to shorten Hangfire setup on Optimizely projects.",
-    "canonical": "https://szolkowski.github.io/2026/04/13/OptiPowerTools-Hangfire-2.0-CMS-13-Support.html",
+    "canonical": "https://szolkowski.github.io/2026/04/13/optipowertools-hangfire-2-0-cms-13-support.html",
     "ogTitle": "OptiPowerTools.Hangfire 2.0.0: CMS 13 Support and Sample Jobs",
     "ogDescription": "OptiPowerTools.Hangfire 2.0 adds Optimizely CMS 13 / .NET 10 support and ships ready-to-run sample jobs to shorten Hangfire setup on Optimizely projects.",
-    "ogImage": "https://szolkowski.github.io/assets/img/2026-04-13-OptiPowerTools-Hangfire-2.0.0.png",
+    "ogImage": "https://szolkowski.github.io/assets/img/2026-04-13-optipowertools-hangfire-2-0-0.png",
     "ogType": "article",
     "twitterCard": "summary_large_image",
     "twitterTitle": null

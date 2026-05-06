@@ -9,6 +9,9 @@ published: true
 image:
    path: assets/img/2023-08-15-add-sonarcloud-to-epi-12-pipeline-ogimage.png
    alt: Add SonarCloud/SonarQube to Episerver/Optimizely 12 project title image
+   width: 1280
+   height: 720
+primary_tag: sonarcloud
 tags:
 - episerver
 - optimizely

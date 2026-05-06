@@ -6,9 +6,14 @@ date:   2026-03-31 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
+redirect_from:
+  - /2026/03/31/OptiPowerTools.Hangfire-A-Drop-in-Hangfire-Integration-for-Optimizely-CMS-12.html
 image:
-   path: assets/img/2026-03-31-OptiPowerTools.Hangfire-Dashboard.png
+   path: assets/img/2026-03-31-optipowertools-hangfire-dashboard.png
    alt: "OptiPowerTools.Hangfire: A Drop-in Hangfire Integration for Optimizely CMS 12"
+   width: 2858
+   height: 1338
+primary_tag: OptiPowerTools.Hangfire
 tags:
 - episerver
 - optimizely
@@ -29,7 +34,7 @@ What I didn't expect was the interest it would generate. The post kept getting t
 Fair point. So I built one. Meet **OptiPowerTools.Hangfire** — a drop-in NuGet package that turns all of that manual setup into two lines of code.
 
 <p style="text-align: center;">
-  <img src="/assets/img/2026-03-31-OptiPowerTools.Hangfire-icon.png" alt="OptiPowerTools.Hangfire icon" style="max-width: 200px;" />
+  <img src="/assets/img/2026-03-31-optipowertools-hangfire-icon.png" alt="OptiPowerTools.Hangfire icon" style="max-width: 200px;" />
 </p>
 
 ## Getting started
@@ -57,7 +62,7 @@ The dashboard is embedded in the CMS shell, so it feels like a native part of Op
 - **Role-based authorization** — by default, only Administrators, CmsAdmins, and WebAdmins can access the dashboard
 - **CMS menu integration** with three placement options: under the CMS section (default), as a top-level nav item, or in a custom section group
 
-![Hangfire Dashboard in Optimizely CMS](/assets/img/2026-03-31-OptiPowerTools.Hangfire-Dashboard.png)
+![Hangfire Dashboard in Optimizely CMS](/assets/img/2026-03-31-optipowertools-hangfire-dashboard.png)
 
 Jobs get rich console output out of the box — [Hangfire.Console](https://github.com/pieceofsummer/Hangfire.Console) is enabled by default. Inject `PerformContext` into your job method and use `context.WriteLine()` to write directly to the job's console in the dashboard, just like I showed in the original post.
 
@@ -114,7 +119,7 @@ services.AddOptiPowerToolHangfire(options =>
 
 ## Built-in job filters
 
-This is where things go beyond the original blog post. The package ships with four attribute-based job filters for common patterns I've seen (and written about) in production Optimizely projects. In [Part 3: Hangfire Integration]({% post_url 2026-03-03-Catalog-Traversal-with-Hangfire-Part-3-Advanced-Job-Management %}), I covered job dependencies and concurrency challenges when running multiple Hangfire jobs against the same data. These filters address exactly those scenarios.
+This is where things go beyond the original blog post. The package ships with four attribute-based job filters for common patterns I've seen (and written about) in production Optimizely projects. In [Part 3: Hangfire Integration]({% post_url 2026-03-03-catalog-traversal-with-hangfire-part-3-advanced-job-management %}), I covered job dependencies and concurrency challenges when running multiple Hangfire jobs against the same data. These filters address exactly those scenarios.
 
 ### MutualExclusion
 

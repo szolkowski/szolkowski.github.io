@@ -9,6 +9,9 @@ published: true
 image:
    path: assets/img/2022-07-28-episerver-on-apple-silicon-episerver-running-on-m1-1.png
    alt: "Optimizely Foundation site running in the CMS Edit view on an Apple Silicon (M1) Mac, showing the Mosey demo home page"
+   width: 2874
+   height: 1590
+primary_tag: apple silicon
 tags:
 - episerver
 - optimizely
