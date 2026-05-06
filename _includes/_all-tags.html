@@ -1,0 +1,8 @@
+{%- comment -%}
+Captures every unique tag across site.tags into a Liquid array `all_tag_names`,
+used by the sidebar and the tag cloud. Idempotent — re-including is a no-op.
+{%- endcomment -%}
+{%- unless all_tag_names -%}
+{%- capture _all_tags_csv -%}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{%- endcapture -%}
+{%- assign all_tag_names = _all_tags_csv | split: ',' -%}
+{%- endunless -%}

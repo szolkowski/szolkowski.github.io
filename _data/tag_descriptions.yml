@@ -1,5 +1,5 @@
 # Tag-specific intros for tag pages.
-# Key = tag slug (lowercase, jakim emit by _gentags.rb).
+# Key = tag slug (lowercase, emitted by _plugins/tag_generator.rb via Jekyll::Utils.slugify).
 # - description: 140-160 char SEO meta description
 # - intro:       rich HTML displayed at the top of the tag page (above the post list)
 # Tags without an entry here get a generic meta description and no on-page intro.
@@ -35,3 +35,51 @@ performance:
 apple-silicon:
   description: "Posts tagged Apple Silicon — running Optimizely / Episerver CMS development on M1 / M2 Macs with Docker, .NET, and azure-sql-edge."
   intro: "Posts about <strong>Apple Silicon</strong> (M1 / M2 / ARM Macs) for Optimizely / Episerver development — Docker setups, azure-sql-edge workarounds, and the CMS 13 Alloy Site running cross-platform on .NET."
+
+m1:
+  description: "Posts tagged M1 — running Optimizely / Episerver CMS development on Apple Silicon Macs with Docker, .NET, and azure-sql-edge workarounds."
+  intro: "Posts about <strong>M1 / Apple Silicon</strong> for Optimizely development — same scope as the <a href='/tags/apple-silicon'>apple silicon</a> tag, kept stable for inbound search results."
+
+arm:
+  description: "Posts tagged ARM — running Optimizely / Episerver CMS development on ARM-based Macs with Docker, azure-sql-edge, and .NET cross-platform builds."
+  intro: "Posts about <strong>ARM</strong> CPUs for Optimizely development — overlaps the <a href='/tags/apple-silicon'>apple silicon</a> and <a href='/tags/m1'>M1</a> tags."
+
+commerce:
+  description: "Posts tagged Commerce — Optimizely Commerce catalog APIs, scheduled jobs, memory-efficient traversal, and integration patterns for large catalogs."
+  intro: "Posts about <strong>Optimizely Commerce</strong> — catalog APIs, memory-efficient traversal patterns, scheduled jobs, and Hangfire integration for large product catalogs."
+
+catalog:
+  description: "Posts tagged catalog — Optimizely Commerce catalog traversal, content APIs, memory-efficient enumeration, and scheduled-job patterns for large catalogs."
+  intro: "Posts about <strong>catalog</strong> work in Optimizely Commerce — traversal patterns, the Content APIs, batched enumeration, and scheduled jobs that respect memory budgets."
+
+database:
+  description: "Posts tagged database — SQL Server index maintenance, statistics rebuilds, and database-tooling patterns for Optimizely CMS / Commerce projects."
+  intro: "Posts about <strong>databases</strong> for Optimizely projects — SQL Server index and statistics maintenance, scheduled cleanup jobs, and tooling for routine DBA work."
+
+background-jobs:
+  description: "Posts tagged background jobs — Hangfire integration for Optimizely CMS, scheduled-job patterns, dashboard work, and progress reporting for long-running tasks."
+  intro: "Posts about <strong>background jobs</strong> in Optimizely projects — Hangfire integration, the built-in scheduled-job system, progress reporting, and dashboards for long-running tasks."
+
+optipowertools:
+  description: "Posts tagged OptiPowerTools — open-source NuGet packages for Optimizely CMS and Commerce, including Hangfire integration and SQL maintenance tooling."
+  intro: "Posts about <strong>OptiPowerTools</strong> — a small set of open-source NuGet packages for Optimizely CMS and Commerce. Source on <a href='https://github.com/szolkowski/OptiPowerTools.Hangfire'>GitHub</a>."
+
+optipowertools-hangfire:
+  description: "Posts tagged OptiPowerTools.Hangfire — the open-source NuGet package wiring Hangfire into Optimizely CMS, with dashboards, scheduled jobs, and admin gates."
+  intro: "Posts about <strong>OptiPowerTools.Hangfire</strong> — the NuGet package that wires <a href='https://www.hangfire.io/'>Hangfire</a> into Optimizely CMS. Source on <a href='https://github.com/szolkowski/OptiPowerTools.Hangfire'>GitHub</a>; CMS 12 and 13 supported."
+
+ci:
+  description: "Posts tagged CI — GitHub Actions and Azure DevOps pipelines for Optimizely CMS, including SonarCloud analysis, Playwright UI tests, and build automation."
+  intro: "Posts about <strong>continuous integration</strong> for Optimizely projects — GitHub Actions and Azure DevOps pipelines, SonarCloud quality gates, and UI regression testing with Playwright."
+
+devops:
+  description: "Posts tagged DevOps — CI/CD pipelines, build automation, code-quality gates, and developer-experience tooling for Optimizely CMS / Commerce projects."
+  intro: "Posts about <strong>DevOps</strong> for Optimizely projects — CI/CD pipelines, build automation, code-quality gates (SonarCloud), and the boring infrastructure that makes shipping uneventful."
+
+sonarcloud:
+  description: "Posts tagged SonarCloud — adding code-quality gates to Optimizely CMS pipelines, .NET-specific rules, and integrating analysis into GitHub Actions."
+  intro: "Posts about <strong>SonarCloud</strong> for Optimizely / .NET projects — wiring quality gates into Azure DevOps and GitHub Actions, .NET-specific rule sets, and triaging the noise."
+
+nuget:
+  description: "Posts tagged NuGet — packaging and distributing Optimizely CMS / Commerce libraries, semantic versioning, and the OptiPowerTools.Hangfire release flow."
+  intro: "Posts about <strong>NuGet</strong> packaging for Optimizely projects — semantic versioning, package metadata, and the release flow behind the OptiPowerTools.Hangfire package."
