@@ -53,10 +53,13 @@ export default defineConfig({
       maxDiffPixelRatio: 0,
     },
   },
-  // chromium is the source of truth for visual snapshots — those specs
-  // self-skip on firefox/webkit via `test.skip(browserName !== 'chromium')`.
-  // firefox/webkit cover structural, a11y, JSON-LD, and link tests so we
-  // catch browser-specific CSS/JS regressions cheaply.
+  // chromium is the source of truth for desktop visual snapshots — those
+  // specs self-skip on firefox/webkit via grepInvert. firefox/webkit cover
+  // structural, a11y, JSON-LD, and link tests so we catch browser-specific
+  // CSS/JS regressions cheaply. mobile-chromium runs the whole suite at a
+  // Pixel 7 viewport so the @media (max-width: 640px) branch (mobile-search
+  // hoist) is regression-tested. tests/mobile.spec.ts is mobile-only and
+  // contains the breakpoint-specific assertions + a mobile-only screenshot.
   projects: [
     {
       name: 'chromium',
@@ -65,6 +68,7 @@ export default defineConfig({
         viewport: { width: 1280, height: 800 },
         deviceScaleFactor: 1,
       },
+      testIgnore: /mobile\.spec\.ts/,
     },
     {
       name: 'firefox',
@@ -73,6 +77,7 @@ export default defineConfig({
         viewport: { width: 1280, height: 800 },
       },
       grepInvert: /visual:/,
+      testIgnore: /mobile\.spec\.ts/,
     },
     {
       name: 'webkit',
@@ -80,6 +85,17 @@ export default defineConfig({
         ...devices['Desktop Safari'],
         viewport: { width: 1280, height: 800 },
       },
+      grepInvert: /visual:/,
+      testIgnore: /mobile\.spec\.ts/,
+    },
+    {
+      name: 'mobile-chromium',
+      use: {
+        ...devices['Pixel 7'],
+      },
+      // Skip desktop visual snapshots — those expect 1280px viewport and
+      // their baselines are platform-keyed without a mobile axis. The
+      // `mobile snapshot:` prefix in mobile.spec.ts bypasses this filter.
       grepInvert: /visual:/,
     },
   ],
