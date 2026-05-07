@@ -56,12 +56,19 @@
 {% include _header.html %}
 <div id="content-wrapper">
     <div class="inner clearfix">
+        <!-- Mobile-only search slot — hidden via CSS on desktop. The sidebar
+             instance below stacks under main content on small viewports, so
+             we render the search a second time at the top so it's reachable
+             without scrolling past every post. assets/js/search.js mounts a
+             separate Pagefind UI per `.pagefind-search-mount`. -->
+        <div class="pagefind-search-mount mobile-search" role="search" aria-label="Site search"></div>
+
         <main id="main-content">
             {{ content }}
         </main>
 
         <aside id="sidebar">
-            <div id="search" class="sidebar-search" role="search"></div>
+            <div class="pagefind-search-mount sidebar-search" role="search" aria-label="Site search"></div>
             <p class="repo-owner">Tags</p>
             {% include _all-tags.html %}
             {% assign tags = all_tag_names | sort %}

@@ -76,12 +76,10 @@
   }
 }
 
-// Pagefind search input sits at the top of the right sidebar (above the
-// "Tags" label and the tag cloud). Pagefind UI defaults are sized for a
-// search PAGE so we shrink the scale, fit the architect sidebar (light bg
-// behind), and switch the placeholder/results font from the architect
-// hand-drawn typeface to system sans-serif so they stay legible.
-.sidebar-search {
+// Pagefind search rendered twice (mobile-search above content + sidebar-search
+// in the right column). Common Pagefind variables and theme-fitting overrides
+// live on the shared `.pagefind-search-mount` class; per-slot tweaks below.
+.pagefind-search-mount {
   --pagefind-ui-scale: 0.6;
   --pagefind-ui-primary: #2879d0;
   --pagefind-ui-text: #1f1f1f;
@@ -94,48 +92,70 @@
   // fallback `serif` for `sans-serif`.
   --pagefind-ui-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
   width: 100%;
+}
+
+.sidebar-search {
   margin: 0 0 1.5rem;
 }
 
+.mobile-search {
+  margin: 1rem 0 1.5rem;
+}
+
+// Show only one mount per breakpoint. Hiding via `display: none` removes the
+// off-breakpoint instance from the accessibility tree, so axe doesn't see two
+// `role="search"` landmarks even though both are in the DOM.
+@media (max-width: 640px) {
+  .sidebar-search { display: none; }
+  .mobile-search {
+    --pagefind-ui-scale: 0.75; // 48px touch target
+  }
+}
+
+@media (min-width: 641px) {
+  .mobile-search { display: none; }
+}
+
 // Drop the empty results area until the user types — Pagefind reserves a
-// `min-width:400px` chunk on results-area otherwise, which overflows the
-// narrow sidebar column.
-.sidebar-search .pagefind-ui__results-area:empty {
+// `min-width: calc(400px * scale)` chunk on results-area otherwise.
+.pagefind-search-mount .pagefind-ui__results-area:empty {
   margin: 0;
   min-width: 0;
 }
 
+// Mobile clamp: keep results-area inside the viewport on narrow screens.
+@media (max-width: 640px) {
+  .pagefind-search-mount .pagefind-ui .pagefind-ui__results-area {
+    min-width: 0;
+  }
+}
+
 // Pagefind centers the magnifying-glass icon assuming `--pagefind-ui-scale: 0.8`
-// (its top is `calc(23px * scale)` from the form top). At 0.6 the icon
-// drifts above center. Override to true vertical centering against the input.
-.sidebar-search .pagefind-ui__form::before {
+// (its top is `calc(23px * scale)` from the form top). At 0.6 the icon drifts
+// above center. Force true vertical centering against the input.
+.pagefind-search-mount .pagefind-ui__form::before {
   top: 50%;
   transform: translateY(-50%);
 }
 
-// Pagefind ships the placeholder at opacity 0.2 — too faint to read against
-// the architect cream-paper sidebar. Bump opacity and use a darker grey.
-.sidebar-search .pagefind-ui__search-input::placeholder {
+// Pagefind ships the placeholder at opacity 0.2 — too faint against the
+// architect cream-paper sidebar. Bump opacity and use a darker grey.
+.pagefind-search-mount .pagefind-ui__search-input::placeholder {
   color: #6a6a6a;
   opacity: 1;
 }
 
 // Architect theme has `form { padding: 20px; background: #f2f2f2; }` which
-// (a) drew a grey rectangle around the search box and (b) shifted the input
-// right by 20px while Pagefind's icon stayed anchored to the form's left
-// edge — they ended up separated. Reset all three so icon and input share
-// an origin and the form is invisible behind them.
-.sidebar-search .pagefind-ui__form {
+// drew a grey rectangle around the search and pushed the input away from
+// the icon. Neutralise.
+.pagefind-search-mount .pagefind-ui__form {
   margin: 0;
   padding: 0;
   background: transparent;
 }
 
-// Architect theme adds a hand-drawn border-image to all inputs. Reset the
-// styling for the search input so Pagefind's CSS variables actually drive
-// the look (clean rectangle, 1px border, normal font weight, no extra
-// margin around it).
-.sidebar-search .pagefind-ui__search-input {
+// Architect theme adds a hand-drawn border-image to all inputs. Reset.
+.pagefind-search-mount .pagefind-ui__search-input {
   border: var(--pagefind-ui-border-width) solid var(--pagefind-ui-border);
   border-image: none;
   background-image: none;
@@ -145,11 +165,8 @@
 }
 
 // Pagefind's Clear button defaults to white-on-white once the user types
-// (its background-color matches the input). Add a faint grey border + blue
-// text so users can see it. Don't touch Pagefind's top/right/height — those
-// are calc'd against the input height and keep the button correctly
-// centred inside the input.
-.sidebar-search .pagefind-ui__search-clear {
+// (background-color matches the input). Add a faint grey border + blue text.
+.pagefind-search-mount .pagefind-ui__search-clear {
   background: #fff;
   color: #2879d0;
   font-size: 0.85rem;
@@ -160,18 +177,17 @@
   cursor: pointer;
 }
 
-.sidebar-search .pagefind-ui__search-clear:hover,
-.sidebar-search .pagefind-ui__search-clear:focus-visible {
+.pagefind-search-mount .pagefind-ui__search-clear:hover,
+.pagefind-search-mount .pagefind-ui__search-clear:focus-visible {
   background: #f0f0f0;
   border-color: #2879d0;
   text-decoration: none;
 }
 
-// Pagefind's "X results for foo" message is sized at `16px * scale` (≈10px
-// at our 0.6 scale) — far too small to read. Bump to ~15px to match
-// architect's body text size, and switch to Architects Daughter so it
-// reads like the post-listing headers elsewhere on the site.
-.sidebar-search .pagefind-ui__message {
+// Pagefind's "X results for foo" message is `16px * scale` (≈10px) — too small.
+// Bump to ~15px and use the architect handwritten font so it reads like a
+// section header.
+.pagefind-search-mount .pagefind-ui__message {
   font-size: 1rem;
   height: auto;
   padding: 0.75rem 0;
@@ -181,21 +197,19 @@
 // Match result titles to the architect handwritten heading font (h2/h3 on
 // post pages) instead of body Helvetica Neue. Excerpts stay sans-serif via
 // the inherited `--pagefind-ui-font`.
-.sidebar-search .pagefind-ui__result-title,
-.sidebar-search .pagefind-ui__result-link {
+.pagefind-search-mount .pagefind-ui__result-title,
+.pagefind-search-mount .pagefind-ui__result-link {
   font-family: "Architects Daughter", "Helvetica Neue", Helvetica, Arial, serif;
 }
 
-// Tighten Pagefind's default vertical rhythm — its `30/40 * scale` result
-// padding and `40 * scale` load-more margin add a lot of dead space in
-// the narrow sidebar column. Selectors chain through `.pagefind-ui` to
-// match Pagefind's own svelte-scoped specificity (3 classes); without
-// that bump our rule loses the cascade tie.
-.sidebar-search .pagefind-ui .pagefind-ui__result {
+// Tighten Pagefind's default vertical rhythm — `30/40 * scale` result padding
+// and `40 * scale` load-more margin are too loose. Chain through `.pagefind-ui`
+// to match Pagefind's own svelte-scoped specificity (3 classes).
+.pagefind-search-mount .pagefind-ui .pagefind-ui__result {
   padding: 0.75rem 0;
 }
 
-.sidebar-search .pagefind-ui .pagefind-ui__button {
+.pagefind-search-mount .pagefind-ui .pagefind-ui__button {
   margin-top: 0.75rem;
 }
 
