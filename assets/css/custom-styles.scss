@@ -89,7 +89,10 @@
   --pagefind-ui-border: #c7c7c7;
   --pagefind-ui-border-width: 1px;
   --pagefind-ui-border-radius: 4px;
-  --pagefind-ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  // Match architect's body font ("Helvetica Neue", Helvetica, Arial) so the
+  // search results read the same as the rest of the page; we only swap the
+  // fallback `serif` for `sans-serif`.
+  --pagefind-ui-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
   width: 100%;
   margin: 0 0 1.5rem;
 }
@@ -162,6 +165,38 @@
   background: #f0f0f0;
   border-color: #2879d0;
   text-decoration: none;
+}
+
+// Pagefind's "X results for foo" message is sized at `16px * scale` (≈10px
+// at our 0.6 scale) — far too small to read. Bump to ~15px to match
+// architect's body text size, and switch to Architects Daughter so it
+// reads like the post-listing headers elsewhere on the site.
+.sidebar-search .pagefind-ui__message {
+  font-size: 1rem;
+  height: auto;
+  padding: 0.75rem 0;
+  font-family: "Architects Daughter", "Helvetica Neue", Helvetica, Arial, serif;
+}
+
+// Match result titles to the architect handwritten heading font (h2/h3 on
+// post pages) instead of body Helvetica Neue. Excerpts stay sans-serif via
+// the inherited `--pagefind-ui-font`.
+.sidebar-search .pagefind-ui__result-title,
+.sidebar-search .pagefind-ui__result-link {
+  font-family: "Architects Daughter", "Helvetica Neue", Helvetica, Arial, serif;
+}
+
+// Tighten Pagefind's default vertical rhythm — its `30/40 * scale` result
+// padding and `40 * scale` load-more margin add a lot of dead space in
+// the narrow sidebar column. Selectors chain through `.pagefind-ui` to
+// match Pagefind's own svelte-scoped specificity (3 classes); without
+// that bump our rule loses the cascade tie.
+.sidebar-search .pagefind-ui .pagefind-ui__result {
+  padding: 0.75rem 0;
+}
+
+.sidebar-search .pagefind-ui .pagefind-ui__button {
+  margin-top: 0.75rem;
 }
 
 // Skip-to-main-content link — visually hidden until keyboard-focused so
