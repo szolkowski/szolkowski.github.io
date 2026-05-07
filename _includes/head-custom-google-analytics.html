@@ -1,8 +1,34 @@
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+{%- comment -%}
+Consent Mode v2: every signal starts denied. assets/js/consent.js flips them
+to 'granted' when the user accepts the banner, and persists the choice in
+localStorage so we don't re-prompt on subsequent visits. If the user already
+accepted in a previous visit, we restore their consent here BEFORE gtag.js
+fetches, so the very first pageview after page load is recorded.
+{%- endcomment -%}
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage': 'denied',
+    'wait_for_update': 500
+  });
+
+  try {
+    if (localStorage.getItem('analytics_consent') === 'granted') {
+      gtag('consent', 'update', {
+        'ad_storage': 'granted',
+        'ad_user_data': 'granted',
+        'ad_personalization': 'granted',
+        'analytics_storage': 'granted'
+      });
+    }
+  } catch (e) { /* localStorage unavailable — stay denied */ }
+
+  gtag('js', new Date());
   gtag('config', '{{ site.google_analytics }}');
 </script>
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>

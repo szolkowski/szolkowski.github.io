@@ -27,6 +27,20 @@ export default defineConfig({
     // worker contention. macOS chromium typically settles in <2s; this is a
     // headroom value, not a target.
     navigationTimeout: 30_000,
+    // Pre-seed the GA consent banner as already-declined so visual snapshots
+    // and a11y scans don't have to dismiss it on every test. Real users still
+    // see the banner on first visit.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: 'http://localhost:4321',
+          localStorage: [
+            { name: 'analytics_consent', value: 'denied' },
+          ],
+        },
+      ],
+    },
   },
   expect: {
     toHaveScreenshot: {
@@ -39,10 +53,13 @@ export default defineConfig({
       maxDiffPixelRatio: 0,
     },
   },
-  // chromium is the source of truth for visual snapshots — those specs
-  // self-skip on firefox/webkit via `test.skip(browserName !== 'chromium')`.
-  // firefox/webkit cover structural, a11y, JSON-LD, and link tests so we
-  // catch browser-specific CSS/JS regressions cheaply.
+  // chromium is the source of truth for desktop visual snapshots — those
+  // specs self-skip on firefox/webkit via grepInvert. firefox/webkit cover
+  // structural, a11y, JSON-LD, and link tests so we catch browser-specific
+  // CSS/JS regressions cheaply. mobile-chromium runs the whole suite at a
+  // Pixel 7 viewport so the @media (max-width: 640px) branch (mobile-search
+  // hoist) is regression-tested. tests/mobile.spec.ts is mobile-only and
+  // contains the breakpoint-specific assertions + a mobile-only screenshot.
   projects: [
     {
       name: 'chromium',
@@ -51,6 +68,7 @@ export default defineConfig({
         viewport: { width: 1280, height: 800 },
         deviceScaleFactor: 1,
       },
+      testIgnore: /mobile\.spec\.ts/,
     },
     {
       name: 'firefox',
@@ -59,6 +77,7 @@ export default defineConfig({
         viewport: { width: 1280, height: 800 },
       },
       grepInvert: /visual:/,
+      testIgnore: /mobile\.spec\.ts/,
     },
     {
       name: 'webkit',
@@ -67,11 +86,22 @@ export default defineConfig({
         viewport: { width: 1280, height: 800 },
       },
       grepInvert: /visual:/,
+      testIgnore: /mobile\.spec\.ts/,
+    },
+    {
+      name: 'mobile-chromium',
+      use: {
+        ...devices['Pixel 7'],
+      },
+      // Skip desktop visual snapshots — those expect 1280px viewport and
+      // their baselines are platform-keyed without a mobile axis. The
+      // `mobile snapshot:` prefix in mobile.spec.ts bypasses this filter.
+      grepInvert: /visual:/,
     },
   ],
   webServer: {
     command:
-      'bundle exec jekyll build --destination _site_test && npx http-server _site_test -p 4321 -s --no-dotfiles -c-1',
+      'bundle exec jekyll build --destination _site_test && npx pagefind --site _site_test && npx http-server _site_test -p 4321 -s --no-dotfiles -c-1',
     url: 'http://localhost:4321/',
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

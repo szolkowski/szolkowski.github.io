@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "description": "UI regression tests for the Jekyll blog at szolkowski.github.io.",
   "scripts": {
+    "build": "bundle exec jekyll build && pagefind --site _site",
     "test": "playwright test",
     "test:update": "playwright test --update-snapshots",
     "report": "playwright show-report"
@@ -13,6 +14,7 @@
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.49.1",
     "@types/node": "^25.6.0",
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "pagefind": "^1.5.2"
   }
 }

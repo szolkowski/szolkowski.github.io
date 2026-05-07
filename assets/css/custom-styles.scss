@@ -3,6 +3,216 @@
 
 @import "{{ site.theme }}";
 
+// Cookie/analytics consent banner — sticky bottom bar shown until the user
+// either accepts or declines. Hidden via the `hidden` HTML attribute by
+// default; consent.js drops the attribute to reveal.
+.consent-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  background: #1f1f1f;
+  color: #f0f0f0;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+// `hidden` attribute must beat the `display: flex` rule above. Without this
+// override the banner stays in flow and axe-core scans its buttons.
+.consent-banner[hidden] {
+  display: none;
+}
+
+.consent-banner__copy {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.consent-banner__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.consent-banner__button {
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.consent-banner__button--accept {
+  // Deeper than the link-blue #2879d0 so the white label clears WCAG AA
+  // (4.5:1) on a normal-size button.
+  background: #0d5fb4;
+  color: #fff;
+}
+
+.consent-banner__button--decline {
+  background: transparent;
+  color: #f0f0f0;
+  border-color: #555;
+}
+
+@media (min-width: 720px) {
+  .consent-banner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .consent-banner__copy {
+    flex: 1 1 auto;
+    margin-right: 1rem;
+  }
+  .consent-banner__actions {
+    flex: 0 0 auto;
+  }
+}
+
+// Pagefind search rendered twice (mobile-search above content + sidebar-search
+// in the right column). Common Pagefind variables and theme-fitting overrides
+// live on the shared `.pagefind-search-mount` class; per-slot tweaks below.
+.pagefind-search-mount {
+  --pagefind-ui-scale: 0.6;
+  --pagefind-ui-primary: #2879d0;
+  --pagefind-ui-text: #1f1f1f;
+  --pagefind-ui-background: #fff;
+  --pagefind-ui-border: #c7c7c7;
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 4px;
+  // Match architect's body font ("Helvetica Neue", Helvetica, Arial) so the
+  // search results read the same as the rest of the page; we only swap the
+  // fallback `serif` for `sans-serif`.
+  --pagefind-ui-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  width: 100%;
+}
+
+.sidebar-search {
+  margin: 0 0 1.5rem;
+}
+
+.mobile-search {
+  margin: 1rem 0 1.5rem;
+}
+
+// Show only one mount per breakpoint. Hiding via `display: none` removes the
+// off-breakpoint instance from the accessibility tree, so axe doesn't see two
+// `role="search"` landmarks even though both are in the DOM.
+@media (max-width: 640px) {
+  .sidebar-search { display: none; }
+  .mobile-search {
+    --pagefind-ui-scale: 0.75; // 48px touch target
+  }
+}
+
+@media (min-width: 641px) {
+  .mobile-search { display: none; }
+}
+
+// Drop the empty results area until the user types — Pagefind reserves a
+// `min-width: calc(400px * scale)` chunk on results-area otherwise.
+.pagefind-search-mount .pagefind-ui__results-area:empty {
+  margin: 0;
+  min-width: 0;
+}
+
+// Mobile clamp: keep results-area inside the viewport on narrow screens.
+@media (max-width: 640px) {
+  .pagefind-search-mount .pagefind-ui .pagefind-ui__results-area {
+    min-width: 0;
+  }
+}
+
+// Pagefind centers the magnifying-glass icon assuming `--pagefind-ui-scale: 0.8`
+// (its top is `calc(23px * scale)` from the form top). At 0.6 the icon drifts
+// above center. Force true vertical centering against the input.
+.pagefind-search-mount .pagefind-ui__form::before {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+// Pagefind ships the placeholder at opacity 0.2 — too faint against the
+// architect cream-paper sidebar. Bump opacity and use a darker grey.
+.pagefind-search-mount .pagefind-ui__search-input::placeholder {
+  color: #6a6a6a;
+  opacity: 1;
+}
+
+// Architect theme has `form { padding: 20px; background: #f2f2f2; }` which
+// drew a grey rectangle around the search and pushed the input away from
+// the icon. Neutralise.
+.pagefind-search-mount .pagefind-ui__form {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+// Architect theme adds a hand-drawn border-image to all inputs. Reset.
+.pagefind-search-mount .pagefind-ui__search-input {
+  border: var(--pagefind-ui-border-width) solid var(--pagefind-ui-border);
+  border-image: none;
+  background-image: none;
+  box-shadow: none;
+  font-weight: 400;
+  margin: 0;
+}
+
+// Pagefind's Clear button defaults to white-on-white once the user types
+// (background-color matches the input). Add a faint grey border + blue text.
+.pagefind-search-mount .pagefind-ui__search-clear {
+  background: #fff;
+  color: #2879d0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0 0.6rem;
+  border: 1px solid #c7c7c7;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.pagefind-search-mount .pagefind-ui__search-clear:hover,
+.pagefind-search-mount .pagefind-ui__search-clear:focus-visible {
+  background: #f0f0f0;
+  border-color: #2879d0;
+  text-decoration: none;
+}
+
+// Pagefind's "X results for foo" message is `16px * scale` (≈10px) — too small.
+// Bump to ~15px and use the architect handwritten font so it reads like a
+// section header.
+.pagefind-search-mount .pagefind-ui__message {
+  font-size: 1rem;
+  height: auto;
+  padding: 0.75rem 0;
+  font-family: "Architects Daughter", "Helvetica Neue", Helvetica, Arial, serif;
+}
+
+// Match result titles to the architect handwritten heading font (h2/h3 on
+// post pages) instead of body Helvetica Neue. Excerpts stay sans-serif via
+// the inherited `--pagefind-ui-font`.
+.pagefind-search-mount .pagefind-ui__result-title,
+.pagefind-search-mount .pagefind-ui__result-link {
+  font-family: "Architects Daughter", "Helvetica Neue", Helvetica, Arial, serif;
+}
+
+// Tighten Pagefind's default vertical rhythm — `30/40 * scale` result padding
+// and `40 * scale` load-more margin are too loose. Chain through `.pagefind-ui`
+// to match Pagefind's own svelte-scoped specificity (3 classes).
+.pagefind-search-mount .pagefind-ui .pagefind-ui__result {
+  padding: 0.75rem 0;
+}
+
+.pagefind-search-mount .pagefind-ui .pagefind-ui__button {
+  margin-top: 0.75rem;
+}
+
 // Skip-to-main-content link — visually hidden until keyboard-focused so
 // screen-reader and keyboard users can bypass the site nav on every page.
 .skip-link {
