@@ -7,7 +7,7 @@ description: "About Stanisław Szołkowski — Optimizely MVP and .NET engineer 
 
 # About Stanisław Szołkowski
 
-Hi! I'm Stanisław Szołkowski, a software developer and **Optimizely Most Valuable Professional (OMVP)** with over 10 years of experience building high-performance web applications that make a real difference in people's lives.
+Hi! I'm Stanisław Szołkowski, a software developer and **Platinum Optimizely Most Valuable Professional (OMVP)** with over 10 years of experience building high-performance web applications that make a real difference in people's lives.
 
 {% include _badges.html %}
 
