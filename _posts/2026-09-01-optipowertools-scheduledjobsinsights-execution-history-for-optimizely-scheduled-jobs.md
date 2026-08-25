@@ -37,7 +37,7 @@ So the conversation on a Monday morning goes like this. Someone asks why Saturda
 
 The information existed. The job knew everything — it just had nowhere to put it, so it threw it away and returned one sentence.
 
-That's the gap I finally got tired of, and **OptiPowerTools.ScheduledJobsInsights** is what came out of it. It joins [OptiPowerTools.Hangfire]({% post_url 2026-03-31-optipowertools-hangfire-a-drop-in-hangfire-integration-for-optimizely-cms-12 %}) in the OptiPowerTools family, and where that package moves your background work *off* the native scheduler, this one is aimed squarely at the jobs that stay on it.
+That's the gap I finally got tired of, and **OptiPowerTools.ScheduledJobsInsights** is what came out of it — released as 1.0.0 today. It joins [OptiPowerTools.Hangfire]({% post_url 2026-03-31-optipowertools-hangfire-a-drop-in-hangfire-integration-for-optimizely-cms-12 %}) in the OptiPowerTools family, and where that package moves your background work *off* the native scheduler, this one is aimed squarely at the jobs that stay on it.
 
 <p style="text-align: center;">
   <img src="/assets/img/2026-09-01-optipowertools-scheduledjobsinsights-icon.png" alt="OptiPowerTools.ScheduledJobsInsights icon" style="max-width: 200px;" />
@@ -247,18 +247,20 @@ Plenty of projects will want both, and they coexist happily: Hangfire for the ev
 
 ## Where to get it
 
-Source is on GitHub: [szolkowski/OptiPowerTools.ScheduledJobsInsights](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights)
+**1.0.0 is out on NuGet today.** Source is on GitHub: [szolkowski/OptiPowerTools.ScheduledJobsInsights](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights)
 
 ```bash
 dotnet add package OptiPowerTools.ScheduledJobsInsights
 ```
 
-It requires **.NET 10 and Optimizely CMS 13.x** — the Blazor hosting model and the CMS 13 shell integration are what the package is built around, and there is no CMS 12 line. MIT licensed, SemVer'd, with the public surface deliberately narrow and spelled out in the README so you know exactly what 1.x promises to keep compiling.
+It requires **.NET 10 and Optimizely CMS 13.x** — the Blazor hosting model and the CMS 13 shell integration are what the package is built around, and there is no CMS 12 line. MIT licensed and SemVer'd, with the public surface deliberately narrow and spelled out in the README, so you know exactly what 1.x promises to keep compiling: the base class and its seams, `JobLoggingContext`, `IJobExecutionWriter` (no member added to it outside a major version), the options and configuration section, and the persisted enums and schema.
+
+Each [GitHub release](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights/releases) also carries the idempotent SQL script for that version, for deployments that apply the schema themselves rather than letting the package migrate at startup.
 
 ## Wrapping up
 
 Every project I've worked on that leans on scheduled jobs has, at some point, had the same conversation: something ran overnight, somebody asks what it did, and the answer is a shrug and a trawl through logs. On a small site you live with it. On a large one — dozens of jobs, several environments, a DXP instance that recycles when it feels like it, an integration whose owner asks pointed questions on Monday — you shouldn't have to. If you're running native Optimizely scheduled jobs at that scale, I think execution history stops being a nice-to-have and becomes something the project should just have from day one.
 
-1.0 is close — release candidates are on NuGet now and the API surface is settled. If you try it before then, [open an issue](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights/issues); feedback from a real project is worth more than another week of my own testing.
+The release candidates have been out for a while and the API surface has been settled for longer, so 1.0.0 is less a finish line than an admission that it stopped changing. What it hasn't had yet is *your* jobs. If something doesn't fit — a job shape I didn't anticipate, a host configuration that fights the Blazor hub, a metric that would have told you something — [open an issue](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights/issues). Feedback from a real project is worth more than another week of my own testing.
 
 Is there anything else you'd want recorded about a job run that isn't here? Let me know in the comments. Thank you for reading!
