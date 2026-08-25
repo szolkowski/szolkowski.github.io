@@ -47,15 +47,16 @@ jobs:
         # the WebP siblings so future <picture> markup can use them.
         run: sudo apt-get update -qq && sudo apt-get install -y -qq webp
       - name: Setup Ruby
-        uses: ruby/setup-ruby@086ffb1a2090c870a3f881cc91ea83aa4243d408 # v1.195.0
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
-          ruby-version: '3.1' # Not needed with a .ruby-version file
+          # ruby-version intentionally omitted: ruby/setup-ruby reads .ruby-version
+          # (3.3.12) so local dev and CI always run the same interpreter.
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           cache-version: 0 # Increment this number if you need to re-download cached gems
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version-file: '.nvmrc'
           cache: 'npm'
       - name: Install npm deps
         run: npm ci
@@ -102,9 +103,9 @@ jobs:
             build-essential \
             libssl-dev
       - name: Setup Ruby
-        uses: ruby/setup-ruby@086ffb1a2090c870a3f881cc91ea83aa4243d408 # v1.195.0
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
-          ruby-version: '3.1'
+          # ruby-version intentionally omitted: reads .ruby-version (see build-pages)
           bundler-cache: true
           cache-version: 0
       - name: Build site for tests
@@ -165,9 +166,9 @@ jobs:
             build-essential \
             libssl-dev
       - name: Setup Ruby
-        uses: ruby/setup-ruby@086ffb1a2090c870a3f881cc91ea83aa4243d408 # v1.195.0
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
-          ruby-version: '3.1'
+          # ruby-version intentionally omitted: reads .ruby-version (see build-pages)
           bundler-cache: true
           cache-version: 0
       - name: Build site
