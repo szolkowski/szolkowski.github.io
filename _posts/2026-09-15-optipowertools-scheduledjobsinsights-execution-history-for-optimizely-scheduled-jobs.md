@@ -2,12 +2,12 @@
 layout: post
 title:  "OptiPowerTools.ScheduledJobsInsights: Execution History for Optimizely's Native Scheduled Jobs"
 description: "A drop-in base class and Blazor UI that records what Optimizely CMS 13 scheduled jobs actually did — logs, metrics, result summaries, and retention."
-date:   2026-09-01 10:00:00 +0200
+date:   2026-09-15 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
-published: false
+published: true
 image:
-   path: assets/img/2026-09-01-optipowertools-scheduledjobsinsights.png
+   path: assets/img/2026-09-15-optipowertools-scheduledjobsinsights.png
    alt: "OptiPowerTools.ScheduledJobsInsights: Execution History for Optimizely's Native Scheduled Jobs"
    width: 1377
    height: 768
@@ -37,10 +37,10 @@ So the conversation on a Monday morning goes like this. Someone asks why Saturda
 
 The information existed. The job knew everything — it just had nowhere to put it, so it threw it away and returned one sentence.
 
-That's the gap I finally got tired of, and **OptiPowerTools.ScheduledJobsInsights** is what came out of it — released as 1.0.0 today. It joins [OptiPowerTools.Hangfire]({% post_url 2026-03-31-optipowertools-hangfire-a-drop-in-hangfire-integration-for-optimizely-cms-12 %}) in the OptiPowerTools family, and where that package moves your background work *off* the native scheduler, this one is aimed squarely at the jobs that stay on it.
+That's the gap I finally got tired of, and **OptiPowerTools.ScheduledJobsInsights** is what came out of it. Version 1.0.0 landed on NuGet last week. It joins [OptiPowerTools.Hangfire]({% post_url 2026-03-31-optipowertools-hangfire-a-drop-in-hangfire-integration-for-optimizely-cms-12 %}) in the OptiPowerTools family — where that package moves your background work *off* the native scheduler, this one is aimed squarely at the jobs that stay on it.
 
 <p style="text-align: center;">
-  <img src="/assets/img/2026-09-01-optipowertools-scheduledjobsinsights-icon.png" alt="OptiPowerTools.ScheduledJobsInsights icon" style="max-width: 200px;" />
+  <img src="/assets/img/2026-09-15-optipowertools-scheduledjobsinsights-icon.png" alt="OptiPowerTools.ScheduledJobsInsights icon" style="max-width: 200px;" />
 </p>
 
 ## Change the base class, get the history
@@ -132,15 +132,15 @@ Everything else is optional and has defaults: retention period, page size, autho
 
 The execution list is filterable and keyset-paginated, with status badges and a marker on runs that recorded a summary:
 
-![Execution list in the CMS admin](/assets/img/2026-09-01-optipowertools-scheduledjobsinsights-execution-list.jpg)
+![Execution list in the CMS admin](/assets/img/2026-09-15-optipowertools-scheduledjobsinsights-execution-list.jpg)
 
 Open a run and you get a console-style log viewer with severity colouring, the input data the run started with, metrics, stack trace if it failed, and the result summary — each in its own collapsible section:
 
-![Execution detail with console-style log viewer](/assets/img/2026-09-01-optipowertools-scheduledjobsinsights-execution-detail.jpg)
+![Execution detail with console-style log viewer](/assets/img/2026-09-15-optipowertools-scheduledjobsinsights-execution-detail.jpg)
 
 Severities are `Info`, `Success`, `Warning`, `Error`, `Debug` and `Default`, coloured in the viewer so a bad run is visible by scrolling rather than by reading:
 
-![Log severities in the console viewer](/assets/img/2026-09-01-optipowertools-scheduledjobsinsights-log-severities.jpg)
+![Log severities in the console viewer](/assets/img/2026-09-15-optipowertools-scheduledjobsinsights-log-severities.jpg)
 
 The menu entries go where an administrator would actually look for them — including one under **Settings › Data & Sync Management**, immediately below Optimizely's own **Scheduled Jobs** page, with links from the UI back across to a job's CMS settings.
 
@@ -161,7 +161,7 @@ Summary.AppendSection("Totals");
 Summary.AppendLine($"  Rows exported : {total:N0}");
 ```
 
-![Result summary section](/assets/img/2026-09-01-optipowertools-scheduledjobsinsights-result-summary.jpg)
+![Result summary section](/assets/img/2026-09-15-optipowertools-scheduledjobsinsights-result-summary.jpg)
 
 Three details matter more than the API does. **Newlines survive** end to end, stored as written and rendered as written, so a column-aligned report still lines up on the page. **It survives failure** — the summary is persisted on the way out of `ExecuteJob()` whether it returned or threw, so whatever a job managed to record before dying is still there when you go looking. And **it's bounded**: appends past `MaxResultSummaryLength` (100,000 characters) are discarded with a truncation notice, so a job that logs one line per SKU can't quietly write megabytes into every history row.
 
@@ -202,7 +202,7 @@ public class CatalogSyncJob : LoggedScheduledJobBase { }
 
 The attribute travels with the code, so a fresh deployment gets it right without anyone remembering to configure anything — but it's a default, not a mandate. The `Description` shows up beside the value in the retention screen, so whoever is deciding whether to override it can see what the job's author intended and why:
 
-![Job Retention overview](/assets/img/2026-09-01-optipowertools-scheduledjobsinsights-job-retention.png)
+![Job Retention overview](/assets/img/2026-09-15-optipowertools-scheduledjobsinsights-job-retention.png)
 
 The screen lists every job deriving from `LoggedScheduledJobBase` — so a job can be configured before its first run — plus job types that exist only in history, marked **history only**, so records left behind by deleted code can still be trimmed. Optimizely's own `ScheduledJobBase` jobs are deliberately absent: they never write history, and listing the CMS's two dozen built-ins would bury the handful that matter.
 
@@ -247,7 +247,9 @@ Plenty of projects will want both, and they coexist happily: Hangfire for the ev
 
 ## Where to get it
 
-**1.0.0 is out on NuGet today.** Source is on GitHub: [szolkowski/OptiPowerTools.ScheduledJobsInsights](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights)
+**1.0.0 is out.** The source is on GitHub: [szolkowski/OptiPowerTools.ScheduledJobsInsights](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights)
+
+Install from the [Optimizely feed](https://nuget.optimizely.com/packages/optipowertools.scheduledjobsinsights/1.0.0) or [nuget.org](https://www.nuget.org/packages/OptiPowerTools.ScheduledJobsInsights):
 
 ```bash
 dotnet add package OptiPowerTools.ScheduledJobsInsights
@@ -261,6 +263,6 @@ Each [GitHub release](https://github.com/szolkowski/OptiPowerTools.ScheduledJobs
 
 Every project I've worked on that leans on scheduled jobs has, at some point, had the same conversation: something ran overnight, somebody asks what it did, and the answer is a shrug and a trawl through logs. On a small site you live with it. On a large one — dozens of jobs, several environments, a DXP instance that recycles when it feels like it, an integration whose owner asks pointed questions on Monday — you shouldn't have to. If you're running native Optimizely scheduled jobs at that scale, I think execution history stops being a nice-to-have and becomes something the project should just have from day one.
 
-The release candidates have been out for a while and the API surface has been settled for longer, so 1.0.0 is less a finish line than an admission that it stopped changing. What it hasn't had yet is *your* jobs. If something doesn't fit — a job shape I didn't anticipate, a host configuration that fights the Blazor hub, a metric that would have told you something — [open an issue](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights/issues). Feedback from a real project is worth more than another week of my own testing.
+Four release candidates went out over the last few weeks and the API surface settled well before the last of them, so 1.0.0 is less a finish line than an admission that it stopped changing. What it hasn't had yet is *your* jobs. If something doesn't fit — a job shape I didn't anticipate, a host configuration that fights the Blazor hub, a metric that would have told you something — [open an issue](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights/issues). Feedback from a real project is worth more than another week of my own testing.
 
 Is there anything else you'd want recorded about a job run that isn't here? Let me know in the comments. Thank you for reading!
