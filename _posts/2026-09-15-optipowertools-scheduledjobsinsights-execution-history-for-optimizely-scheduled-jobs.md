@@ -86,7 +86,7 @@ One project setting is required, and it's the single most likely thing to trip y
 
 The UI is a Blazor Server component, and without this the page renders but never becomes interactive. Applications that already contain their own `.razor` files get it for free; the package logs a named warning at startup if it spots the setting missing.
 
-Why the SDK misses components that live inside a package — and why the failure is silent — is a story of its own. I'll cover it in a follow-up post.
+Why the SDK misses components that live inside a package — and why the failure is silent — is a story of its own, and it gets one in the [follow-up post on building this UI]({% post_url 2026-09-17-building-a-blazor-server-ui-inside-the-optimizely-cms-13-admin-shell %}).
 
 Then the wiring:
 
@@ -111,7 +111,7 @@ app.UseEndpoints(endpoints =>
 app.UseOptiPowerToolsScheduledJobsInsights();
 ```
 
-That ordering is not cosmetic. Mapping the hub in the wrong place breaks every Blazor request in the application — the host's own pages included — with an exception that names nothing useful. I'll explain why in the follow-up post.
+That ordering is not cosmetic. Mapping the hub in the wrong place breaks every Blazor request in the application — the host's own pages included — with an exception that names nothing useful. The follow-up post explains why.
 
 The connection string can point at the same database as Optimizely or at a separate one — there's no fallback, it must be set explicitly. Tables live in their own `scheduled_jobs_insights` schema via standard EF Core migrations, applied at startup by default. If your application identity has no DDL rights, set `AutoMigrateDatabase = false` and run the idempotent SQL script shipped with each GitHub release.
 
@@ -220,7 +220,7 @@ The whole interface is Blazor Server, rendered inside the CMS shell like any nat
 
 It also turned out to be the most interesting part of the build, and the part with the sharpest edges: shipping Razor components inside a NuGet package, mapping the Blazor hub next to `MapContent()`, and what prerendering does to time zones.
 
-That is too much for this post, so it gets its own. I'll publish it in a couple of days.
+That is too much for this post, so it gets its own, and it's [the next one]({% post_url 2026-09-17-building-a-blazor-server-ui-inside-the-optimizely-cms-13-admin-shell %}).
 
 ## Insights or Hangfire?
 
