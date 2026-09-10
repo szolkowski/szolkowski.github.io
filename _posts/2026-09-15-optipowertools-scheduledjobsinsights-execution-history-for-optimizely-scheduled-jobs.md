@@ -47,37 +47,11 @@ That's the gap I finally got tired of, and **OptiPowerTools.ScheduledJobsInsight
 
 The whole design goal was that adopting it should be a one-line change per job. Swap `ScheduledJobBase` for `LoggedScheduledJobBase`, implement `ExecuteJob()` instead of `Execute()`, and every run is recorded from then on:
 
-```csharp
-using EPiServer.Scheduler;
-using OptiPowerTools.ScheduledJobsInsights.Configuration;
-using OptiPowerTools.ScheduledJobsInsights.Logging;
-
-[ScheduledJob(DisplayName = "Nightly Catalog Sync", IntervalType = ScheduledIntervalType.Days)]
-public class CatalogSyncJob : LoggedScheduledJobBase
-{
-    public CatalogSyncJob(JobLoggingContext context)
-        : base(context)
-    {
-    }
-
-    protected override string ExecuteJob()
-    {
-        LogInputData(new { Source = "ERP", Mode = "Incremental" });
-
-        Log("Starting catalog sync.");
-        // ... do the work, calling OnStatusChanged(...) as usual if you like ...
-        Log("42 products updated, 1 skipped.", LogSeverity.Warning);
-
-        RecordMetric("ProductsUpdated", 42);
-
-        Summary.AppendSection("Totals");
-        Summary.AppendLine("  Updated : 42");
-        Summary.AppendLine("  Skipped : 1");
-
-        return "Synced 42 products.";
-    }
-}
-```
+{% include code-modal.html
+   id="2026-09-15-ScheduledJobsInsights-Logged-Job"
+   lang="csharp"
+   file="post_assets/code-snippets/2026-09-15-ScheduledJobsInsights-Logged-Job.cs"
+%}
 
 Note what didn't change. `OnStatusChanged` still works exactly as before — you keep calling it, the CMS status column keeps updating, and the message is *also* captured into the history. The string you return still lands in Optimizely's **Last execution message** cell. If `ExecuteJob()` throws, the exception is recorded and then **rethrown unchanged**, so the CMS's own `HasLastExecutionFailed` tracking behaves precisely as it would without the package. Constructor injection works the way Optimizely already constructs jobs — add your own dependencies alongside `JobLoggingContext` and forward only the context to `base`.
 
