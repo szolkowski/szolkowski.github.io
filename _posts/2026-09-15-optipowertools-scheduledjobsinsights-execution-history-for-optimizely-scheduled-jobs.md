@@ -25,7 +25,9 @@ tags:
 - OptiPowerTools.ScheduledJobsInsights
 ---
 
-Most of what I've written on this blog over the last couple of years keeps circling back to the same place: scheduled jobs. A job that [removes orphaned job records from the database]({% post_url 2025-09-04-automatically-removing-orphaned-jobs-from-db %}). A job that [rebuilds SQL indexes and statistics]({% post_url 2025-10-08-quiet-performance-wins-scheduled-job-for-sql-index-maintenance-in-optimizely %}). A [whole series]({% post_url 2026-02-24-catalog-traversal-in-action-part-2-real-world-scheduled-job-patterns %}) on walking a Commerce catalog without blowing up the heap. On a real Optimizely project, the scheduled job system is where a surprising amount of the actual business lives — nightly imports, exports to an ERP, index maintenance, catalog reconciliation, cleanup passes nobody has thought about since 2019.
+Most of what I've written on this blog over the last couple of years keeps circling back to the same place: scheduled jobs. A job that [removes orphaned job records from the database]({% post_url 2025-09-04-automatically-removing-orphaned-jobs-from-db %}). A job that [rebuilds SQL indexes and statistics]({% post_url 2025-10-08-quiet-performance-wins-scheduled-job-for-sql-index-maintenance-in-optimizely %}). A [whole series]({% post_url 2026-02-24-catalog-traversal-in-action-part-2-real-world-scheduled-job-patterns %}) on walking a Commerce catalog without blowing up the heap.
+
+On a real Optimizely project, the scheduled job system is where a surprising amount of the actual business lives — nightly imports, exports to an ERP, index maintenance, catalog reconciliation, cleanup passes nobody has thought about since 2019.
 
 And every one of those posts had the same blind spot, which I glossed over each time because there was nothing to do about it: **once the job finishes, you have almost nothing.**
 
@@ -33,7 +35,11 @@ And every one of those posts had the same blind spot, which I glossed over each 
 
 Optimizely's built-in Scheduled Jobs screen gives you three things per job: whether the last run succeeded, when it ran, and a single string — whatever `Execute()` returned, dropped into one cell of a grid. That's it. `OnStatusChanged` messages are live-only; they update the status column while the job runs and are gone the moment it ends.
 
-So the conversation on a Monday morning goes like this. Someone asks why Saturday's product import was slow. You open the Scheduled Jobs screen and find `Imported 12,483 products.` — the same message it always shows. Not *which* products. Not how long it took, beyond a start and end time. Not whether it churned through 8 GB of allocations getting there. If the run threw, you get a failure flag and a message, and then you go digging in Application Insights hoping the correlation window is wide enough and log retention hasn't already aged it out.
+So the conversation on a Monday morning goes like this. Someone asks why Saturday's product import was slow. You open the Scheduled Jobs screen and find `Imported 12,483 products.` — the same message it always shows.
+
+Not *which* products. Not how long it took, beyond a start and end time. Not whether it churned through 8 GB of allocations getting there.
+
+If the run threw, you get a failure flag and a message, and then you go digging in Application Insights hoping the correlation window is wide enough and log retention hasn't already aged it out.
 
 The information existed. The job knew everything — it just had nowhere to put it, so it threw it away and returned one sentence.
 
@@ -43,7 +49,7 @@ That's the gap I finally got tired of, and **OptiPowerTools.ScheduledJobsInsight
   <img src="/assets/img/2026-09-15-optipowertools-scheduledjobsinsights-icon.png" alt="OptiPowerTools.ScheduledJobsInsights icon" style="max-width: 200px;" />
 </p>
 
-## Change the base class, get the history
+## Writing a logged job
 
 The whole design goal was that adopting it should be a one-line change per job. Swap `ScheduledJobBase` for `LoggedScheduledJobBase`, implement `ExecuteJob()` instead of `Execute()`, and every run is recorded from then on:
 
@@ -53,7 +59,12 @@ The whole design goal was that adopting it should be a one-line change per job. 
    file="post_assets/code-snippets/2026-09-15-ScheduledJobsInsights-Logged-Job.cs"
 %}
 
-Note what didn't change. `OnStatusChanged` still works exactly as before — you keep calling it, the CMS status column keeps updating, and the message is *also* captured into the history. The string you return still lands in Optimizely's **Last execution message** cell. If `ExecuteJob()` throws, the exception is recorded and then **rethrown unchanged**, so the CMS's own `HasLastExecutionFailed` tracking behaves precisely as it would without the package. Constructor injection works the way Optimizely already constructs jobs — add your own dependencies alongside `JobLoggingContext` and forward only the context to `base`.
+Note what didn't change:
+
+- `OnStatusChanged` still works exactly as before. You keep calling it, the CMS status column keeps updating, and the message is *also* captured into the history.
+- The string you return still lands in Optimizely's **Last execution message** cell.
+- If `ExecuteJob()` throws, the exception is recorded and then **rethrown unchanged**, so the CMS's own `HasLastExecutionFailed` tracking behaves exactly as it would without the package.
+- Constructor injection works the way Optimizely already constructs jobs — add your own dependencies alongside `JobLoggingContext` and forward only the context to `base`.
 
 The point is that this is additive. Nothing you already rely on moves.
 
@@ -73,7 +84,9 @@ One project setting is required, and it's the single most likely thing to trip y
 </PropertyGroup>
 ```
 
-The UI is a Blazor Server component, so the application has to serve `_framework/blazor.server.js`. That file comes from the `Microsoft.AspNetCore.App.Internal.Assets` pack, which the Web SDK references only when the *application project itself* contains `.razor` files. This package's components live inside the package, so the SDK never notices. Without the setting the page renders and then simply does nothing, with a 404 for `blazor.server.js` in the browser console — a genuinely unpleasant thing to debug, which is why the package logs a named warning at startup when it spots the setting missing. Applications that already have their own `.razor` files get it for free.
+The UI is a Blazor Server component, and without this the page renders but never becomes interactive. Applications that already contain their own `.razor` files get it for free; the package logs a named warning at startup if it spots the setting missing.
+
+Why the SDK misses components that live inside a package — and why the failure is silent — is a story of its own. I'll cover it in a follow-up post.
 
 Then the wiring:
 
@@ -97,6 +110,8 @@ app.UseEndpoints(endpoints =>
 // Migrations and startup diagnostics. The hub is already mapped, so this does not map it again.
 app.UseOptiPowerToolsScheduledJobsInsights();
 ```
+
+That ordering is not cosmetic. Mapping the hub in the wrong place breaks every Blazor request in the application — the host's own pages included — with an exception that names nothing useful. I'll explain why in the follow-up post.
 
 The connection string can point at the same database as Optimizely or at a separate one — there's no fallback, it must be set explicitly. Tables live in their own `scheduled_jobs_insights` schema via standard EF Core migrations, applied at startup by default. If your application identity has no DDL rights, set `AutoMigrateDatabase = false` and run the idempotent SQL script shipped with each GitHub release.
 
@@ -137,11 +152,15 @@ Summary.AppendLine($"  Rows exported : {total:N0}");
 
 ![Result summary section](/assets/img/2026-09-15-optipowertools-scheduledjobsinsights-result-summary.jpg)
 
-Three details matter more than the API does. **Newlines survive** end to end, stored as written and rendered as written, so a column-aligned report still lines up on the page. **It survives failure** — the summary is persisted on the way out of `ExecuteJob()` whether it returned or threw, so whatever a job managed to record before dying is still there when you go looking. And **it's bounded**: appends past `MaxResultSummaryLength` (100,000 characters) are discarded with a truncation notice, so a job that logs one line per SKU can't quietly write megabytes into every history row.
+Three details matter more than the API does:
+
+- **Newlines survive** end to end, stored as written and rendered as written, so a column-aligned report still lines up on the page.
+- **It survives failure.** The summary is persisted on the way out of `ExecuteJob()` whether it returned or threw, so whatever a job managed to record before dying is still there when you go looking.
+- **It's bounded.** Appends past `MaxResultSummaryLength` (100,000 characters) are discarded with a truncation notice, so a job that logs one line per SKU can't quietly write megabytes into every history row.
 
 Nothing is stored unless you append something, so jobs that don't use it pay nothing.
 
-### Metrics, named honestly
+### Automatic metrics
 
 Every execution records duration, bytes allocated, process CPU time and GC collection counts automatically, plus anything you add via `RecordMetric`. The names are deliberately awkward, and I want to explain why, because the honest version is more useful than the tidy one:
 
@@ -152,9 +171,11 @@ Every execution records duration, bytes allocated, process CPU time and GC colle
 | `ProcessCpuTimeMs` | CPU time for the **whole process** during the job's window — on a CMS serving requests, that includes everything else the application was doing. |
 | `GcGen0/1/2Collections` | Process-wide GC deltas. Same caveat, but a useful trend signal across repeated runs of the same job. |
 
-Per-job CPU isn't something this package can measure, so rather than call it `CpuTimeMs` and let you draw a wrong conclusion from it, the name says whose CPU it is. The same applies to allocations. As a *trend* across repeated runs of the same job, both are genuinely useful — the run where allocations tripled is exactly the run you want to look at. As an absolute number attributed to one job, they'd be a lie.
+Per-job CPU isn't something this package can measure. Rather than call it `CpuTimeMs` and let you draw a wrong conclusion, the name says whose CPU it is. The same applies to allocations.
 
-### Statuses that say what happened
+As a *trend* across repeated runs of the same job, both are genuinely useful — the run where allocations tripled is exactly the run you want to look at. As an absolute number attributed to one job, they'd be a lie.
+
+### Execution statuses
 
 Native tracking has two outcomes: it succeeded or it failed. This package records five, and the extra three exist because the first two quietly distort history.
 
@@ -164,7 +185,7 @@ Native tracking has two outcomes: it succeeded or it failed. This package record
 
 **Running** is the third, and it's live: a running execution re-polls every two seconds and appends new lines as they arrive, marked with a live indicator, fetching only lines newer than those already shown. Leave the page open while a job finishes and it catches up on its own — the badge flips, duration fills in, metrics and summary appear. No reload.
 
-## Retention, because history isn't free
+## Retention
 
 A job logging one line per processed row will produce a lot of rows. Retention resolves in three tiers: an administrator's override wins over a `[JobRetention]` attribute on the job, which wins over the configured default of 30 days. Any of the three can be indefinite.
 
@@ -189,25 +210,17 @@ This is the constraint I held everything else to. The package observes scheduled
 - **The application still starts.** Startup migrations log a critical error and continue rather than aborting `Configure` and taking the whole CMS down with them.
 - **Jobs still run and still report correctly.** Recording is skipped for that run; the job's own exception is still rethrown, so Optimizely's success/failure tracking is unchanged.
 - **The CMS status column still updates**, because `OnStatusChanged` raises the native event before any recording is attempted.
-- **Nothing throws into job code.** No member of `IJobExecutionWriter` throws. `LogInputData` survives an object graph JSON can't serialize (a cycle through an EF navigation) *and* a property getter that throws on access (a lazy-loading proxy whose `DbContext` is gone). Either way the run records why the input couldn't be captured and carries on.
+- **Nothing throws into job code.** No member of `IJobExecutionWriter` throws, and `LogInputData` survives both an object graph JSON can't serialize and a property getter that throws on access — it records why the input couldn't be captured and carries on.
 
 What you lose is history for the affected period, and the UI says it couldn't read the history rather than rendering a convincingly empty list.
 
-## Why Blazor
+## A note on the UI
 
-The honest answer is two-thirds engineering and one-third that I wanted the excuse.
+The whole interface is Blazor Server, rendered inside the CMS shell like any native admin page. That was a deliberate choice — a live console that appends log lines while a job runs is exactly the shape Blazor is good at, and CMS 13 on .NET 10 means Blazor is already part of the platform the CMS runs on.
 
-The engineering third: this UI is a live console. Log lines arrive while a job runs, the status badge flips when it ends, metrics appear a moment later. Building that over MVC and polling endpoints means hand-writing the diffing, the "only fetch lines newer than X" bookkeeping, and the DOM updates, in JavaScript, against a CMS shell that already has opinions about the page. Blazor Server gives you the diffing for free over a connection that's already open. The detail view re-reads itself every `DetailPollInterval` and appends what's new; the component tree handles the rest.
+It also turned out to be the most interesting part of the build, and the part with the sharpest edges: shipping Razor components inside a NuGet package, mapping the Blazor hub next to `MapContent()`, and what prerendering does to time zones.
 
-The other third: CMS 13 moved Optimizely onto .NET 10, and Blazor is now simply part of the platform the CMS runs on. I wanted a real, non-toy playground for it inside Optimizely — something with authorization, prerendering, a database behind it and a hostile hosting environment, not a counter button. Scheduled job history turned out to be an almost perfect candidate: a list, a detail view, a live tail, and a settings screen.
-
-Three things I learned that are worth passing on to anyone attempting the same:
-
-**Shipping Razor components in a NuGet package is not the same as having them in your app.** That `RequiresAspNetWebAssets` setting exists because the Web SDK decides whether to reference the framework assets by looking for `.razor` files in the *application* project. Components inside a package are invisible to that check, and the failure mode is a page that renders perfectly and never becomes interactive.
-
-**Mapping the Blazor hub inside an Optimizely host is genuinely fiddly.** Map `/_blazor` before your own `UseEndpoints(...)` block and the hub gets published through a `UseEndpoints` call of its own; `MapContent()` then consolidates that already-published data source into its own snapshot, the hub ends up registered twice, and *every* Blazor request in the application — this package's and the host's alike — fails with `AmbiguousMatchException`, with nothing in the message naming the culprit. This came in from a real CMS 13 + Commerce 15 site. Hence the recommended shape above: map it on your own route builder, ahead of `MapContent()`. If your application already owns `/_blazor`, the package detects an existing mapping and skips its own, and `MapBlazorHub = false` covers the case where yours is mapped afterwards and detection can't see it. Worth knowing that endpoint matching runs *before* authentication, so this reproduces anonymously and doesn't need a CMS login to diagnose.
-
-**Prerendering makes time zones an architectural decision.** Rendering timestamps in the visitor's zone normally means asking the browser, which means the first paint is wrong and then flickers. Instead, the page writes the browser's IANA zone into a cookie and the server applies it, so every view after the first is correct at prerender. The trade-off is stated rather than hidden: the very first page view renders in UTC and is labelled as such. Only the zone follows you — dates stay ISO-ordered and numbers stay invariant, so `2026-08-19` never has to be read as either August or the 19th month, and a duration reads the same pasted into a ticket as it did on the host that produced it.
+That is too much for this post, so it gets its own. I'll publish it in a couple of days.
 
 ## Insights or Hangfire?
 
@@ -229,14 +242,22 @@ Install from the [Optimizely feed](https://nuget.optimizely.com/packages/optipow
 dotnet add package OptiPowerTools.ScheduledJobsInsights
 ```
 
-It requires **.NET 10 and Optimizely CMS 13.x** — the Blazor hosting model and the CMS 13 shell integration are what the package is built around, and there is no CMS 12 line. MIT licensed and SemVer'd, with the public surface deliberately narrow and spelled out in the README, so you know exactly what 1.x promises to keep compiling: the base class and its seams, `JobLoggingContext`, `IJobExecutionWriter` (no member added to it outside a major version), the options and configuration section, and the persisted enums and schema.
+It requires **.NET 10 and Optimizely CMS 13.x**. The Blazor hosting model and the CMS 13 shell integration are what the package is built around, and there is no CMS 12 line.
+
+MIT licensed and SemVer'd. The public surface is deliberately narrow and spelled out in the README, so you know exactly what 1.x promises to keep compiling: the base class and its seams, `JobLoggingContext`, `IJobExecutionWriter`, the options and configuration section, and the persisted enums and schema.
 
 Each [GitHub release](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights/releases) also carries the idempotent SQL script for that version, for deployments that apply the schema themselves rather than letting the package migrate at startup.
 
 ## Wrapping up
 
-Every project I've worked on that leans on scheduled jobs has, at some point, had the same conversation: something ran overnight, somebody asks what it did, and the answer is a shrug and a trawl through logs. On a small site you live with it. On a large one — dozens of jobs, several environments, a DXP instance that recycles when it feels like it, an integration whose owner asks pointed questions on Monday — you shouldn't have to. If you're running native Optimizely scheduled jobs at that scale, I think execution history stops being a nice-to-have and becomes something the project should just have from day one.
+Every project I've worked on that leans on scheduled jobs has, at some point, had the same conversation: something ran overnight, somebody asks what it did, and the answer is a shrug and a trawl through logs.
 
-Four release candidates went out over the last few weeks and the API surface settled well before the last of them, so 1.0.0 is less a finish line than an admission that it stopped changing. What it hasn't had yet is *your* jobs. If something doesn't fit — a job shape I didn't anticipate, a host configuration that fights the Blazor hub, a metric that would have told you something — [open an issue](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights/issues). Feedback from a real project is worth more than another week of my own testing.
+On a small site you live with it. On a large one — dozens of jobs, several environments, a DXP instance that recycles when it feels like it, an integration whose owner asks pointed questions on Monday — you shouldn't have to.
+
+If you're running native Optimizely scheduled jobs at that scale, I think execution history stops being a nice-to-have and becomes something the project should just have from day one.
+
+Four release candidates went out over the last few weeks, and the API surface settled well before the last of them. What 1.0.0 hasn't had yet is *your* jobs.
+
+If something doesn't fit — a job shape I didn't anticipate, a host configuration that fights the Blazor hub, a metric that would have told you something — [open an issue](https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights/issues). Feedback from a real project is worth more than another week of my own testing.
 
 Is there anything else you'd want recorded about a job run that isn't here? Let me know in the comments. Thank you for reading!
