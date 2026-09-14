@@ -152,7 +152,7 @@ public sealed record WriteOutcome(bool Succeeded, string? Error)
 [CatalogContentType(GUID = "...")]
 public class Product : VariationContent
 {
-    // Only the fields the feed adds. DisplayName is already on EntryContentBase —
+    // Only the fields the feed adds. DisplayName is already on EntryContentBase -
     // redeclare it and you shadow the framework's property rather than using it.
     public virtual bool IsActiveInFeed { get; set; }
     public virtual string Volume { get; set; }
@@ -332,7 +332,7 @@ _principalAccessor.Principal = new GenericPrincipal(
 try
 {
     // An explicit using block, not `using var`. A `using var` disposes at the end of the
-    // method — after the finally below has restored the principal — so the broadcast would
+    // method - after the finally below has restored the principal - so the broadcast would
     // run unelevated, which is the one thing the elevation exists to prevent.
     using (CatalogChangeBatch.Begin())
     {

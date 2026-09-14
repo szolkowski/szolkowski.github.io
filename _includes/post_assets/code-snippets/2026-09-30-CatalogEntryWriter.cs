@@ -354,12 +354,12 @@ public class CatalogEntryWriter : ICatalogEntryWriter
     }
 
     /// <summary>
-    /// Resolves the meta class by the CLR type name of your catalog content type — the bridge that
+    /// Resolves the meta class by the CLR type name of your catalog content type - the bridge that
     /// keeps the DTO layer and the content layer describing the same thing.
     ///
     /// Careful with that phrasing though: it holds only while [CatalogContentType.MetaClassName] is
     /// left unset. Set it, and the meta class is named by the attribute rather than by the type, and
-    /// renaming the class becomes harmless — which is exactly why the benchmark jobs in this post
+    /// renaming the class becomes harmless - which is exactly why the benchmark jobs in this post
     /// set it explicitly.
     ///
     /// A null here means the content-type sync has not run, and saying so beats letting a
@@ -375,14 +375,14 @@ public class CatalogEntryWriter : ICatalogEntryWriter
     /// The identity value is not reliably written back onto the row after SaveCatalogEntry, so we
     /// sometimes have to re-read it. Taking [0] blind would mean the id handed to the recursive
     /// delete in Create's catch block might belong to something we never created, so this filters
-    /// on meta class AND catalog — the two facts we know about the row we just inserted. Returns 0
+    /// on meta class AND catalog - the two facts we know about the row we just inserted. Returns 0
     /// when the row cannot be identified, which the caller must treat as "do not delete".
     ///
     /// Note this filter is deliberately STRICTER than the one in Upsert, which matches on meta
     /// class alone because it has not resolved a catalog yet. That looseness is a real limitation:
     /// if the same SKU exists under the same meta class in a different catalog, Upsert will take
     /// the update path against the foreign row. This writer assumes SKUs are unique per meta class
-    /// across catalogs — true for a single-catalog solution, which is most of them, and worth
+    /// across catalogs - true for a single-catalog solution, which is most of them, and worth
     /// checking before you paste it into a multi-catalog one.
     /// </summary>
     private int ResolveEntryId(
