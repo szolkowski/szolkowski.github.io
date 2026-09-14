@@ -2,18 +2,18 @@
 layout: post
 title:  "Bulk Catalog Import in Optimizely Commerce: the Low-Level DTO API"
 description: "Bulk-importing 250,000 products through the Commerce DTO API instead of IContentRepository — measured 3x faster, what you give up, and per-row error reporting."
-date:   2026-09-08 10:00:00 +0200
+date:   2026-09-30 10:00:00 +0200
 # Pinned so dateModified cannot precede datePublished on a scheduled post.
 # Remove (or bump) if the post is substantively edited after publication.
-last_modified_at: 2026-09-08 10:00:00 +0200
+last_modified_at: 2026-09-30 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
 redirect_from:
-  - /2026/09/08/Bulk-Catalog-Import-in-Optimizely-Commerce-the-Low-Level-DTO-API.html
-  - /2026/09/08/bulk-catalog-import-optimizely-commerce-low-level-dto-api.html
+  - /2026/09/30/Bulk-Catalog-Import-in-Optimizely-Commerce-the-Low-Level-DTO-API.html
+  - /2026/09/30/bulk-catalog-import-optimizely-commerce-low-level-dto-api.html
 image:
-   path: assets/img/2026-09-08-bulk-catalog-import-optimizely-commerce-low-level-dto-api.png
+   path: assets/img/2026-09-30-bulk-catalog-import-optimizely-commerce-low-level-dto-api.png
    alt: "Bulk Catalog Import in Optimizely Commerce: the Low-Level DTO API"
    width: 1200
    height: 630
@@ -118,9 +118,9 @@ This is the part that belongs in the same breath as the speed argument, because 
 Here is the full upsert. It is longer than the content-API version, and that is fair: most of the extra lines are things the content layer was doing for you.
 
 {% include code-modal.html
-   id="2026-09-08-CatalogEntryWriter"
+   id="2026-09-30-CatalogEntryWriter"
    lang="csharp"
-   file="post_assets/code-snippets/2026-09-08-CatalogEntryWriter.cs"
+   file="post_assets/code-snippets/2026-09-30-CatalogEntryWriter.cs"
 %}
 
 It works against a small, deliberately boring input model:
@@ -292,9 +292,9 @@ public interface IImportObserver
 `ParsedRow<T>` is layer one: a CSV reader configured with `BadDataFound` set to record-and-continue never throws for a bad *row*, it produces a row-shaped error carrying the physical line number. Layer two is the writer returning `WriteOutcome.Failure(...)` for anything it can anticipate. Layer three is one `try`/`catch` per record for everything else.
 
 {% include code-modal.html
-   id="2026-09-08-CatalogBulkImporter"
+   id="2026-09-30-CatalogBulkImporter"
    lang="csharp"
-   file="post_assets/code-snippets/2026-09-08-CatalogBulkImporter.cs"
+   file="post_assets/code-snippets/2026-09-30-CatalogBulkImporter.cs"
 %}
 
 **Key Points:**
@@ -316,9 +316,9 @@ Bypassing the content layer means no catalog events are raised for you. The naiv
 What you want is one coalesced event per batch. An `AsyncLocal` ambient scope gets you that without threading a batch object through every method signature:
 
 {% include code-modal.html
-   id="2026-09-08-CatalogChangeBatch"
+   id="2026-09-30-CatalogChangeBatch"
    lang="csharp"
-   file="post_assets/code-snippets/2026-09-08-CatalogChangeBatch.cs"
+   file="post_assets/code-snippets/2026-09-30-CatalogChangeBatch.cs"
 %}
 
 The importer opens exactly one of these per 500-row batch, in the same scope where it elevates the principal—the DTO API reads the ambient principal and a scheduled job has not got one:
@@ -361,9 +361,9 @@ finally
 The three snippets above are the interesting parts, and I have introduced their companions in prose as they came up—which reads better than a wall of DTOs, but does mean the three files do not compile on their own. So here is everything they lean on, in one place: the import item and its outcome, the four collaborator interfaces, and the parse-and-report types from the section before this one.
 
 {% include code-modal.html
-   id="2026-09-08-CatalogImportContracts"
+   id="2026-09-30-CatalogImportContracts"
    lang="csharp"
-   file="post_assets/code-snippets/2026-09-08-CatalogImportContracts.cs"
+   file="post_assets/code-snippets/2026-09-30-CatalogImportContracts.cs"
 %}
 
 Drop that in alongside `CatalogEntryWriter`, `CatalogBulkImporter` and `CatalogChangeBatch` and all four build against a clean Commerce 15 project. One deliberate difference from the post above: `Product` is a **plain class** here, not a `[CatalogContentType] VariationContent` subclass. The writer only ever reaches it through `nameof`, and shipping a live catalog content type in a set of article snippets would provision a meta class in your Commerce database the moment you pressed F5. In your own solution it is the real content type—the one thing that will not work against the stand-in is the `GetDefault<...>()` call from the very first example, which needs a genuine one.
@@ -457,25 +457,25 @@ It reports, per volume: total elapsed and rows/second, and then the per-batch di
 First the shared half—content type, data generator, timing, the self-creating category, and a cleanup job:
 
 {% include code-modal.html
-   id="2026-09-08-CatalogImportBenchmark-Shared"
+   id="2026-09-30-CatalogImportBenchmark-Shared"
    lang="csharp"
-   file="post_assets/code-snippets/2026-09-08-CatalogImportBenchmark.Shared.cs"
+   file="post_assets/code-snippets/2026-09-30-CatalogImportBenchmark.Shared.cs"
 %}
 
 Then the two jobs. The content-API one:
 
 {% include code-modal.html
-   id="2026-09-08-ContentApiImportBenchmarkJob"
+   id="2026-09-30-ContentApiImportBenchmarkJob"
    lang="csharp"
-   file="post_assets/code-snippets/2026-09-08-ContentApiImportBenchmarkJob.cs"
+   file="post_assets/code-snippets/2026-09-30-ContentApiImportBenchmarkJob.cs"
 %}
 
 And the DTO one:
 
 {% include code-modal.html
-   id="2026-09-08-DtoApiImportBenchmarkJob"
+   id="2026-09-30-DtoApiImportBenchmarkJob"
    lang="csharp"
-   file="post_assets/code-snippets/2026-09-08-DtoApiImportBenchmarkJob.cs"
+   file="post_assets/code-snippets/2026-09-30-DtoApiImportBenchmarkJob.cs"
 %}
 
 **Key Points:**
