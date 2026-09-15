@@ -107,7 +107,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
 });
 
-// Migrations and startup diagnostics. The hub is already mapped, so this does not map it again.
+// Migrations and startup diagnostics. The hub is already mapped, so this does not map it again
 app.UseOptiPowerToolsScheduledJobsInsights();
 ```
 
@@ -250,7 +250,7 @@ Each [GitHub release](https://github.com/szolkowski/OptiPowerTools.ScheduledJobs
 
 ## Wrapping up
 
-Every project I've worked on that leans on scheduled jobs has, at some point, had the same conversation: something ran overnight, somebody asks what it did, and the answer is a shrug and a trawl through logs.
+Every project I've worked on that leans on scheduled jobs has, at some point, had the same conversation: something ran overnight, somebody asks what it did, and the answer is a shrug and a trawl through logs. 
 
 On a small site you live with it. On a large one — dozens of jobs, several environments, a DXP instance that recycles when it feels like it, an integration whose owner asks pointed questions on Monday — you shouldn't have to.
 
