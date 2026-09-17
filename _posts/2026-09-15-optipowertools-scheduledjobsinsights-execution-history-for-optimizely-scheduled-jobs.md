@@ -31,7 +31,7 @@ On a real Optimizely project, the scheduled job system is where a surprising amo
 
 And every one of those posts had the same blind spot, which I glossed over each time because there was nothing to do about it: **once the job finishes, you have almost nothing.**
 
-## What the native job system actually tells you
+## What the native job system actually tells you 
 
 Optimizely's built-in Scheduled Jobs screen gives you three things per job: whether the last run succeeded, when it ran, and a single string — whatever `Execute()` returned, dropped into one cell of a grid. That's it. `OnStatusChanged` messages are live-only; they update the status column while the job runs and are gone the moment it ends.
 
