@@ -12,6 +12,9 @@ Run locally:
 Run locally with live changes update:
 `bundle exec jekyll serve --livereload`
 
+Run locally with unpublished posts:
+`bundle exec jekyll serve --unpublished --future`
+
 ### Generating tag pages
 
 After adding new tags to posts, run:
