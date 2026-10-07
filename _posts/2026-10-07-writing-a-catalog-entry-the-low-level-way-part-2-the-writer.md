@@ -164,7 +164,7 @@ Part 3 needs this file too: the bulk importer reaches into it for `ProductImport
 
 ## What's next?
 
-The writer handles one row. It does not decide what happens when row 148,213 has a missing price and 249,999 other rows are waiting behind it — and on this project, answering that was a stated product requirement rather than an engineering nicety. Part 3 covers the per-row failure report, why there is deliberately no run-wide transaction, and how to raise one catalog event per batch instead of a quarter of a million of them.
+The writer handles one row. It does not decide what happens when row 148,213 has a missing price and 249,999 other rows are waiting behind it — and on this project, answering that was a stated product requirement rather than an engineering nicety. [Part 3]({{ '/2026/10/14/surviving-a-dirty-feed-part-3-error-handling-and-event-batching/' | relative_url }}) covers the per-row failure report, why there is deliberately no run-wide transaction, and how to raise one catalog event per batch instead of a quarter of a million of them.
 
 ## Summary
 
@@ -187,6 +187,6 @@ Thank you for reading, and stay tuned for Part 3.
 
 - [Part 1: Why the DTO API]({% post_url 2026-09-30-bulk-catalog-import-in-optimizely-commerce-part-1-why-the-dto-api %})
 - Part 2: The Writer - (this post)
-- Part 3: Error Handling and Event Batching - coming soon
+- [Part 3: Error Handling and Event Batching]({{ '/2026/10/14/surviving-a-dirty-feed-part-3-error-handling-and-event-batching/' | relative_url }})
 - Part 4: Counting Round Trips - coming soon
 - Part 5: Process Uptime and the Benchmark - coming soon
