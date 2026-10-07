@@ -68,6 +68,10 @@ optipowertools-hangfire:
   description: "Posts tagged OptiPowerTools.Hangfire — the open-source NuGet package wiring Hangfire into Optimizely CMS, with dashboards, scheduled jobs, and admin gates."
   intro: "Posts about <strong>OptiPowerTools.Hangfire</strong> — the NuGet package that wires <a href='https://www.hangfire.io/'>Hangfire</a> into Optimizely CMS. Source on <a href='https://github.com/szolkowski/OptiPowerTools.Hangfire'>GitHub</a>; CMS 12 and 13 supported."
 
+optipowertools-scheduledjobsinsights:
+  description: "Posts tagged OptiPowerTools.ScheduledJobsInsights — execution history, logs, metrics and retention for Optimizely CMS 13 native scheduled jobs."
+  intro: "Posts about <strong>OptiPowerTools.ScheduledJobsInsights</strong> — the NuGet package that records what Optimizely's native scheduled jobs actually did: severity-tagged logs, automatic metrics, result summaries and per-job retention, in a Blazor UI inside the CMS admin. Source on <a href='https://github.com/szolkowski/OptiPowerTools.ScheduledJobsInsights'>GitHub</a>; CMS 13 / .NET 10."
+
 ci:
   description: "Posts tagged CI — GitHub Actions and Azure DevOps pipelines for Optimizely CMS, including SonarCloud analysis, Playwright UI tests, and build automation."
   intro: "Posts about <strong>continuous integration</strong> for Optimizely projects — GitHub Actions and Azure DevOps pipelines, SonarCloud quality gates, and UI regression testing with Playwright."
@@ -83,3 +87,7 @@ sonarcloud:
 nuget:
   description: "Posts tagged NuGet — packaging and distributing Optimizely CMS / Commerce libraries, semantic versioning, and the OptiPowerTools.Hangfire release flow."
   intro: "Posts about <strong>NuGet</strong> packaging for Optimizely projects — semantic versioning, package metadata, and the release flow behind the OptiPowerTools.Hangfire package."
+
+blazor:
+  description: "Posts tagged Blazor — Blazor Server components inside the Optimizely CMS 13 admin shell, hosting gotchas, prerendering, and live-updating job UIs."
+  intro: "Posts about <strong>Blazor</strong> in Optimizely CMS — shipping Razor components from a NuGet package, mapping the Blazor Server hub next to <code>MapContent()</code>, prerendering, and building live-updating admin screens on .NET 10."
