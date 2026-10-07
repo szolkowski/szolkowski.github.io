@@ -111,7 +111,7 @@ This is the part that belongs in the same breath as the speed argument, because 
 
 ## What's next?
 
-That's the case for the DTO API and the bill that comes with it. It doesn't tell you how to actually write a row through it, and the code is longer than the content-API version for good reasons. In [Part 2]({{ '/2026/10/07/writing-a-catalog-entry-the-low-level-way-part-2-the-writer/' | relative_url }}) I'll walk the full upsert: `ContentGuid`, the strongly typed `DataSet` traps, the meta class that bridges the two layers, and a create path that cleans up after itself.
+That's the case for the DTO API and the bill that comes with it. It doesn't tell you how to actually write a row through it, and the code is longer than the content-API version for good reasons. In [Part 2]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %}) I'll walk the full upsert: `ContentGuid`, the strongly typed `DataSet` traps, the meta class that bridges the two layers, and a create path that cleans up after itself.
 
 ## Summary
 
@@ -132,7 +132,7 @@ Thank you for reading, and stay tuned for Part 2.
 ## This Post is Part of a Series
 
 - Part 1: Why the DTO API - (this post)
-- [Part 2: The Writer]({{ '/2026/10/07/writing-a-catalog-entry-the-low-level-way-part-2-the-writer/' | relative_url }})
-- Part 3: Error Handling and Event Batching - coming soon
+- [Part 2: The Writer]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %})
+- [Part 3: Error Handling and Event Batching]({{ '/2026/10/14/surviving-a-dirty-feed-part-3-error-handling-and-event-batching/' | relative_url }})
 - Part 4: Counting Round Trips - coming soon
 - Part 5: Process Uptime and the Benchmark - coming soon
