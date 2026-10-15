@@ -2,17 +2,17 @@
 layout: post
 title:  "Surviving a Dirty Feed. Part 3: Error Handling and Event Batching"
 description: "Committing a 250,000-row Optimizely catalog import row by row, returning a per-row failure report, and coalescing catalog events into one per batch."
-date:   2026-10-14 10:00:00 +0200
+date:   2026-10-16 10:00:00 +0200
 # Pinned so dateModified cannot precede datePublished on a scheduled post.
-last_modified_at: 2026-10-14 10:00:00 +0200
+last_modified_at: 2026-10-16 10:00:00 +0200
 author: Stanisław Szołkowski
 comments: true
 published: true
 redirect_from:
-  - /2026/10/14/Surviving-a-Dirty-Feed-Part-3-Error-Handling-and-Event-Batching.html
-  - /2026/10/14/surviving-a-dirty-feed-part-3-error-handling-and-event-batching.html
+  - /2026/10/16/Surviving-a-Dirty-Feed-Part-3-Error-Handling-and-Event-Batching.html
+  - /2026/10/16/surviving-a-dirty-feed-part-3-error-handling-and-event-batching.html
 image:
-   path: assets/img/2026-10-14-surviving-a-dirty-feed-part-3-error-handling-and-event-batching.png
+   path: assets/img/2026-10-16-surviving-a-dirty-feed-part-3-error-handling-and-event-batching.png
    alt: "Surviving a Dirty Feed. Part 3: Error Handling and Event Batching"
    width: 1200
    height: 630
@@ -108,9 +108,9 @@ public interface IImportObserver
 `ParsedRow<T>` is layer one: a CSV reader configured with `BadDataFound` set to record-and-continue never throws for a bad *row*, it produces a row-shaped error carrying the physical line number. Layer two is the writer returning `WriteOutcome.Failure(...)` for anything it can anticipate. Layer three is one `try`/`catch` per record for everything else.
 
 {% include code-modal.html
-   id="2026-10-14-CatalogBulkImporter"
+   id="2026-10-16-CatalogBulkImporter"
    lang="csharp"
-   file="post_assets/code-snippets/2026-10-14-CatalogBulkImporter.cs"
+   file="post_assets/code-snippets/2026-10-16-CatalogBulkImporter.cs"
 %}
 
 **Key Points:**
@@ -140,9 +140,9 @@ Bypassing the content layer means no catalog events are raised for you. The naiv
 What you want is one coalesced event per batch. An `AsyncLocal` ambient scope gets you that without threading a batch object through every method signature:
 
 {% include code-modal.html
-   id="2026-10-14-CatalogChangeBatch"
+   id="2026-10-16-CatalogChangeBatch"
    lang="csharp"
-   file="post_assets/code-snippets/2026-10-14-CatalogChangeBatch.cs"
+   file="post_assets/code-snippets/2026-10-16-CatalogChangeBatch.cs"
 %}
 
 The importer opens exactly one of these per 500-row batch, in the same scope where it elevates the principal—the DTO API reads the ambient principal and a scheduled job has not got one:
@@ -195,9 +195,9 @@ finally
 The importer's own result model—the parse-and-report types introduced in prose above—lives in one file:
 
 {% include code-modal.html
-   id="2026-10-14-ImportContracts"
+   id="2026-10-16-ImportContracts"
    lang="csharp"
-   file="post_assets/code-snippets/2026-10-14-ImportContracts.cs"
+   file="post_assets/code-snippets/2026-10-16-ImportContracts.cs"
 %}
 
 This one is **not** self-sufficient: `CatalogBulkImporter` also uses `ProductImportItem`, `WriteOutcome`, `ExceptionTree` and `ICatalogEntryWriter`, which ship with [Part 2]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %}). Take both files and the three snippets across the two parts build together against a clean Commerce 15 project.
