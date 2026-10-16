@@ -35,9 +35,9 @@ In this part I will count what really happens in the database for each imported 
 
 On a restored production database our import processed 500 products in 1.73 minutes. That is roughly 5 rows per second, so our 252,670-row file would run for about 14 and a half hours.
 
-Switching to the low-level API removed the content pipeline, however the import was still too slow. Most of the time now goes to database round trips.
+Switching to the low-level DTO API removed the content pipeline, however the import was still too slow. Most of the time now goes to database round trips.
 
-The benchmark in Part 5 gives 3.9 to 4.3 rows/s for its three DTO variants, which looks very close.
+The benchmark in Part 5 has two scheduled jobs, and the DTO job runs in three variants. Those variants give 3.9 to 4.3 rows/s, which looks very close.
 
 The two runs are set up differently, though (this one wrote prices against a full production catalog, the benchmark had prices off and a much smaller node). So the only thing I take from them together is the order of magnitude.
 
@@ -45,7 +45,7 @@ A simple DTO importer runs at a few rows per second, and that is enough for plan
 
 ## Where does the time go?
 
-Let's count the round trips on the update path. It is the most common one, since a nightly feed is mostly re-writes:
+Let's count the round trips on the update path in the first version of my importer (the one measured above). It is the most common path, since a nightly feed is mostly re-writes:
 
 | Step | Round trips |
 | ---------- | ---------- |
@@ -70,7 +70,7 @@ Here are the fixes in the order I would apply them.
 
 The `IEnumerable<CatalogKey>` overload does all of it once per batch, so 500 transactions and 500 broadcasts become one.
 
-Looking at the amount of work, this should be the biggest win of the four, and it is only a signature change plus a buffer. I haven't measured this fix on its own though. Price writing was enabled only in the production code, and every benchmark in this series (Part 1 and Part 5) ran with prices switched off.
+Looking at the amount of work, this should be the biggest win of the four, and it is only a signature change plus a buffer. I haven't measured this fix though. Price writing was enabled only in the production code, and every benchmark in this series (Part 1 and Part 5) ran with prices switched off.
 
 ### 2. Don't save an unchanged entry
 
@@ -80,7 +80,7 @@ We already have `DataRow.RowState`, so let's check it before saving. The primary
 
 ### 3. Watch out for quadratic category creation
 
-If you create categories from the feed, you need to give each new node a unique URI segment. My helper did it by reading every sibling under the parent, per language, for each created category. That makes creating N categories under one parent O(N²) in database work.
+If you create categories from the feed (my importer has a category writer that this series doesn't show), you need to give each new node a unique URI segment. My helper did it by reading every sibling under the parent, per language, for each created category. That makes creating N categories under one parent O(N²) in database work.
 
 Commerce doesn't do this, my helper did. However, it is the most obvious way to write such a check, so I'm sure I'm not the only one who wrote it.
 
@@ -88,7 +88,7 @@ The fix is simple: resolve the sibling set once per parent and keep it.
 
 ### 4. Know what `ReadMode.UnCached` costs
 
-Loading the meta object uncached is a correctness trade-off: a cached meta object can lose a concurrent write.
+My importer loads the meta object with `ReadMode.UnCached`. It is a correctness trade-off: a cached meta object can lose a concurrent write.
 
 The price is one database hit per row, every time. I keep it, but it is good to know that it is part of our minimum cost per row.
 
@@ -113,7 +113,7 @@ All of them are bugs in my own importer, and Optimizely itself wasn't the proble
 - My job base class wrote each log line in its own `DbContext` with its own `SaveChanges`, so every log line was a round trip.
 - Every rejected row was a log line, so a fully rejected file became a storm of inserts, one per row, on the job thread.
 - A standard job logging through `ILogger` doesn't have this cost.
-- Either way, we should limit how many rejections we log one by one.
+- Either way, we should limit how many rejections we log one by one (the importer from Part 3 caps it at 200).
 
 ### All rows rejected, and it looks like a hang
 
@@ -122,7 +122,7 @@ All of them are bugs in my own importer, and Optimizely itself wasn't the proble
 
 ### The site is slow after a successful import
 
-- My category resolver flushed the whole Commerce node cache globally on invalidate, and the import called it at both the start and the end of the run.
+- In the first version of my importer, the category resolver flushed the whole Commerce node cache globally on invalidate, and the import called it at both the start and the end of the run.
 - Every request afterward ran on a cold cache, exactly when the database could use a break the most.
 - We should invalidate only the keys we touched.
 
@@ -145,7 +145,7 @@ All of them are bugs in my own importer, and Optimizely itself wasn't the proble
 
 All of the above is worth doing, but there is a bigger problem.
 
-While measuring these fixes I ran the same benchmark twice on the same machine and got results that differed by a factor of eight. The only thing that changed was how long the application had been running. Part 5 is about that finding, and it comes with benchmark jobs that you can run on your own catalog.
+While measuring the other fixes I ran the same benchmark twice on the same machine and got results that differed by a factor of eight. The only thing that changed was how long the application had been running. Part 5 is about that finding, and it comes with benchmark jobs that you can run on your own catalog.
 
 ## Summary
 

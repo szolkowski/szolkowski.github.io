@@ -24,10 +24,10 @@ public static class CatalogChangeBatch
     // batch parameter, and two independent imports do not share one batch.
     //
     // READ THAT LAST CLAUSE CAREFULLY - it means two independent *flows*. AsyncLocal flows INTO
-    // child tasks, so parallelising the row loop (Parallel.ForEach, Task.WhenAll over rows) gives
+    // child tasks, so parallelizing the row loop (Parallel.ForEach, Task.WhenAll over rows) gives
     // every worker the SAME Batch instance, concurrently mutating plain HashSet<int> fields and
     // doing a non-atomic |= on the parent flags. That is a corrupted-hashtable bug, not a
-    // lost-update bug, and parallelising the loop is the most obvious next optimisation for an
+    // lost-update bug, and parallelizing the loop is the most obvious next optimization for an
     // importer running at a few rows per second. If you go there, lock the batch or swap the sets
     // for ConcurrentDictionary<int, byte> first.
     private static readonly AsyncLocal<Batch?> _current = new();

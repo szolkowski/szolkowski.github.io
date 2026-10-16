@@ -154,7 +154,7 @@ public class CatalogEntryWriter : ICatalogEntryWriter
         entryRow.EndDate = _maxEndDate;
 
         // Set by hand. This is the field the content layer would normally own, and it is what
-        // makes the row addressable as IContent afterwards. Forget it and the entry is orphaned
+        // makes the row addressable as IContent afterward. Forget it and the entry is orphaned
         // from the content world.
         entryRow.ContentGuid = Guid.NewGuid();
 
@@ -359,7 +359,7 @@ public class CatalogEntryWriter : ICatalogEntryWriter
     ///
     /// Careful with that phrasing though: it holds only while [CatalogContentType.MetaClassName] is
     /// left unset. Set it, and the meta class is named by the attribute rather than by the type, and
-    /// renaming the class becomes harmless - which is exactly why the benchmark jobs in this post
+    /// renaming the class becomes harmless - which is exactly why the benchmark jobs in Part 5
     /// set it explicitly.
     ///
     /// A null here means the content-type sync has not run, and saying so beats letting a
@@ -422,7 +422,7 @@ public class CatalogEntryWriter : ICatalogEntryWriter
             .Cast<CatalogRelationDto.NodeEntryRelationRow>()
             .FirstOrDefault(r => r.IsPrimary);
 
-        // Already where it belongs. Skipping here saves two round trips on every unchanged row,
+        // Already where it belongs. Skipping here saves three round trips on every unchanged row,
         // and over a quarter of a million rows that is most of them.
         if (primary is not null && primary.CatalogNodeId == nodeId)
         {
