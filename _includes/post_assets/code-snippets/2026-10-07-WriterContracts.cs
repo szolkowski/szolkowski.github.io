@@ -123,7 +123,7 @@ public interface ICategoryResolver
 }
 
 /// <summary>
-/// Wraps IPriceService. See the throughput section of the post for why this deserves a batching
+/// Wraps IPriceService. See Part 4 of this series for why this deserves a batching
 /// overload rather than the per-SKU call the writer makes.
 /// </summary>
 public interface ICatalogPriceWriter

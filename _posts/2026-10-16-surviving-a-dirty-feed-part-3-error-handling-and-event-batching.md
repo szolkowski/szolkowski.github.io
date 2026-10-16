@@ -27,18 +27,24 @@ tags:
 - .NET
 ---
 
-[Part 2]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %}) built a writer that upserts one catalog entry through the DTO API. This part is about the other stated requirement from [Part 1]({% post_url 2026-09-30-bulk-catalog-import-in-optimizely-commerce-part-1-why-the-dto-api %}), the one that turned out to shape the design more than speed did: commit record by record, and hand back a report of every row that failed and why.
+In [Part 2]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %}) we built a writer that upserts one catalog entry through the DTO API. In this part I will cover the other requirement from [Part 1]({% post_url 2026-09-30-bulk-catalog-import-in-optimizely-commerce-part-1-why-the-dto-api %}): commit record by record, and give back a report of every row that failed and why.
 
-## One bad row must not stop 249,999 good ones
+That requirement turned out to shape the design more than speed did.
 
-The rule I settled on is one sentence: **an expected failure is a returned outcome, an unexpected failure is an exception, and neither is allowed to end the run.**
+## How should errors be handled?
 
-Two consequences of "record by record" that I'd flag, because they are easy to miss until they bite:
+The main requirement is simple: one bad row can't stop the whole import.
 
-- **There's no run-wide transaction, and there must not be one.** Each row commits on its own. Wrapping the batch would mean one bad row rolling back 499 good ones, which is the behaviour the requirement exists to prevent. The only all-or-nothing scope in the whole design is the create path from [Part 2]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %}), and it spans a single entry.
-- **A partial run is a successful outcome, not an error.** The report is the deliverable. Whoever consumes it — an API caller getting the rejections in the response body, or an editor reading the job summary — needs the counts and the failed rows, not an exception.
+In my implementation, an expected failure is returned as an outcome, and an unexpected failure is an exception. Neither of them is allowed to end the run on its own. The circuit breaker below is the one exception, and it still ends with a report.
 
-That gives three layers, and the useful property is that they stack — a row can fail at any of them and comes out the far side looking the same to whoever reads the report.
+What does "record by record" mean in practice?
+
+- There is no transaction for the whole run, and there shouldn't be one for a batch either. Each row is committed on its own, so one bad row won't roll back the other 499 rows in its 500-row batch. The only all-or-nothing scope in the whole design is the create path from [Part 2]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %}), and it covers a single entry.
+- A partial run is still a successful run. The report is what we are after here! Whoever reads it (an API caller getting the rejections in the response body, or an editor reading the job summary) needs the counts and the failed rows, and an exception gives them neither.
+
+That gives us three layers. A row can fail at any of them, and it comes out looking the same to whoever reads the report.
+
+Here are the types that carry the report:
 
 ```csharp
 public sealed record ParsedRow<T>(int RowNumber, T? Record, string? Error)
@@ -105,7 +111,17 @@ public interface IImportObserver
 }
 ```
 
-`ParsedRow<T>` is layer one: a CSV reader configured with `BadDataFound` set to record-and-continue never throws for a bad *row*, it produces a row-shaped error carrying the physical line number. Layer two is the writer returning `WriteOutcome.Failure(...)` for anything it can anticipate. Layer three is one `try`/`catch` per record for everything else.
+`ParsedRow<T>` is layer one. A CSV reader configured with `BadDataFound` set to record-and-continue never throws for a bad *row*. Instead, it produces a row-shaped error carrying the physical line number.
+
+Layer two is the writer returning `WriteOutcome.Failure(...)` for anything it can anticipate.
+
+Layer three is one `try`/`catch` per record for everything else.
+
+The counts on `ImportSection` are always exact, but the detail list is capped. It keeps the first 1,000 rejections (`MaxRetainedRejections`), so a fully rejected 250,000-row feed doesn't hold a quarter of a million objects for the whole run.
+
+The job log is capped even lower. The importer lists only the first 200 rejections one by one (`MaxIndividuallyReportedRejections`), and then prints the exact total in the summary. So "every row that failed" means every row is counted, but only the first 1,000 come with details.
+
+Here is the full importer:
 
 {% include code-modal.html
    id="2026-10-16-CatalogBulkImporter"
@@ -113,31 +129,64 @@ public interface IImportObserver
    file="post_assets/code-snippets/2026-10-16-CatalogBulkImporter.cs"
 %}
 
-**Key Points:**
+Key Points:
 
-- Carry the row number through; the writer knows SKUs, the reader knows lines
+- Carry the row number through, since the writer knows SKUs and the reader knows lines
 - Count and report a rejection in the same place, never separately
 - The natural key does the idempotency work, so replay is safe
 - Stop is cooperative and checked between batches
 - `Stopped` and `Aborted` are different outcomes and both need rendering
+- The circuit breaker is a recorded outcome, so it doesn't throw
 
-**Carry the row number all the way through.** The writer only knows SKUs; the person fixing the feed only knows line numbers. Keeping `RowNumber` on the rejection is the difference between a report that gets acted on and one that gets ignored.
+### Row numbers
 
-**Count and report in the same place.** A single `Reject` helper means a rejection cannot be counted without being reported, or reported without being counted. Those two drifting apart is a genuinely annoying bug to chase, and I'd rather not chase it twice.
+The writer only knows SKUs, and the person fixing the feed only knows line numbers.
 
-**The natural key does the idempotency work.** Because the writer upserts on SKU and guards every field, re-running the same feed is a no-op in effect. There's no run id and no "have I imported this file already?" check, and I decided there doesn't need to be, as long as the key is the feed's own and every write is guarded.
+If we keep `RowNumber` on the rejection, people act on the report. Without it, the report gets ignored.
 
-**Stop is cooperative and checked between batches.** Rows already written stay written. A stopped import is a partial success and the report should say exactly that, out loud, rather than looking like a failure. `Stopped` and `Aborted` are separate flags: a human pressing Stop sets the first, the circuit breaker sets the second. Anything rendering "was this a partial run?" needs both, or needs to compare `Received` against `Accepted + Rejected`.
+### Counting and reporting
 
-**The circuit breaker is an outcome too, not an exception.** A hundred consecutive rows that *throw* is not a dirty feed, it's a dropped connection or a full disk, and rejecting the remaining 249,000 one at a time would take hours and produce a report nobody can read. So I stop the run and set `Aborted` plus a reason on the result. It doesn't throw, because throwing would destroy the counts and rejections gathered so far, which are the entire deliverable. Note that it counts throws only: returned failures are bad data, and a feed can legitimately be 100% rejects. That's a report, not an outage.
+A single `Reject` helper means a rejection can't be counted without being reported, or reported without being counted.
 
-And the honest weakness, which is the first thing I'd fix: **a transient SQL timeout and a genuinely invalid row both land in that last `catch` and both come out as "unexpected error".** The rejection list is therefore a *diagnosis* list, not a retry queue. Give the two cases distinct outcomes and you can retry one and report the other; leave them merged and you can only do the second.
+When those two drift apart, we get an annoying bug to chase, and I would prefer not to chase it twice.
+
+### Idempotency
+
+The writer upserts on SKU and guards every field, so re-running the same feed in effect changes nothing.
+
+There is no run id and no "have I imported this file already?" check. I don't think we need one, as long as the key is the feed's own and every write is guarded.
+
+### Stop and abort
+
+Stop is cooperative and is checked between batches. Rows already written stay written.
+
+A stopped import is a partial success, and the report should say exactly that, so it doesn't look like a failure.
+
+`Stopped` and `Aborted` are separate flags. A human pressing Stop sets the first one, and the circuit breaker sets the second. Anything that shows "was this a partial run?" needs to check both.
+
+### The circuit breaker
+
+A hundred consecutive rows that *throw* mean a dropped connection or a full disk. Rejecting the remaining 249,000 rows one at a time would take hours and produce a report nobody can read.
+
+So we stop the run and set `Aborted` plus a reason on the result. It doesn't throw, because throwing would destroy the counts and rejections gathered so far, and they are the whole point of the run.
+
+We count throws only. Returned failures are bad data, and a feed can be 100% rejects. That should still end with a report, so the breaker doesn't react to it.
+
+### What would I fix first?
+
+A transient SQL timeout and a really invalid row both land in that last `catch`, and both come out as "unexpected error".
+
+That makes the rejection list a list for diagnosis, and we can't use it as a retry queue.
+
+If we give the two cases separate outcomes, we can retry one and report the other.
 
 ## Batching and the event storm
 
-Bypassing the content layer means no catalog events are raised for you. The naive fix — raise one per row — is worse than the disease: on a multi-instance setup, every raised catalog event is a message on the bus, and 250,000 of them queued as fire-and-forget tasks is a thread-pool saturation mechanism, not a notification strategy.
+When we bypass the content layer, no catalog events are raised for us.
 
-What I wanted was one coalesced event per batch. An `AsyncLocal` ambient scope gets you that without threading a batch object through every method signature:
+The obvious fix, raising one event per row, is worse than the disease. On a multi-instance setup every raised catalog event is a message on the bus, and 250,000 of them queued as fire-and-forget tasks will saturate the thread pool.
+
+What I wanted was one coalesced event per batch. I used an `AsyncLocal` ambient scope, so we don't have to pass a batch object through every method signature:
 
 {% include code-modal.html
    id="2026-10-16-CatalogChangeBatch"
@@ -145,7 +194,9 @@ What I wanted was one coalesced event per batch. An `AsyncLocal` ambient scope g
    file="post_assets/code-snippets/2026-10-16-CatalogChangeBatch.cs"
 %}
 
-The importer opens exactly one of these per 500-row batch, in the same scope where it elevates the principal — the DTO API reads the ambient principal and a scheduled job has not got one:
+We open exactly one of these per 500-row batch, in the same scope where we elevate the principal, because the DTO API reads the ambient principal and a scheduled job doesn't have one.
+
+Here is a simplified excerpt. The full `CatalogBulkImporter` above also turns a failing `Begin()` into an abort, stops on `result.Aborted`, and counts every received row:
 
 ```csharp
 var previousPrincipal = _principalAccessor.Principal;
@@ -172,27 +223,41 @@ finally
 }
 ```
 
-**Key Points:**
+Key Points:
 
-- `HashSet<int>` gives you de-duplication for free
-- The open scope is a precondition, not a convenience
-- Clear the `AsyncLocal` in a `finally`, unconditionally
-- Reject nested scopes rather than half-supporting them
-- Guard the failure handler; a logging sink that throws undoes the isolation
+- `HashSet<int>` gives us de-duplication for free, so a SKU touched twice in one batch is reported once
+- Without an open scope, the write is announced to nobody
+- Clear the `AsyncLocal` before broadcasting, every time
+- Reject nested scopes instead of half-supporting them
+- Guard the failure handler, because a logging sink that throws undoes the isolation
 
-**A SKU touched twice in one batch is reported once**, because the set does the work.
+### The open scope
 
-**The scope is a precondition, not a convenience.** With no batch open, `EntryChanged` returns silently and the write is announced to nobody. That's deliberate, since it keeps the writers usable outside an import, but it's exactly the kind of quiet I'd expect to bite six months later. If you split the writers out for reuse, make the missing scope loud.
+With no batch open, `EntryChanged` returns silently and the write is announced to nobody.
 
-**Clear the `AsyncLocal` in a `finally`, unconditionally.** If a subscriber throws during `Dispose` and the slot is left pointing at a disposed batch, every later write in that flow accumulates into an object whose `Dispose` is already a no-op — announced to nobody, permanently. Clearing the slot only "if we're still the innermost scope" is precisely how you get that.
+I made it that way on purpose, since it keeps the writers usable outside an import, but it is exactly the kind of silence I would expect to cause trouble six months later. If you split the writers out for reuse, make the missing scope loud.
 
-**Don't support nesting; reject it.** Letting scopes nest and restoring the parent on dispose sounds accommodating and is the opposite of coalescing: the inner scope raises its own broadcast and its ids are never folded into the outer one, so wrapping a run in an outer scope gets you one broadcast per inner scope plus an empty outer one. So I made `Begin()` throw if a scope is already open. Half-supporting a feature that undoes the class's entire purpose is worse than not having it.
+### Clearing the AsyncLocal
 
-**Guard the failure handler too.** `OnBroadcastFailed` is where you wire your logging, and a logging sink that throws recreates the exact failure the isolation exists to prevent.
+If a subscriber throws during `Dispose` and the slot is left pointing at a disposed batch, every later write in that flow goes into an object whose `Dispose` is already a no-op. Those writes are announced to nobody, permanently.
+
+Clearing the slot only "if we're still the innermost scope" is exactly how you get there. So `Dispose` clears the slot first, before it raises anything. A subscriber that writes catalog rows of its own then doesn't add them to a batch that has already broadcast, and doesn't hit the "already open" throw from `Begin()`.
+
+### Nested scopes
+
+Letting scopes nest and restoring the parent on dispose works against coalescing. The inner scope raises its own broadcast, and its ids are never folded into the outer one.
+
+So wrapping a run in an outer scope gives you one broadcast per inner scope plus an empty outer one.
+
+That is why we make `Begin()` throw if a scope is already open. Half-supporting a feature that undoes the whole purpose of the class is worse than not having it.
+
+### The failure handler
+
+`OnBroadcastFailed` is where you wire your logging. A logging sink that throws there would bring back the exact failure the isolation is there to prevent, so the class guards that call too, and a handler that throws is swallowed.
 
 ### The supporting types
 
-The importer's own result model — the parse-and-report types introduced in prose above — lives in one file:
+The importer's own result model, the same types as in the first listing above, as one compilable file:
 
 {% include code-modal.html
    id="2026-10-16-ImportContracts"
@@ -200,26 +265,25 @@ The importer's own result model — the parse-and-report types introduced in pro
    file="post_assets/code-snippets/2026-10-16-ImportContracts.cs"
 %}
 
-This one is **not** self-sufficient: `CatalogBulkImporter` also uses `ProductImportItem`, `WriteOutcome`, `ExceptionTree` and `ICatalogEntryWriter`, which ship with [Part 2]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %}). Take both files and the three snippets across the two parts build together against a clean Commerce 15 project.
-
+This one doesn't build on its own: `CatalogBulkImporter` also uses `ProductImportItem`, `WriteOutcome`, `ExceptionTree`, and `ICatalogEntryWriter`, which ship with [Part 2]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %}). Take all five files across Parts 2 and 3, and they build together against a clean Commerce 15 project.
 
 ## What's next?
 
-At this point the import is correct: it writes what it should, survives what it should not, and explains itself afterwards. It is also still far too slow: I measured about five rows a second on a restored production database, which is many hours for a quarter of a million of them. Part 4 counts the database round trips hiding behind each row and works through the four fixes worth making.
+At this point the import is correct: it writes what it should, survives what it should not, and explains itself afterward.
+
+Unfortunately, it is still far too slow. I measured about five rows a second on a restored production database, which is about 14 and a half hours for our 252,670-row file. [Part 4]({{ '/2026/10/21/the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips/' | relative_url }}) counts the database round trips behind each row and goes through the four fixes I would apply first.
 
 ## Summary
 
-A dirty feed is the normal case rather than the exception, so the import is built to finish in spite of one and to explain itself afterwards. What that asks of the design:
+A dirty feed is the normal case, so we build the import to finish in spite of one and to explain itself afterward. What does that ask of the design?
 
-- **Three layers of failure, one report shape** — a bad CSV row, an anticipated write failure and an unexpected throw all reach the reader looking the same
-- **No run-wide transaction**, because wrapping a batch would let one bad row roll back 499 good ones
-- **Nothing throws out of the run** — the counts and the rejections are the deliverable, so even the circuit breaker is a recorded outcome rather than an exception
-- **The row number travels with the rejection**, because the writer knows SKUs and whoever fixes the feed knows lines
-- **One coalesced catalog event per batch**, since raising one per row is a thread-pool saturation mechanism rather than a notification strategy
+- Three layers of failure with one report shape: a bad CSV row, an anticipated write failure, and an unexpected throw all reach the reader looking the same.
+- We don't use a transaction for the whole run, because wrapping a batch would let one bad row roll back 499 good ones.
+- Nothing throws out of the run, except `OutOfMemoryException`, which the per-row `catch` lets through on purpose. The counts and the rejections are the point of the run, so even the circuit breaker is a recorded outcome.
+- The row number travels with the rejection, because the writer knows SKUs and whoever fixes the feed knows lines.
+- One coalesced catalog event per batch, since raising one per row would saturate the thread pool.
 
-The gap I'd close first is the one above: a transient timeout and a genuinely invalid row land in the same `catch` and come out wearing the same text, which makes the rejection list a diagnosis list rather than a retry queue.
-
-Do you handle per-row import failures differently? Let me know in the comments!
+That's it for error handling! Do you handle per-row import failures differently? Let me know in the comments!
 
 Thank you for reading, and stay tuned for Part 4.
 
@@ -228,5 +292,5 @@ Thank you for reading, and stay tuned for Part 4.
 - [Part 1: Why the DTO API]({% post_url 2026-09-30-bulk-catalog-import-in-optimizely-commerce-part-1-why-the-dto-api %})
 - [Part 2: The Writer]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %})
 - Part 3: Error Handling and Event Batching - (this post)
-- Part 4: Counting Round Trips - coming soon
+- [Part 4: Counting Round Trips]({{ '/2026/10/21/the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips/' | relative_url }})
 - Part 5: Process Uptime and the Benchmark - coming soon
