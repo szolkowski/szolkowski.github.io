@@ -40,6 +40,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Full history so jekyll-last-modified-at reads each post's real git
+          # mtime. A shallow clone stamps every page with the deploy time,
+          # which corrupts sitemap <lastmod>, JSON-LD dateModified and the
+          # byline's "Last updated" badge.
+          fetch-depth: 0
       - name: Install webp encoder
         # _plugins/webp_generator.rb shells out to cwebp to write .webp
         # siblings of every PNG/JPEG into the deployed _site. The plugin
