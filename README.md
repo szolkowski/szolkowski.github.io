@@ -15,11 +15,10 @@ Run locally with live changes update:
 Run locally with unpublished posts:
 `bundle exec jekyll serve --unpublished --future`
 
-### Generating tag pages
+### Tag pages
 
-After adding new tags to posts, run:
-
-`ruby _gentags.rb`
+Tag pages are generated automatically on every build by `_plugins/tag_generator.rb`;
+there is no script to run. Hand-written intros for top tags live in `_data/tag_descriptions.yml`.
 
 ### Updating Jekyll
 
@@ -29,19 +28,20 @@ After adding new tags to posts, run:
 
 Tests are Playwright + TypeScript and live in `tests/`. They build the site
 into an isolated `_site_test/` and serve it on `localhost:4321`, so they don't
-clash with `bundle exec jekyll serve`. Requires Node 18+.
+clash with `bundle exec jekyll serve`. Runtimes are pinned in the repo: Ruby via
+`.ruby-version` (rbenv) and Node via `.nvmrc` (nvm).
 
 First-time setup:
 
 ```bash
 npm install
-npx playwright install chromium
+npx playwright install chromium firefox webkit
 ```
 
 Run the suite:
 
 ```bash
-npm test          # all 24 tests across 7 page types
+npm test          # all specs on chromium + firefox + webkit (visual tests: chromium only)
 npm run report    # open the last HTML report
 ```
 
