@@ -249,9 +249,9 @@ Clearing the slot only "if we're still the innermost scope" is exactly how you g
 
 Letting scopes nest and restoring the parent on dispose works against coalescing. The inner scope raises its own broadcast, and its ids are never folded into the outer one.
 
-So wrapping a run in an outer scope gives you one broadcast per inner scope plus an empty outer one.
+So wrapping a run in an outer scope would give us one broadcast per inner scope, and nothing from the outer one.
 
-That is why we make `Begin()` throw if a scope is already open. Half-supporting a feature that undoes the whole purpose of the class is worse than not having it.
+That is why we make `Begin()` throw if a scope is already open. I would rather not support nesting at all than half-support it.
 
 ### The failure handler
 

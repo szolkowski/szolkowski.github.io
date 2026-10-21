@@ -170,7 +170,7 @@ Deleting half a million entries one by one is its own slow job.
 
 Run it on a development or staging copy. It writes real catalog rows, and the content-API half leaves a content version behind for every one.
 
-The job counts the versions on one imported entry at the end.
+The job counts the versions on one imported entry at the end. It will always say 1, because every volume writes fresh SKUs, so nothing here is ever an update. The number that matters is what accumulates across nightly re-imports of the same SKUs, and we can see that by re-running a volume with the previous prefix.
 
 ## Summary
 

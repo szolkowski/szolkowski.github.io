@@ -43,9 +43,9 @@ Both requirements were written down before the first line of code:
 
 The second one means a verdict per row. A run that writes 249,500 rows and gives back the 500 it couldn't write, each with its reason and its line in the file, is a success.
 
-A run that stops at row 148,213 because one price was missing is a failure, even though the price really was missing.
+A run that stops at row 148,213 because one price was missing is a failure.
 
-This is a product requirement, and not just my preference as a developer. Somebody has to fix the feed, and that somebody doesn't have access to our logs.
+This came from the business, so it is a product requirement. Somebody has to fix the feed, and that somebody doesn't have access to our logs.
 
 They need a list they can act on, and producing it is the main topic of Part 3.
 
@@ -73,7 +73,7 @@ However, it does a lot of work we didn't ask for. For each row, `Save(…, SaveA
 - invalidates content caches, locally and across instances
 - queues the item for indexing
 
-For one editorial change that is the whole point. For 250,000 rows of machine-generated feed data, it is 250,000 version rows of history nobody will ever open.
+For one editorial change that is the whole point. For 250,000 rows of machine-generated feed data it is 250,000 version rows nobody will ever open, and 250,000 trips through a pipeline that has nothing to check.
 
 It is also 250,000 trips through a pipeline where no stage matters for a row that came out of a spreadsheet.
 
@@ -122,7 +122,7 @@ So it is about three times faster, which is a lot less than the folklore says.
 
 The four pairs landed between 2.74x and 3.27x, averaging just under 3x. I recommend treating that spread as the result.
 
-No single figure here is a constant. If I had run it once, I would have published whichever number I happened to get.
+If I had run it once, I would have published whichever number I happened to get.
 
 ### Which pairs can we trust most?
 
@@ -134,13 +134,7 @@ As Part 5 explains, that matters more than anything else I measured.
 
 Still, all four pairs ran on fairly young processes, which is why they agree so closely.
 
-### Total vs. median
-
-Within a pair, total and median are one result, two ways. Throughput is the total over the row count, and the batch times almost sum to the total.
-
-In Pair A that is 3,842.6 s of batches against a recorded 3,843.2 s. The 0.6 s gap is the per-batch progress write, which is inside the run clock but outside the batch clock.
-
-So the median is a second statistic on the same dataset. It only tells us that no single outlier batch is dragging the mean. The four pairs are what counts as replication here.
+The median is a second statistic on the same dataset, so the four pairs are what counts as replication here.
 
 ### What can we take from it?
 
@@ -156,7 +150,7 @@ So the DTO path is about 3x faster, and it stops writing a version row for every
 
 ## What do we give up?
 
-This belongs right next to the speed argument, because I have watched people discover it the expensive way.
+I put this right next to the speed argument, because I have watched people discover it the expensive way.
 
 ### Rollback
 
@@ -186,7 +180,7 @@ I scanned the Graph assemblies in my own solution and found nothing subscribing 
 
 What remains is the scheduled indexing job. That would mean the catalog is stale in search for up to one job interval after every import.
 
-This is a conclusion from evidence, and I haven't measured it. I haven't timed a write end to end, and I won't present a deduction as a stopwatch result.
+This is a conclusion from evidence, and I haven't measured it. I haven't timed a write end to end.
 
 I recommend doing that timing on a test environment before you rely on it. If it holds, "search is up to an interval behind the catalog" is something your business stakeholders need to know before go-live.
 
