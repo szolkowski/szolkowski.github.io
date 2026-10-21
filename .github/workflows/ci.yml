@@ -36,10 +36,20 @@ jobs:
   # Builds the site with the GitHub Pages base path and uploads the Pages
   # artifact consumed by deploy-pages.
   build-pages:
-    runs-on: ubuntu-latest
+    # Pinned rather than ubuntu-latest: that label moves to Ubuntu 26 on
+    # 2026-10-19. The Playwright jobs below are insulated by their container
+    # image, but this job builds on the runner itself, so the OS bump is taken
+    # deliberately in its own PR rather than arriving with the next post.
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          # Full history so jekyll-last-modified-at reads each post's real git
+          # mtime. A shallow clone stamps every page with the deploy time,
+          # which corrupts sitemap <lastmod>, JSON-LD dateModified and the
+          # byline's "Last updated" badge.
+          fetch-depth: 0
       - name: Install webp encoder
         # _plugins/webp_generator.rb shells out to cwebp to write .webp
         # siblings of every PNG/JPEG into the deployed _site. The plugin
@@ -54,7 +64,7 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           cache-version: 0 # Increment this number if you need to re-download cached gems
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -62,7 +72,7 @@ jobs:
         run: npm ci
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       - name: Build site for Pages
         # Outputs to the './_site' directory by default
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
@@ -74,7 +84,7 @@ jobs:
         run: npx pagefind --site _site
       - name: Upload Pages artifact
         # Automatically uploads an artifact from the './_site' directory by default
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
 
   # UI regression tests (PRs only). Builds the site without a base path so
   # tested URLs match production paths exactly; independent of build-pages.
@@ -89,7 +99,7 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.59.1-jammy
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       # Playwright's jammy image is slim and ships without:
       #   - libyaml-0-2:    psych.so (YAML parsing) needs it at runtime
       #   - build-essential: native gem extensions (http_parser.rb) need make + gcc
@@ -126,7 +136,7 @@ jobs:
       - name: Upload Playwright report
         id: upload_report
         if: always() && steps.ui_tests.conclusion != 'skipped'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: |
@@ -157,7 +167,7 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.59.1-jammy
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Ruby runtime + build deps
         run: |
           apt-get update -qq
@@ -199,7 +209,7 @@ jobs:
       - name: Upload Lighthouse reports
         id: upload_lhci
         if: always() && steps.lhci.conclusion != 'skipped'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lighthouse-reports
           path: .lighthouseci/
@@ -223,10 +233,14 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    # Pinned rather than ubuntu-latest: that label moves to Ubuntu 26 on
+    # 2026-10-19. The Playwright jobs below are insulated by their container
+    # image, but this job builds on the runner itself, so the OS bump is taken
+    # deliberately in its own PR rather than arriving with the next post.
+    runs-on: ubuntu-24.04
     if: github.event_name == 'push'
     needs: build-pages
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
