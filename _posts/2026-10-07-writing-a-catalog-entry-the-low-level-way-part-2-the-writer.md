@@ -26,13 +26,15 @@ tags:
 - .NET
 ---
 
-[Part 1]({% post_url 2026-09-30-bulk-catalog-import-in-optimizely-commerce-part-1-why-the-dto-api %}) made the case for writing bulk catalog changes through `Mediachase.Commerce.Catalog` instead of `IContentRepository`: roughly three times faster, at the cost of version history, publish events, validation and a search-indexing question you have to answer yourself.
+In [Part 1]({% post_url 2026-09-30-bulk-catalog-import-in-optimizely-commerce-part-1-why-the-dto-api %}) I explained why we write bulk catalog changes through `Mediachase.Commerce.Catalog` instead of `IContentRepository`. It is roughly three times faster, but we lose version history, publish events, and validation, and we have to answer the search-indexing question ourselves.
 
-This part is the code that decision leads to. It's longer than the content-API version, and that's fair — most of the extra lines are things the content layer was doing for you. The traps after it are the ones I'd have wanted handed to me before writing it rather than after.
+In this part I will show the code for it. It is longer than the content-API version, because most of the extra lines do work that the content layer was doing for us.
+
+After the code I will go through the traps I wish I had known about before writing it.
 
 ## Writing an entry the low-level way
 
-Here's the full upsert.
+Here is the full upsert:
 
 {% include code-modal.html
    id="2026-10-07-CatalogEntryWriter"
@@ -40,7 +42,7 @@ Here's the full upsert.
    file="post_assets/code-snippets/2026-10-07-CatalogEntryWriter.cs"
 %}
 
-It works against a small, deliberately boring input model:
+It works against a small and boring input model:
 
 ```csharp
 public sealed class ProductImportItem
@@ -63,7 +65,7 @@ public sealed record WriteOutcome(bool Succeeded, string? Error)
 }
 ```
 
-`Product` is your own catalog content type — the thing `MyVariant` was in the first example, named for what the feed carries:
+`Product` is our own catalog content type. It plays the role `MyVariant` had in the Part 1 example, and it is named after what the feed carries:
 
 ```csharp
 [CatalogContentType(GUID = "...")]
@@ -76,9 +78,9 @@ public class Product : VariationContent
 }
 ```
 
-The writer never news one up. It only ever uses the type's *name* — `nameof(Product)` to load the meta class, `nameof(Product.Volume)` to set a field — which is the seam described in the key points below.
+The writer never creates a `Product` instance. It only uses the type's name: `nameof(Product)` to load the meta class and `nameof(Product.Volume)` to set a field. That is the seam described in the key points below.
 
-Plus three small collaborators, none of which are interesting enough to dwell on here:
+There are also three small collaborators, which aren't interesting enough to spend time on here:
 
 ```csharp
 public interface ICatalogEntryWriter
@@ -95,7 +97,7 @@ public interface ICategoryResolver
     void Invalidate(string categoryCode);
 }
 
-// Wraps IPriceService. See the throughput section for why this one deserves
+// Wraps IPriceService. See Part 4 of this series for why this one deserves
 // a batching overload rather than the per-SKU call the writer makes here.
 public interface ICatalogPriceWriter
 {
@@ -111,45 +113,133 @@ public interface IMetaObjectWriter
 }
 ```
 
-**Key Points:**
+Key points:
 
-- `ContentGuid` is yours to set, or the content model cannot see the row
+- `ContentGuid` is yours to set, or the content model can't see the row
 - Write nulls with `SetXxxNull()`, read them behind `IsXxxNull()`
-- Re-read the new entry id; the save often leaves it at 0
+- Re-read the new entry id, because the save often leaves it at 0
 - The meta class is the seam between the DTO and the content layer
 - The DTO is its own change tracker, so guard every assignment
-- Moving an entry between categories costs four calls, not one
-- The create path is the only place all-or-nothing belongs
+- Moving an entry to another category costs four calls, or one when it is already there
+- The create path is the only place where all-or-nothing belongs
 
-**`ContentGuid` is not decoration.** `entryRow.ContentGuid = Guid.NewGuid()` sets the field the content layer would normally own, and it's what makes the row addressable as `IContent` afterwards. Skip it and you get an entry the catalog is perfectly happy with and the content model cannot see.
+## How does it work?
 
-**Nulls go both ways, and the read direction is worse.** Strongly typed `DataSet` columns reject a null assignment, so you call the generated `SetXxxNull()`. But *reading* a NULL column throws `StrongTypingException` rather than returning null, which means `?? string.Empty` on the property does nothing — the exception fires before the `??` is ever reached. I guard with `IsXxxNull()` rather than trusting the null-coalescing operator.
+Let's go through the parts of the writer that are easy to get wrong.
 
-**The new id is not reliably handed back.** `entryRow.CatalogEntryId` is often still 0 after `SaveCatalogEntry`. Re-read it with `CatalogEntryInfo`, the cheapest response group there is, rather than the full one you used to look it up.
+### ContentGuid
 
-**The meta class is the seam, and it's named more subtly than it looks.** `MetaClass.Load(metaDataContext, nameof(Product))` is what keeps the DTO layer and the content layer describing the same thing: your `[CatalogContentType]` class defines the properties, the content-type sync provisions them as MetaDataPlus fields at startup, and the writer then sets them by `nameof`. The usual warning is "rename the class and the import stops finding its own fields" — and I would qualify it, because it only holds while `MetaClassName` on the attribute is left unset. Set it, as the benchmark jobs in Part 5 do, and the meta class is named by the attribute and renaming the type is harmless. Know which of the two you're relying on.
+`entryRow.ContentGuid = Guid.NewGuid()` sets a field that the content layer normally owns. It is what makes the row addressable as `IContent` afterward.
 
-**Resolve the meta class once per run**, and my reason is not the obvious one. Not because it cannot change while the process is up — Commerce Manager and the MetaDataPlus admin pages can add or drop fields on a live context while your import is running — but because caching *pins* the definition for the run. A schema change landing at row 120,000 then cannot silently split your feed into rows written against two different shapes.
+If we skip it, the catalog is perfectly happy with the entry, but the content model can't see it.
 
-**The DTO *is* the change tracker.** `SaveCatalogEntry(existing)` inspects `DataRow.RowState` and issues statements only for dirty rows. That's why hydrating the DTO, mutating it, and saving it is the update pattern, and why guarding every assignment with `if (item.X is not null)` turns a partial payload into a partial update instead of nulling out every column the feed happened not to send that night. One distinction matters later: skipping *clean rows* is not the same as skipping the *call*. Invoke it on an entirely unchanged DTO and you still pay a round trip, a transaction scope and the cache work — which is why "don't save an unchanged entry" is on the fix list in Part 4.
+### Nulls in both directions
 
-**Response groups are the cost knob, and the cheapest setting is not always right.** `CatalogEntryFull | Variations` is what makes an update expensive, but the update path genuinely needs the variation row, and a nightly feed is mostly updates. Probing with a cheap group and re-reading on a hit would add a round trip to the common case to save one on the rare case. Size the read for the path you actually take most often, and be able to say why. I sized mine for updates.
+Strongly typed `DataSet` columns reject a null assignment, so we need to call the generated `SetXxxNull()` instead.
 
-**Inject both statics, not just one.** `CatalogContext.Current` and `CatalogContext.MetaDataContext` are what you'll see everywhere. Injecting only the first moves the wall a few lines down and fixes nothing; both belong in the constructor. The payoff is bounded but real — the validation branches become genuinely unit-testable, where before nothing was. No more than that, though: `MetaClass.Load` is still a static that does I/O, `MetaClass` and `MetaObject` are concrete types with no interface behind them, and the change notifier is reached statically too. Getting the write paths under test needs your own `IMetaClassProvider` and a sink interface, which is a bigger change than this post makes, and one I'd want to know about before starting rather than halfway in.
+Reading is worse. Reading a NULL column throws `StrongTypingException` instead of returning null, so `?? string.Empty` on the property does nothing: the exception fires before the `??` is ever reached.
 
-**Injecting `MetaDataContext` is not the no-op refactor it looks like, so take the `ServiceAccessor`.** `CatalogContext.MetaDataContext` is a memoised, connection-string-keyed instance shared by everything in the process. `MetaDataContext` itself is registered **transient**, so `ctor(MetaDataContext)` hands your writer a *private* one, with its own MetaDataPlus cache and, more to the point, its own `Language`. That's the property deciding which language row `SetMetaField` writes to. Capture one in a writer you registered as a singleton and you've quietly changed behaviour while believing you tidied a static away. Of everything in this list, it's the one I'd most expect to get through review unnoticed. `ServiceAccessor<MetaDataContext>` resolves per call, which is what Optimizely's own `CatalogMetaObjectRepository` takes, and for the same reason.
+That's why I guard reads with `IsXxxNull()`.
 
-**Moving an entry between categories is a four-step dance.** Delete the primary relation, save, **re-read the DTO**, add the new one. The `DataSet` cannot hold a deleted primary row and a replacement at the same time. Note the short-circuit I put in for when the entry is already in the right place — over a quarter of a million rows that's most of them, and it saves three round trips each time: the delete-and-save, the re-read, and the add-and-save. A move that actually happens costs four calls; one that doesn't costs one.
+### The new entry id
 
-**The create path is the one place all-or-nothing is right, and one hole stays open.** The entry row commits before the node relation, meta fields and prices do. If any of those throw, a half-created entry with no category and no price is worse than no entry, so I delete it. A failed rollback becomes an `AggregateException` naming both causes, because "the cleanup also failed" is a different incident from "the write failed".
+`entryRow.CatalogEntryId` is often still 0 after `SaveCatalogEntry`, so we need to re-read it.
 
-The hole: rolling back needs the entry id, and occasionally the id is not handed back after the save and the re-read cannot identify the row. When that happens the writer **refuses to guess** — it won't hand an unverified id to a recursive delete — so it reports a failure and leaves the row alone. That's a genuine orphan: an entry with no category, no meta fields and no price, and no event raised for it, so nothing downstream will ever hear about it. Two things make it tolerable rather than alarming. It's rare, and it's usually *self-healing*: because the writer upserts on SKU, the next run finds that row, takes the update path, and fills in what was missing. "Usually" because there's one gap — if the SKU next arrives with IsActive false, the writer takes the deactivate path, which only flips a meta flag, and the entry stays uncategorised and unpriced until it comes back active. Worth knowing about; I decided it wasn't worth building a second recovery mechanism for.
+For that I use `CatalogEntryInfo`, the cheapest response group there is. The full one we used for the lookup isn't needed here.
 
-**One retry, and it's a correctness fix.** `SqlException { Number: 547 }` naming the node-entry FK means a cached category id outlived its category — someone deleted it, or the database was restored under a running app. Invalidate and try once. I want to be precise about that: this is *not* a transient-failure retry, and Part 3 comes back to why that gap matters.
+### The meta class
+
+`MetaClass.Load(metaDataContext, nameof(Product))` keeps the DTO layer and the content layer describing the same thing. Our `[CatalogContentType]` class defines the properties, the content-type sync provisions them as MetaDataPlus fields at startup, and then the writer sets them by `nameof`.
+
+The usual warning is "rename the class and the import stops finding its own fields". In my opinion it needs a small correction: it only holds while `MetaClassName` on the attribute is left unset.
+
+If we set it, as the benchmark jobs in Part 5 do, the meta class is named by the attribute and renaming the type is harmless. It is good to know which of the two we rely on.
+
+### Caching the meta class
+
+The meta class is resolved once per writer instance. That is once per run only if the writer lives for one run. If the writer is a singleton, the definition stays pinned for the whole process lifetime (and the known issues in Part 4 show another problem with singleton writers).
+
+My reason for caching it isn't the obvious one. You might expect meta classes to stay fixed while the process is up, but they don't: Commerce Manager and the MetaDataPlus admin pages can add or drop fields on a live context while the import is running.
+
+Caching pins the definition for the writer's lifetime, so a schema change landing at row 120,000 can't silently split our feed into rows written against two different shapes.
+
+### The DTO tracks its own changes
+
+`SaveCatalogEntry(existing)` inspects `DataRow.RowState` and issues statements only for dirty rows.
+
+That's why the update pattern is: load the DTO, change it, and save it. It is also why every assignment is guarded with `if (item.X is not null)`. A partial payload becomes a partial update, and we don't null out every column the feed didn't send that night.
+
+One thing matters later: skipping clean rows doesn't mean skipping the call. Calling it on a completely unchanged DTO still costs a round trip, a transaction scope, and the cache work. That's why "don't save an unchanged entry" is on the fix list in Part 4.
+
+### Response groups
+
+`CatalogEntryFull | Variations` is what makes an update expensive. However, the update path needs the variation row (it writes `Weight`), and a nightly feed is mostly updates.
+
+Probing with a cheap group and re-reading on a hit would add a round trip to the common case to save one on the rare case.
+
+So the read should be sized for the path we take most often, and we should be able to say why. I sized mine for updates.
+
+### Inject both statics
+
+`CatalogContext.Current` and `CatalogContext.MetaDataContext` are the statics we see everywhere. Injecting only the first one moves the wall a few lines down and fixes nothing, so both belong in the constructor.
+
+The gain is limited: the validation branches become unit-testable, where before nothing was.
+
+However, `MetaClass.Load` is still a static that does I/O, `MetaClass` and `MetaObject` are concrete types with no interface behind them, and the change notifier is reached statically too.
+
+Getting the write paths under test needs our own `IMetaClassProvider` and a sink interface. That is a bigger change than this post makes, and it is better to know about it before starting than halfway in.
+
+### Why a `ServiceAccessor` for `MetaDataContext`?
+
+Injecting `MetaDataContext` looks like a no-op refactor, but it isn't one.
+
+`CatalogContext.MetaDataContext` is a memoized instance, keyed by connection string and shared by everything in the process. `MetaDataContext` itself is registered as transient, so `ctor(MetaDataContext)` gives our writer a private one.
+
+That private one has its own MetaDataPlus cache and, more importantly, its own `Language`. That property decides which language row `SetMetaField` writes to.
+
+If we capture one in a writer registered as a singleton, we have changed behavior while thinking we only tidied away a static. Of all the traps in this post, this is the one I'd most expect to get through code review unnoticed.
+
+`ServiceAccessor<MetaDataContext>` resolves per call. Optimizely's own `CatalogMetaObjectRepository` takes it too, for the same reason.
+
+### Moving an entry between categories
+
+It takes four steps: delete the primary relation, save, re-read the DTO, and add the new one. The `DataSet` can't hold a deleted primary row and its replacement at the same time.
+
+I added a short-circuit for when the entry is already in the right place. Over a quarter of a million rows that's most of them, and each time it saves three round trips: the delete-and-save, the re-read, and the add-and-save.
+
+A move that really happens costs four calls, and one that doesn't costs one.
+
+### Cleanup on the create path
+
+The create path is the one place where all-or-nothing is right.
+
+The entry row commits before the node relation, meta fields, and prices do. If any of those throw, a half-created entry with no category and no price is worse than no entry, so I delete it.
+
+A failed rollback becomes an `AggregateException` naming both causes, because "the cleanup also failed" is a different incident from "the write failed".
+
+### The orphan hole
+
+One hole stays open. Rolling back needs the entry id, and occasionally the id isn't handed back after the save and the re-read can't identify the row.
+
+In that case the writer refuses to guess. It won't pass an unverified id to a recursive delete, so it reports a failure and leaves the row alone.
+
+That leaves an orphan: an entry with no category, no meta fields, and no price, and no event raised for it, so nothing downstream will ever hear about it.
+
+Why is it acceptable? It is rare, and it usually fixes itself. The writer upserts on SKU, so the next run finds that row, takes the update path, and fills in what was missing.
+
+I say "usually" because there is one gap. If the SKU next arrives with IsActive false, the writer takes the deactivate path, which only flips a meta flag. The entry stays uncategorized and unpriced until it comes back active.
+
+In my opinion it isn't worth building a second recovery mechanism for it.
+
+### One retry
+
+`SqlException { Number: 547 }` naming the node-entry FK means that a cached category id outlived its category. Someone deleted it, or the database was restored under a running app.
+
+In that case we invalidate it and try once more. This is a correctness fix for one exact FK. It doesn't retry transient failures, and Part 3 comes back to why that gap matters.
 
 ### The supporting types
 
-The writer above leans on the small types introduced in prose along the way. Here they are in one file, so the snippet compiles rather than merely reading well:
+The writer uses the small types introduced along the way. Here they are in one file, so the snippet compiles:
 
 {% include code-modal.html
    id="2026-10-07-WriterContracts"
@@ -157,29 +247,36 @@ The writer above leans on the small types introduced in prose along the way. Her
    file="post_assets/code-snippets/2026-10-07-WriterContracts.cs"
 %}
 
-Drop that in alongside `CatalogEntryWriter` and both build against a clean Commerce 15 project, which I checked before publishing them. I made one deliberate difference from the listing above: `Product` is a **plain class** in the contracts file, not a `[CatalogContentType] VariationContent` subclass. The writer only ever reaches it through `nameof`, and shipping a live catalog content type in a set of article snippets would provision a meta class in your Commerce database the moment you pressed F5. In your own solution it's the real content type — the one thing that won't work against the stand-in is the `GetDefault<...>()` call from Part 1, which needs a genuine one.
+Let's put it next to `CatalogEntryWriter`. Both build against a clean Commerce 15 project (I checked them before publishing).
 
-Part 3 needs this file too: the bulk importer reaches into it for `ProductImportItem`, `WriteOutcome`, `ExceptionTree` and `ICatalogEntryWriter`.
+I made one difference from the listing above on purpose: in the contracts file `Product` is a plain class instead of a `[CatalogContentType] VariationContent` subclass. Because of that it also declares `DisplayName` itself, since there is no `EntryContentBase` to inherit it from. The writer only reaches it through `nameof`, and a live catalog content type in a set of article snippets would provision a meta class in your Commerce database the moment you pressed F5.
 
+In your own solution it is the real content type. The only thing that won't work against the stand-in is the `GetDefault<...>()` call from Part 1, which needs a real one.
+
+Part 3 needs this file too: the bulk importer uses `ProductImportItem`, `WriteOutcome`, `ExceptionTree`, and `ICatalogEntryWriter` from it.
 
 ## What's next?
 
-The writer handles one row. It does not decide what happens when row 148,213 has a missing price and 249,999 other rows are waiting behind it — and on this project, answering that was a stated product requirement rather than an engineering nicety. [Part 3]({{ '/2026/10/16/surviving-a-dirty-feed-part-3-error-handling-and-event-batching/' | relative_url }}) covers the per-row failure report, why there is deliberately no run-wide transaction, and how to raise one catalog event per batch instead of a quarter of a million of them.
+The writer handles one row. It doesn't decide what happens when row 148,213 has a missing price and 249,999 other rows are waiting behind it. On this project, answering that was a stated product requirement.
+
+[Part 3]({% post_url 2026-10-16-surviving-a-dirty-feed-part-3-error-handling-and-event-batching %}) covers the per-row failure report, why I chose to commit each row on its own with no run-wide transaction, and how to raise one catalog event per batch instead of a quarter of a million of them.
 
 ## Summary
 
-The upsert is long, and almost all of the extra length is work the content layer used to do silently. What writing an entry through the DTO API actually asks you to own:
+The upsert is long, and almost all of the extra length is work the content layer used to do for us. What do we need to take care of when writing an entry through the DTO API?
 
-- **`ContentGuid`**, or the row lands in the catalog and the content model cannot see it
-- **Nulls in both directions** — `SetXxxNull()` to write one, `IsXxxNull()` to read one without a `StrongTypingException`
-- **The new entry id**, because `SaveCatalogEntry` often leaves it at 0 and you have to re-read it
-- **The meta class as the seam** between your `[CatalogContentType]` and MetaDataPlus, named by `nameof` unless `MetaClassName` says otherwise
-- **Every assignment and every save**, since the DTO tracks its own changes but still charges a round trip for a clean one
-- **Cleanup on the create path**, the one place in the writer where all-or-nothing is the right answer
+- `ContentGuid`, or the row lands in the catalog and the content model can't see it
+- Nulls in both directions: `SetXxxNull()` to write one, `IsXxxNull()` to read one without a `StrongTypingException`
+- The new entry id, because `SaveCatalogEntry` often leaves it at 0 and we have to re-read it
+- The meta class as the seam between our `[CatalogContentType]` and MetaDataPlus, named by `nameof` unless `MetaClassName` says otherwise
+- Every assignment and every save, since the DTO tracks its own changes but still costs a round trip for a clean one
+- Cleanup on the create path, the one place in the writer where all-or-nothing is the right answer
 
-Get those six right and one row goes in at the speed Part 1 measured. One hole stays open by design: when the id cannot be verified, the writer refuses to guess and leaves an orphan behind rather than deleting the wrong row, and the next run usually heals it.
+Get those six right and one row goes in correctly. How fast it goes in is the subject of Part 4.
 
-Have you hit a DTO-layer trap I have not listed here? Let me know in the comments!
+One hole stays open by design: when the id can't be verified, the writer leaves an orphan behind instead of deleting the wrong row, and the next run usually fixes it.
+
+That's it! Have you hit a DTO-layer trap I haven't listed here? Let me know in the comments!
 
 Thank you for reading, and stay tuned for Part 3.
 
@@ -187,6 +284,6 @@ Thank you for reading, and stay tuned for Part 3.
 
 - [Part 1: Why the DTO API]({% post_url 2026-09-30-bulk-catalog-import-in-optimizely-commerce-part-1-why-the-dto-api %})
 - Part 2: The Writer - (this post)
-- [Part 3: Error Handling and Event Batching]({{ '/2026/10/16/surviving-a-dirty-feed-part-3-error-handling-and-event-batching/' | relative_url }})
-- Part 4: Counting Round Trips - coming soon
+- [Part 3: Error Handling and Event Batching]({% post_url 2026-10-16-surviving-a-dirty-feed-part-3-error-handling-and-event-batching %})
+- [Part 4: Counting Round Trips]({{ '/2026/10/21/the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips/' | relative_url }})
 - Part 5: Process Uptime and the Benchmark - coming soon

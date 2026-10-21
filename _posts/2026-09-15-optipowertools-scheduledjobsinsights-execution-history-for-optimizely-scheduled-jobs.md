@@ -127,7 +127,7 @@ Open a run and you get a console-style log viewer with severity colouring, the i
 
 ![Execution detail with console-style log viewer](/assets/img/2026-09-15-optipowertools-scheduledjobsinsights-execution-detail.jpg)
 
-Severities are `Info`, `Success`, `Warning`, `Error`, `Debug` and `Default`, coloured in the viewer so a bad run is visible by scrolling rather than by reading:
+Severities are `Info`, `Success`, `Warning`, `Error`, `Debug` and `Default`, colored in the viewer so a bad run is visible by scrolling rather than by reading:
 
 ![Log severities in the console viewer](/assets/img/2026-09-15-optipowertools-scheduledjobsinsights-log-severities.jpg)
 

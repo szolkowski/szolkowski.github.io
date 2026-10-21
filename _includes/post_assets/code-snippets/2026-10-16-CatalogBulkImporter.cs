@@ -104,17 +104,19 @@ public class CatalogBulkImporter
         totalStopwatch.Stop();
         result.Duration = totalStopwatch.Elapsed;
 
-        // The counts are always exact; the detail list is capped. Say so, otherwise a caller
-        // reading "every failed row" off a truncated list draws the wrong conclusion silently.
-        if (result.Products.RejectionsTruncated)
+        // The counts are always exact; the narration and the detail list are capped. Say so as
+        // soon as the narration stopped (row 201 promised "see the summary"), otherwise a caller
+        // reading "every failed row" off a truncated log draws the wrong conclusion silently.
+        if (result.Products.Rejected > MaxIndividuallyReportedRejections)
         {
             // Two different caps, and they are easy to confuse: this narration stops at
             // MaxIndividuallyReportedRejections, while the in-memory detail list on the result
             // stops at MaxRetainedRejections. Only the totals are uncapped.
+            var retained = Math.Min(result.Products.Rejected, ImportSection.MaxRetainedRejections);
             observer.Info(
                 $"{result.Products.Rejected:N0} rejections in total. " +
                 $"{MaxIndividuallyReportedRejections:N0} were listed individually above and " +
-                $"{ImportSection.MaxRetainedRejections:N0} are retained on the result; " +
+                $"{retained:N0} are retained on the result; " +
                 "the total is exact.");
         }
 
@@ -127,7 +129,7 @@ public class CatalogBulkImporter
         IImportObserver observer)
     {
         // The DTO API reads the ambient principal, and a scheduled job has not got one.
-        // Elevate for the batch, restore afterwards - and open the event batch in the same
+        // Elevate for the batch, restore afterward - and open the event batch in the same
         // scope so exactly one coalesced catalog event is raised per 500 rows.
         var previousPrincipal = _principalAccessor.Principal;
         _principalAccessor.Principal = new GenericPrincipal(
@@ -255,7 +257,7 @@ public class CatalogBulkImporter
     ///
     /// Individual reporting is capped. Every observer.Rejected call is a log write, and a log
     /// write is a database round trip - so a feed that rejects every row would otherwise turn
-    /// into 250,000 round trips serialised on the job thread, which is slower than importing the
+    /// into 250,000 round trips serialized on the job thread, which is slower than importing the
     /// file successfully and looks exactly like a hang. The counts stay exact; only the
     /// row-by-row narration stops.
     /// </summary>
