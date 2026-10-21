@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------
 // Catalog import benchmark - the low-level Commerce DTO path.
 //
-// Requires 2026-09-05-CatalogImportBenchmark.Shared.cs.
+// Requires 2026-10-28-CatalogImportBenchmark.Shared.cs.
 //
 // Same content type, same category, same generated rows, same batch loop as the content-API job.
 // The only difference is what happens per row: a CatalogEntryDto insert, a node relation, and the

@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------
 // Catalog import benchmark - the IContentRepository path.
 //
-// Requires 2026-09-05-CatalogImportBenchmark.Shared.cs.
+// Requires 2026-10-28-CatalogImportBenchmark.Shared.cs.
 //
 // This is the "obvious" way to create a variant, and per row it writes a content version, runs
 // the publish pipeline, fires IContentEvents, purges caches and queues indexing. All of that is

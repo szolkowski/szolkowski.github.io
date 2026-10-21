@@ -37,9 +37,9 @@ On a restored production database our import processed 500 products in 1.73 minu
 
 Switching to the low-level DTO API removed the content pipeline. However, the import was still too slow. Most of the time now goes to database round trips.
 
-The benchmark in Part 5 gives 3.8 to 4.3 rows/s on the DTO side, which looks very close.
+The benchmark totals in [Part 1]({% post_url 2026-09-30-bulk-catalog-import-in-optimizely-commerce-part-1-why-the-dto-api %}) work out to 3.8 to 4.3 rows/s on the DTO side, which looks very close.
 
-The two runs are set up differently, though (this one wrote prices against a full production catalog, the benchmark had prices off and a much smaller node). So the only thing I take from them together is the order of magnitude.
+The two runs are set up differently, though (this one wrote prices against a full production catalog, while the benchmark had prices off and a much smaller node). So the only thing I take from them together is the order of magnitude.
 
 A simple DTO importer runs at a few rows per second, and that is enough for planning.
 
@@ -51,7 +51,7 @@ Let's count the round trips on the update path in the first version of my import
 | ---------- | ---------- |
 | `GetCatalogEntryDto(sku, Full \| Variations)` | 1 |
 | Category resolve | 0 if cached, 1 if not |
-| `GetCatalogRelationDto` (+3 more on an actual move) | 1–4 |
+| `GetCatalogRelationDto` (+3 more on an actual move) | 1-4 |
 | Price write | 1 transaction, plus cache purge and a remote event |
 | `SaveCatalogEntry` (called every time) | 1 |
 | Meta object load (uncached) + persist | 2 |
@@ -70,7 +70,7 @@ Here are the fixes in the order I would apply them.
 
 The `IEnumerable<CatalogKey>` overload does all of it once per batch, so 500 transactions and 500 broadcasts become one.
 
-Looking at the amount of work, this should be the biggest win of the four, and it is only a signature change plus a buffer. I haven't measured this fix though. Price writing was enabled only in the production code, and every benchmark in this series (Part 1 and Part 5) ran with prices switched off.
+Looking at the amount of work, this should be the biggest win of the four, and it is only a signature change plus a buffer. I haven't measured this fix, though. Price writing was enabled only in the production code, and every benchmark in this series (Part 1 and Part 5) ran with prices switched off.
 
 ### 2. Don't save an unchanged entry
 
@@ -82,7 +82,7 @@ We already have `DataRow.RowState`, so let's check it before saving. The primary
 
 If you create categories from the feed (my importer has a category writer that this series doesn't show), you need to give each new node a unique URI segment. My helper did it by reading every sibling under the parent, per language, for each created category. That makes creating N categories under one parent O(N²) in database work.
 
-Commerce doesn't do this - y helper did. However, it is the most obvious way to write such a check, so I'm sure I'm not the only one who wrote it.
+Commerce doesn't do this - my helper did. However, it is the most obvious way to write such a check, so I'm sure I'm not the only one who wrote it.
 
 The fix is simple: resolve the sibling set once per parent and keep it.
 

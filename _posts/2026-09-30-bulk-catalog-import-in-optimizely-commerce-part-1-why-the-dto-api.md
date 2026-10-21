@@ -107,20 +107,20 @@ I used two scheduled jobs, one per API (details in Part 5). Both use the same ca
 
 We will get to both jobs in Part 5, so you can run them and get a number that is true for your database.
 
-Each run writes 5,000 variants into an empty category, with prices excluded on both sides.
+Each job writes 5,000, then 50,000, then 500,000 rows. The table below is the 5,000-row volume, written into an empty category, with prices excluded on both sides.
 
 I ran it four times over five days, because the first result deserved a second opinion, and the second one disagreed with the first:
 
 | 5,000 rows | Content API | DTO API | Ratio (total) | Ratio (median batch) |
 | ---------- | ---------- | ---------- | ---------- | ---------- |
-| Pair A (31 Aug) | 64.05 min | 19.59 min | 3.27× | 3.15× |
-| Pair B (1–2 Sep) | 59.92 min | 21.87 min | 2.74× | 2.72× |
-| Pair C (3–4 Sep) | 64.66 min | 21.28 min | 3.04× | 3.08× |
-| Pair D (4 Sep) | 62.11 min | 22.03 min | 2.82× | 2.90× |
+| Pair A (31 Aug) | 64.05 min | 19.59 min | 3.27x | 3.14x |
+| Pair B (1-2 Sep) | 59.92 min | 21.87 min | 2.74x | 2.72x |
+| Pair C (3-4 Sep) | 64.66 min | 21.28 min | 3.04x | 3.08x |
+| Pair D (4 Sep) | 62.11 min | 22.03 min | 2.82x | 2.90x |
 
 So it is about three times faster, which is a lot less than the folklore says.
 
-The four pairs landed between 2.74× and 3.27×, averaging just under 3×. I recommend treating that spread as the result.
+The four pairs landed between 2.74x and 3.27x, averaging just under 3x. I recommend treating that spread as the result.
 
 No single figure here is a constant. If I had run it once, I would have published whichever number I happened to get.
 
@@ -152,7 +152,7 @@ Prices were excluded from both sides on purpose, because `IPriceService` is the 
 
 If most of your per-row cost is the price write, the layer you write entries through matters proportionally less.
 
-So the DTO path is about 3× faster, and it stops writing a version row for every product we never intend to version. The price for that is the next section.
+So the DTO path is about 3x faster, and it stops writing a version row for every product we never intend to version. The price for that is the next section.
 
 ## What do we give up?
 
@@ -204,9 +204,9 @@ In [Part 2]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-par
 
 ## Summary
 
-For bulk catalog writes in Optimizely Commerce, the low-level DTO API is the right layer. It writes only the rows we asked for, with no version and no publish pipeline per row. Measured across four independent pairs, it is about 3× faster, and this is what we pay for it:
+For bulk catalog writes in Optimizely Commerce, the low-level DTO API is the right layer. It writes only the rows we asked for, with no version and no publish pipeline per row. Measured across four independent pairs, it is about 3x faster, and this is what we pay for it:
 
-- 2.7–3.3× faster on wall-clock time, so about 3×. A nice win, but smaller than the folklore suggests.
+- 2.7-3.3x faster on wall-clock time, so about 3x. A nice win, but smaller than the folklore suggests.
 - No version history, so no content-version rollback when last night's feed was wrong.
 - No publish events, so nothing downstream hears the import unless we raise something ourselves.
 - No content-type validation, so every check we care about is ours to write.

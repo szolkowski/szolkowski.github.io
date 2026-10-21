@@ -129,7 +129,7 @@ Here is the full importer:
    file="post_assets/code-snippets/2026-10-16-CatalogBulkImporter.cs"
 %}
 
-Key Points:
+Key points:
 
 - Carry the row number through, since the writer knows SKUs and the reader knows lines
 - Count and report a rejection in the same place, never separately
@@ -174,6 +174,8 @@ We count throws only. Returned failures are bad data, and a feed can be 100% rej
 
 ### What would I fix first?
 
+The writer from Part 2 retries one exact FK and nothing else, and here is why that gap matters.
+
 A transient SQL timeout and a really invalid row both land in that last `catch`, and both come out as "unexpected error".
 
 That makes the rejection list a list for diagnosis, and we can't use it as a retry queue.
@@ -184,7 +186,7 @@ If we give the two cases separate outcomes, we can retry one and report the othe
 
 When we bypass the content layer, no catalog events are raised for us.
 
-The obvious fix, raising one event per row, is worse than the disease. On a multi-instance setup every raised catalog event is a message on the bus, and 250,000 of them queued as fire-and-forget tasks will saturate the thread pool.
+The obvious fix is to raise one event per row, and it is worse than the problem. On a multi-instance setup every raised catalog event is a message on the bus, so 250,000 rows means 250,000 messages.
 
 What I wanted was one coalesced event per batch. I used an `AsyncLocal` ambient scope, so we don't have to pass a batch object through every method signature:
 
@@ -223,7 +225,7 @@ finally
 }
 ```
 
-Key Points:
+Key points:
 
 - `HashSet<int>` gives us de-duplication for free, so a SKU touched twice in one batch is reported once
 - Without an open scope, the write is announced to nobody
@@ -279,9 +281,9 @@ A dirty feed is the normal case, so we build the import to finish in spite of on
 
 - Three layers of failure with one report shape: a bad CSV row, an anticipated write failure, and an unexpected throw all reach the reader looking the same.
 - We don't use a transaction for the whole run, because wrapping a batch would let one bad row roll back 499 good ones.
-- Nothing throws out of the run, except `OutOfMemoryException`, which the per-row `catch` lets through on purpose. The counts and the rejections are the point of the run, so even the circuit breaker is a recorded outcome.
+- Nothing throws out of the run. The per-row `catch` lets `OutOfMemoryException` through on purpose, since there is nothing useful to report after one. The counts and the rejections are the point of the run, so even the circuit breaker is a recorded outcome.
 - The row number travels with the rejection, because the writer knows SKUs and whoever fixes the feed knows lines.
-- One coalesced catalog event per batch, since raising one per row would saturate the thread pool.
+- One coalesced catalog event per batch, since raising one per row would put 250,000 messages on the bus.
 
 That's it for error handling! Do you handle per-row import failures differently? Let me know in the comments!
 

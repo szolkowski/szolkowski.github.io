@@ -38,7 +38,7 @@ Same code, same machine, same category, same row count.
 
 For a while I assumed I had broken something, but the only thing different was that the application had been running overnight.
 
-So I restarted it and ran the identical job again:
+So I restarted it and ran the identical job again. Here is every DTO run of the 5,000-row volume, with the pairs from [Part 1]({% post_url 2026-09-30-bulk-catalog-import-in-optimizely-commerce-part-1-why-the-dto-api %}), sorted by how long the application had been up:
 
 | DTO, 5,000 rows | Process uptime at start | Median batch of 500 |
 | ---------- | ---------- | ---------- |
@@ -80,11 +80,11 @@ Population does cost something. In the fresh run, going from 5,200 children at 2
 
 I have no answer for the cause.
 
-Managed heap growth, cache pressure, connection-pool state, and accumulated `AsyncLocal` state are all plausible, and I have not separated them.
+Managed heap growth, cache pressure, connection-pool state, and accumulated ambient state are all plausible, and I have not separated them.
 
 The operational part is easy to act on:
 
-- Benchmark on a freshly started process. Otherwise the numbers tell you about uptime and not about your code.
+- Benchmark on a freshly started process. Otherwise the numbers tell you how long the application has been up.
 - If a nightly import is slower than the same import run by hand, check how long the app pool has been up before you look at your import. In production an app pool easily stays up for days. Mine was slow the morning after.
 - Recycling before a large import is a one-line change, and on this evidence it is worth more than any single fix from Part 4.
 
@@ -140,11 +140,11 @@ And now the DTO one:
    file="post_assets/code-snippets/2026-10-28-DtoApiImportBenchmarkJob.cs"
 %}
 
-There is one line in the DTO job to check before you build. It injects `CatalogMetaObjectRepository`, which lives in `Mediachase.MetaDataPlus.Internal`.
+These three files stand alone, so we don't need the writer or the importer from Parts 2 and 3. There is one line in the DTO job to check before you build. It injects `CatalogMetaObjectRepository`, which lives in `Mediachase.MetaDataPlus.Internal`.
 
 That is the supported way to do an uncached per-language meta read, and it is what my own project uses. However, `Internal` carries no compatibility guarantee between minor versions, so if your Commerce version has moved it, that is the line to adjust.
 
-**Key Points:**
+Key points:
 
 - Warm up with a couple of hundred throwaway rows, or the first path we measure looks slow
 - Use a fresh SKU prefix per volume, or we are measuring updates
@@ -156,7 +156,7 @@ That is the supported way to do an uncached per-language meta read, and it is wh
 
 The warm-up absorbs JIT, connection-pool ramp-up, and the cold metadata cache.
 
-A 500,000-row content-API pass can run for days, which is why there is a budget per volume.
+A 500,000-row content-API pass can run for many hours, which is why there is a budget per volume.
 
 One of my arms is weaker than it looks, though. I stopped the content-API 50,000 volume in the first run by hand after four batches, at 33 minutes instead of the full hour.
 
@@ -166,7 +166,7 @@ Each volume is appended to a readable `.txt` file and to a `volumes.csv` we can 
 
 So if the 500,000-row pass dies to a deploy/recycle, the 5,000 and 50,000 numbers are already safe.
 
-Deleting half a million entries one by one would take longer than creating them did, so clean up with the third job.
+Deleting half a million entries one by one is its own slow job.
 
 Run it on a development or staging copy. It writes real catalog rows, and the content-API half leaves a content version behind for every one.
 
@@ -174,23 +174,16 @@ The job counts the versions on one imported entry at the end.
 
 ## Summary
 
-For bulk catalog writes in Optimizely Commerce, the low-level DTO API is the right layer. It writes only the rows we asked for, with no version per row and no publish pipeline per row.
-
-Measured across four pairs that is worth 2.7-3.3x, so let's call it 3x. What we give up:
-
-- no rollback lever
-- no events unless we raise them
-- no validation unless we write it
-- an indexing question we have to answer for our own solution
+Part 1 made the case for the DTO layer and priced it, and in Parts 2 and 3 we filled in two of those costs, the validation and the events.
 
 Around that writer, the pattern that made a quarter of a million rows survivable was:
 
-- Commit record by record, with no run-wide transaction, so one bad row can't roll back the good ones.
-- Return a report of every failed row and its reason. A partial run is still a successful run.
+- We commit record by record, with no run-wide transaction, so one bad row can't roll back the good ones.
+- We return a report of every failed row and its reason. A partial run is still a successful run.
 - Use three layers of per-row failure handling, where an expected failure is a returned result and an unexpected one is an exception.
-- Carry both the natural key and the physical row number on every rejection, counted and reported in one place.
-- Upsert on the feed's own key, so replay is safe without tracking runs.
-- Raise one coalesced catalog event per batch instead of one per row.
+- We carry both the natural key and the physical row number on every rejection, counted and reported in one place.
+- We upsert on the feed's own key, so our replay is safe without tracking runs.
+- We raise one coalesced catalog event per batch instead of one per row.
 - Count the round trips afterwards. Picking the fast API only bought me a floor of a few rows per second.
 - Restart the application before a big import. That mattered more than any of the fixes above.
 

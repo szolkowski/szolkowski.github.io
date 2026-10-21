@@ -139,7 +139,7 @@ public sealed class BenchmarkProduct
 public static class BenchmarkData
 {
     /// <summary>
-    /// Yields products one at a time. Deliberately lazy - materialising 500,000 of these into a
+    /// Yields products one at a time. Deliberately lazy - materializing 500,000 of these into a
     /// list before the run would put the allocation cost inside the measurement, which is exactly
     /// the mistake real importers make.
     /// </summary>
@@ -643,7 +643,7 @@ public sealed class BenchmarkFixture
         // IsDefaultLanguageNull() first, and this is not defensive padding: the column is
         // nullable, so the generated accessor THROWS StrongTypingException on NULL rather than
         // returning null - IsNullOrWhiteSpace would never get the chance to run. Exactly the trap
-        // this post warns about a few sections up, which I then walked straight into.
+        // Part 2 warns about, which I then walked straight into.
         var row = catalogs.Catalog[0];
         if (!row.IsDefaultLanguageNull() && !string.IsNullOrWhiteSpace(row.DefaultLanguage))
         {
@@ -748,7 +748,7 @@ public class BenchmarkCleanupJob : ScheduledJobBase
 public abstract class BenchmarkJobBase : ScheduledJobBase
 {
     // volatile, and not an auto-property. Stop() is called from the scheduler thread while the
-    // job thread reads this in a tight loop with no other synchronisation - in a Release build the
+    // job thread reads this in a tight loop with no other synchronization - in a Release build the
     // JIT is entitled to hoist that read and the Stop button does nothing. Most Optimizely job
     // samples get this wrong, including the one this was adapted from.
     private volatile bool _stopSignaled;
@@ -917,10 +917,9 @@ public abstract class BenchmarkJobBase : ScheduledJobBase
     /// <summary>
     /// The DTO API reads the ambient principal and a scheduled job has not got one. Set once,
     /// before the clock starts, so it costs neither path anything.
-    /// </summary>
-    /// <summary>
-    /// Deliberately does NOT restore the previous principal, unlike the importer earlier in this
-    /// post which carefully saves and restores it in a finally. A scheduled job owns its thread
+    ///
+    /// Does NOT restore the previous principal, unlike the importer in Part 3, which saves and
+    /// restores it in a finally. A scheduled job owns its thread
     /// for its whole life and nothing else runs on it, so there is nothing to restore for. Do not
     /// lift this into request-scoped code - use the save/restore shape instead.
     /// </summary>
