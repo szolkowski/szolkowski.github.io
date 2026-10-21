@@ -92,14 +92,20 @@ defaults:
 # Excluded items can be processed by explicitly listing the directories or
 # their entries' file path in the `include:` list.
 #
-# exclude:
-#   - .sass-cache/
-#   - .jekyll-cache/
-#   - gemfiles/
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules/
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
+# Setting `exclude` replaces Jekyll's defaults, so the default entries are
+# repeated here. temp_drafts/ is the kept-for-reference home for draft packages
+# and source notes behind a post or series (see CLAUDE.md). It is gitignored, and
+# it has to be excluded here too, or Jekyll tries to render the drafts and fails
+# on their code-modal include paths.
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - temp_drafts/

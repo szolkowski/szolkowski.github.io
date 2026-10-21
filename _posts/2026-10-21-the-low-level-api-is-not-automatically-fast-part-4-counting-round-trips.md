@@ -37,7 +37,7 @@ On a restored production database our import processed 500 products in 1.73 minu
 
 Switching to the low-level DTO API removed the content pipeline. However, the import was still too slow. Most of the time now goes to database round trips.
 
-In Part 5 I ran the same DTO job three times to get a better average time. Those runs give 3.9 to 4.3 rows/s, which looks very close.
+The benchmark in Part 5 gives 3.8 to 4.3 rows/s on the DTO side, which looks very close.
 
 The two runs are set up differently, though (this one wrote prices against a full production catalog, the benchmark had prices off and a much smaller node). So the only thing I take from them together is the order of magnitude.
 

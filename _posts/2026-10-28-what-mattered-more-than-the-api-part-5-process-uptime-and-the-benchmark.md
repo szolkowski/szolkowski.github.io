@@ -36,9 +36,7 @@ Partway through this work I re-ran the DTO benchmark and it came back eight time
 
 Same code, same machine, same category, same row count.
 
-For a while I assumed I had broken something.
-
-I had not. The only thing different was that the application had been running overnight.
+For a while I assumed I had broken something, but the only thing different was that the application had been running overnight.
 
 So I restarted it and ran the identical job again:
 
@@ -52,15 +50,15 @@ So I restarted it and ran the identical job again:
 
 A long-running process imported seven times slower than a freshly started one.
 
-Uptime is a messy dial, though.
+The effect is uneven, though.
 
 The 1h 45m run is the fastest of the five, a little quicker than any of the three fresh starts, and those three land within 4% of each other.
 
-At the scale of an hour or two this is all noise. The effect shows up at the scale of a working day, and then it is not subtle.
+At the scale of an hour or two this is all noise, but after a full night it is obvious.
 
-There is also a condition on the number at the top of this series. In that overnight run the low-level DTO API was slower than `IContentRepository`.
+There is also a condition on the number from Part 1. In that overnight run the low-level DTO API was slower than `IContentRepository`.
 
-It took 15.50 minutes per batch, where the content path in Pair C managed 6.48.
+It took 15.50 minutes per batch. The content path in Pair A managed 6.15.
 
 The 2.7-3.3x advantage I measured holds for a process that has not been up very long. I would never have found that out if I had run the benchmark once and published.
 
@@ -70,17 +68,19 @@ Once we look for it, there is drift inside every session I ran, on both APIs. In
 
 Within one session I cannot separate uptime from the growing number of children under the node, so I will not guess.
 
-The overnight case is different. In the fresh run the category went from empty to 5,200 children at 2.18 min per batch, then on to 12,200 children at 2.51. So 7,000 more rows under the node cost us about 15%.
+The overnight case gives us a clean comparison.
 
-The overnight run was sitting at 15.50 minutes per batch. Node population cannot produce a number that size.
+Both the overnight run and the fresh run worked a category holding about 12,000 children. There the overnight run took 17.64 minutes per batch, and the fresh run took 2.51.
 
-I did not record how many rows were in the category when the overnight run started, so I can't give you a clean same-population pair. A 15% effect and a sevenfold collapse are still very different things.
+Same node size, seven times apart. The growing node is not what did this.
+
+Population does cost something. In the fresh run, going from 5,200 children at 2.18 min per batch to 12,200 at 2.51 cost us about 15%, which is nowhere near a factor of seven.
 
 ### What to do about it
 
 I have no answer for the cause.
 
-Managed heap growth, cache pressure, connection-pool state, and accumulated `AsyncLocal` state are all plausible, and I have never separated them.
+Managed heap growth, cache pressure, connection-pool state, and accumulated `AsyncLocal` state are all plausible, and I have not separated them.
 
 The operational part is easy to act on:
 
@@ -94,19 +94,23 @@ I spent a whole post counting round trips per row, and restarting the process fi
 
 Let's look at the benchmark, so you can check the numbers on your own data.
 
-It is three scheduled jobs: one per API, plus a cleanup job. I ran the same DTO job three times to get a better average time. Each import job writes 5,000, then 50,000, then 500,000 generated products into the same throwaway category. Same content type, same generated rows, same batch loop, so the only difference is what happens inside one row's write.
+It is three scheduled jobs: one per API, plus a cleanup job.
+
+Each import job writes 5,000, then 50,000, then 500,000 generated products into the same throwaway category.
+
+Same content type, same generated rows, same batch loop, so the only difference is what happens inside one row's write.
 
 ### How to run it
 
-There is one category, shared by both jobs, so we run the cleanup job between the two passes.
+There is one category, shared by both import jobs, so we run the cleanup job between the two passes.
 
 Without it the second job starts against the first job's rows.
 
 And we restart the application before each pass. See the section above for why.
 
-The code below is the code that produced Pair D, unchanged. Check the run header the jobs print.
+The code below is the code that produced Pair D, unchanged.
 
-It records the catalog id and language each arm resolved, so we can confirm both halves are writing the same thing.
+Check the run header the jobs print. It records the catalog id and language each arm resolved, so we can confirm both halves are writing the same thing.
 
 Per volume, the report gives us the total elapsed time, rows per second, and the per-batch distribution: average, median, fastest, and slowest.
 
@@ -136,6 +140,10 @@ And now the DTO one:
    file="post_assets/code-snippets/2026-10-28-DtoApiImportBenchmarkJob.cs"
 %}
 
+There is one line in the DTO job to check before you build. It injects `CatalogMetaObjectRepository`, which lives in `Mediachase.MetaDataPlus.Internal`.
+
+That is the supported way to do an uncached per-language meta read, and it is what my own project uses. However, `Internal` carries no compatibility guarantee between minor versions, so if your Commerce version has moved it, that is the line to adjust.
+
 **Key Points:**
 
 - Warm up with a couple of hundred throwaway rows, or the first path we measure looks slow
@@ -148,13 +156,17 @@ And now the DTO one:
 
 The warm-up absorbs JIT, connection-pool ramp-up, and the cold metadata cache.
 
-The one-hour budget is why the bigger volumes stop early, and why our node stopped at about 12,000 children. A 500,000-row content-API pass can run for days.
+A 500,000-row content-API pass can run for days, which is why there is a budget per volume.
+
+One of my arms is weaker than it looks, though. I stopped the content-API 50,000 volume in the first run by hand after four batches, at 33 minutes instead of the full hour.
 
 Read the projection in the report as a floor, because it assumes the rate holds, and the rate falls.
 
 Each volume is appended to a readable `.txt` file and to a `volumes.csv` we can chart.
 
-So if the 500,000-row pass dies to a recycle, the 5,000 and 50,000 numbers are already safe.
+So if the 500,000-row pass dies to a deploy/recycle, the 5,000 and 50,000 numbers are already safe.
+
+Deleting half a million entries one by one would take longer than creating them did, so clean up with the third job.
 
 Run it on a development or staging copy. It writes real catalog rows, and the content-API half leaves a content version behind for every one.
 
@@ -162,7 +174,7 @@ The job counts the versions on one imported entry at the end.
 
 ## Summary
 
-For bulk catalog writes in Optimizely Commerce, the low-level DTO API is the right layer. It writes the rows we asked for and nothing else, with no version per row and no publish pipeline per row.
+For bulk catalog writes in Optimizely Commerce, the low-level DTO API is the right layer. It writes only the rows we asked for, with no version per row and no publish pipeline per row.
 
 Measured across four pairs that is worth 2.7-3.3x, so let's call it 3x. What we give up:
 
