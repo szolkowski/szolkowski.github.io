@@ -293,4 +293,4 @@ Thank you for reading, and stay tuned for Part 4.
 - [Part 2: The Writer]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %})
 - Part 3: Error Handling and Event Batching - (this post)
 - [Part 4: Counting Round Trips]({% post_url 2026-10-21-the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips %})
-- Part 5: Process Uptime and the Benchmark - coming soon
+- [Part 5: Process Uptime and the Benchmark]({{ '/2026/10/28/what-mattered-more-than-the-api-part-5-process-uptime-and-the-benchmark/' | relative_url }})
