@@ -223,5 +223,5 @@ Thank you for reading, and stay tuned for Part 2.
 - Part 1: Why the DTO API - (this post)
 - [Part 2: The Writer]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %})
 - [Part 3: Error Handling and Event Batching]({% post_url 2026-10-16-surviving-a-dirty-feed-part-3-error-handling-and-event-batching %})
-- [Part 4: Counting Round Trips]({{ '/2026/10/21/the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips/' | relative_url }})
+- [Part 4: Counting Round Trips]({% post_url 2026-10-21-the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips %})
 - Part 5: Process Uptime and the Benchmark - coming soon

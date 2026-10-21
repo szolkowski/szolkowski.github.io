@@ -271,7 +271,7 @@ This one doesn't build on its own: `CatalogBulkImporter` also uses `ProductImpor
 
 At this point the import is correct: it writes what it should, survives what it should not, and explains itself afterward.
 
-Unfortunately, it is still far too slow. I measured about five rows a second on a restored production database, which is about 14 and a half hours for our 252,670-row file. [Part 4]({{ '/2026/10/21/the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips/' | relative_url }}) counts the database round trips behind each row and goes through the four fixes I would apply first.
+Unfortunately, it is still far too slow. I measured about five rows a second on a restored production database, which is about 14 and a half hours for our 252,670-row file. [Part 4]({% post_url 2026-10-21-the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips %}) counts the database round trips behind each row and goes through the four fixes I would apply first.
 
 ## Summary
 
@@ -292,5 +292,5 @@ Thank you for reading, and stay tuned for Part 4.
 - [Part 1: Why the DTO API]({% post_url 2026-09-30-bulk-catalog-import-in-optimizely-commerce-part-1-why-the-dto-api %})
 - [Part 2: The Writer]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %})
 - Part 3: Error Handling and Event Batching - (this post)
-- [Part 4: Counting Round Trips]({{ '/2026/10/21/the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips/' | relative_url }})
+- [Part 4: Counting Round Trips]({% post_url 2026-10-21-the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips %})
 - Part 5: Process Uptime and the Benchmark - coming soon
