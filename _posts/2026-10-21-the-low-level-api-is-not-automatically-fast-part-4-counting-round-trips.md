@@ -35,7 +35,7 @@ In this part I will count what really happens in the database for each imported 
 
 On a restored production database our import processed 500 products in 1.73 minutes. That is roughly 5 rows per second, so our 252,670-row file would run for about 14 and a half hours.
 
-Switching to the low-level DTO API removed the content pipeline, however the import was still too slow. Most of the time now goes to database round trips.
+Switching to the low-level DTO API removed the content pipeline. However, the import was still too slow. Most of the time now goes to database round trips.
 
 The benchmark in Part 5 has two scheduled jobs, and the DTO job runs in three variants. Those variants give 3.9 to 4.3 rows/s, which looks very close.
 
@@ -82,7 +82,7 @@ We already have `DataRow.RowState`, so let's check it before saving. The primary
 
 If you create categories from the feed (my importer has a category writer that this series doesn't show), you need to give each new node a unique URI segment. My helper did it by reading every sibling under the parent, per language, for each created category. That makes creating N categories under one parent O(N²) in database work.
 
-Commerce doesn't do this, my helper did. However, it is the most obvious way to write such a check, so I'm sure I'm not the only one who wrote it.
+Commerce doesn't do this - y helper did. However, it is the most obvious way to write such a check, so I'm sure I'm not the only one who wrote it.
 
 The fix is simple: resolve the sibling set once per parent and keep it.
 
