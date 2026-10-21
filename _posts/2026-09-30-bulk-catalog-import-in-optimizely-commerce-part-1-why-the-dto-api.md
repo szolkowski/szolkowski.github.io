@@ -103,11 +103,11 @@ It is older than the content model, and it is still present and not deprecated i
 
 I kept seeing the speed-up claimed without numbers, so I measured it.
 
-I used two scheduled jobs, one per API (the DTO-side job runs in three variants, details in Part 5). Both use the same catalog content type, generated rows, batch loop, and throwaway category. The only difference is what happens inside each row's write.
+I used two scheduled jobs, one per API, and I ran the DTO job three times to get a better average time (details in Part 5). Both use the same catalog content type, generated rows, batch loop, and throwaway category. The only difference is what happens inside each row's write.
 
 We will get to both jobs in Part 5, so you can run them and get a number that is true for your database.
 
-Each run writes 5,000 variants into an empty category, with prices excluded on both sides. The DTO API column below shows one of the three DTO variants (details in Part 5).
+Each run writes 5,000 variants into an empty category, with prices excluded on both sides. The DTO API column below shows one of those three runs (details in Part 5).
 
 I ran it four times over five days, because the first result deserved a second opinion, and the second one disagreed with the first:
 

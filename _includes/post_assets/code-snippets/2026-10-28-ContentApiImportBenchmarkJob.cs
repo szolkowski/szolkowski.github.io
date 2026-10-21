@@ -29,7 +29,7 @@ namespace CatalogImport.Benchmark;
 [ScheduledJob(
     DisplayName = "[Benchmark] 1. Import via IContentRepository",
     Description = "Creates 5k / 50k / 500k variants through the content API and reports throughput.",
-    GUID = "c3a91e58-47b6-4d02-8f7a-6b90d2e15c84")]
+    GUID = "1c5fc780-f62a-450a-af2f-797f661d0134")]
 public class ContentApiImportBenchmarkJob : BenchmarkJobBase
 {
     private readonly IContentRepository _contentRepository;

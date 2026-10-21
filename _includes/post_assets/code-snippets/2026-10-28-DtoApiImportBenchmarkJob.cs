@@ -34,7 +34,7 @@ namespace CatalogImport.Benchmark;
 [ScheduledJob(
     DisplayName = "[Benchmark] 2. Import via the low-level DTO API",
     Description = "Creates 5k / 50k / 500k variants through CatalogContext and MetaDataPlus.",
-    GUID = "5d78b2fa-01c9-4e63-b4a7-9e3f8c07d152")]
+    GUID = "51e7b968-0572-42d1-bc9b-889dedc27a3b")]
 public class DtoApiImportBenchmarkJob : BenchmarkJobBase
 {
     private static readonly CatalogEntryResponseGroup _infoResponseGroup =

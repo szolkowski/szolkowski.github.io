@@ -62,7 +62,7 @@ namespace CatalogImport.Benchmark;
 #nullable disable
 
 [CatalogContentType(
-    GUID = "8f4a7c02-3d51-4e69-9b18-2c7f5a0e64d3",
+    GUID = "0a1c7df1-6378-415e-8b11-db039fd26c47",
     MetaClassName = BenchmarkVariant.MetaClass,
     DisplayName = "Benchmark variant",
     Description = "Throwaway type used by the catalog import benchmark jobs.")]
@@ -105,7 +105,7 @@ public class BenchmarkVariant : VariationContent
 /// pins BenchmarkVariant as a legal child regardless of what the host solution restricts.
 /// </summary>
 [CatalogContentType(
-    GUID = "1c93b6d7-52ae-4f80-9a26-df314b8e70c5",
+    GUID = "c9c22ff3-685a-4c1d-b779-39ab6ff842b5",
     MetaClassName = BenchmarkCategory.MetaClass,
     DisplayName = "Benchmark category",
     Description = "Throwaway category used by the catalog import benchmark jobs.")]
@@ -673,7 +673,7 @@ public sealed class BenchmarkFixture
 [ScheduledJob(
     DisplayName = "[Benchmark] 3. Delete benchmark catalog data",
     Description = "Removes the benchmark category and every entry under it.",
-    GUID = "b6e1d0c4-9a72-4f38-8d55-1e0a4c7b93f6")]
+    GUID = "200c3c58-a76b-4fb7-9c0c-763d63e80831")]
 public class BenchmarkCleanupJob : ScheduledJobBase
 {
     // Single-sourced from BenchmarkOptions so the two cannot drift apart as literals. Be clear
