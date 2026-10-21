@@ -115,8 +115,9 @@ public interface IMetaObjectWriter
 
 Key points:
 
+- Every check is ours to write now, so the writer validates the row before it touches the catalog
 - `ContentGuid` is yours to set, or the content model can't see the row
-- Write nulls with `SetXxxNull()`, read them behind `IsXxxNull()`
+- Write nulls with `SetXxxNull()`, and read them behind `IsXxxNull()`
 - Re-read the new entry id, because the save often leaves it at 0
 - The meta class is the seam between the DTO and the content layer
 - The DTO is its own change tracker, so guard every assignment
@@ -139,7 +140,7 @@ Strongly typed `DataSet` columns reject a null assignment, so we need to call th
 
 Reading is worse. Reading a NULL column throws `StrongTypingException` instead of returning null, so `?? string.Empty` on the property does nothing: the exception fires before the `??` is ever reached.
 
-That's why I guard reads with `IsXxxNull()`.
+So we should guard reads with the generated `IsXxxNull()` first. The writer here only writes nulls, so there is no example of it in this snippet.
 
 ### The new entry id
 
@@ -247,9 +248,9 @@ The writer uses the small types introduced along the way. Here they are in one f
    file="post_assets/code-snippets/2026-10-07-WriterContracts.cs"
 %}
 
-Let's put it next to `CatalogEntryWriter`. Both build against a clean Commerce 15 project (I checked them before publishing).
+Let's put it next to `CatalogEntryWriter`. The writer also calls `CatalogChangeBatch`, which comes with Part 3, so all three files build together against a clean Commerce 15 project (I checked them before publishing).
 
-I made one difference from the listing above on purpose: in the contracts file `Product` is a plain class instead of a `[CatalogContentType] VariationContent` subclass. Because of that it also declares `DisplayName` itself, since there is no `EntryContentBase` to inherit it from. The writer only reaches it through `nameof`, and a live catalog content type in a set of article snippets would provision a meta class in your Commerce database the moment you pressed F5.
+I made one difference from the listing above on purpose: in the contracts file `Product` is a plain class instead of a `[CatalogContentType] VariationContent` subclass. Because of that it also declares `DisplayName` itself, since there is no `EntryContentBase` to inherit it from. The writer only reaches it through `nameof`, and a live catalog content type in a set of article snippets would provision a meta class in your Commerce database the moment you pressed F5!
 
 In your own solution it is the real content type. The only thing that won't work against the stand-in is the `GetDefault<...>()` call from Part 1, which needs a real one.
 
@@ -286,4 +287,4 @@ Thank you for reading, and stay tuned for Part 3.
 - Part 2: The Writer - (this post)
 - [Part 3: Error Handling and Event Batching]({% post_url 2026-10-16-surviving-a-dirty-feed-part-3-error-handling-and-event-batching %})
 - [Part 4: Counting Round Trips]({% post_url 2026-10-21-the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips %})
-- Part 5: Process Uptime and the Benchmark - coming soon
+- [Part 5: Process Uptime and the Benchmark]({{ '/2026/10/28/what-mattered-more-than-the-api-part-5-process-uptime-and-the-benchmark/' | relative_url }})
