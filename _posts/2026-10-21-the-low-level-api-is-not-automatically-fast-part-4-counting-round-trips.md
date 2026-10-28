@@ -145,7 +145,7 @@ All of them are bugs in my own importer, and Optimizely itself wasn't the proble
 
 All of the above is worth doing, but there is a bigger problem.
 
-While measuring the other fixes I ran the same benchmark twice on the same machine and got results that differed by a factor of eight. The only thing that changed was how long the application had been running. [Part 5]({{ '/2026/10/28/what-mattered-more-than-the-api-part-5-process-uptime-and-the-benchmark/' | relative_url }}) is about that finding, and it comes with benchmark jobs that you can run on your own catalog.
+While measuring the other fixes I ran the same benchmark twice on the same machine and got results that differed by a factor of eight. The only thing that changed was how long the application had been running. [Part 5]({% post_url 2026-10-28-what-mattered-more-than-the-api-part-5-process-uptime-and-the-benchmark %}) is about that finding, and it comes with benchmark jobs that you can run on your own catalog.
 
 ## Summary
 
@@ -167,4 +167,4 @@ Thank you for reading, and stay tuned for Part 5.
 - [Part 2: The Writer]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %})
 - [Part 3: Error Handling and Event Batching]({% post_url 2026-10-16-surviving-a-dirty-feed-part-3-error-handling-and-event-batching %})
 - Part 4: Counting Round Trips - (this post)
-- [Part 5: Process Uptime and the Benchmark]({{ '/2026/10/28/what-mattered-more-than-the-api-part-5-process-uptime-and-the-benchmark/' | relative_url }})
+- [Part 5: Process Uptime and the Benchmark]({% post_url 2026-10-28-what-mattered-more-than-the-api-part-5-process-uptime-and-the-benchmark %})
