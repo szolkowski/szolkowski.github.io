@@ -43,9 +43,9 @@ Both requirements were written down before the first line of code:
 
 The second one means a verdict per row. A run that writes 249,500 rows and gives back the 500 it couldn't write, each with its reason and its line in the file, is a success.
 
-A run that stops at row 148,213 because one price was missing is a failure, even though the price really was missing.
+A run that stops at row 148,213 because one price was missing is a failure.
 
-This is a product requirement, and not just my preference as a developer. Somebody has to fix the feed, and that somebody doesn't have access to our logs.
+This came from the business, so it is a product requirement. Somebody has to fix the feed, and that somebody doesn't have access to our logs.
 
 They need a list they can act on, and producing it is the main topic of Part 3.
 
@@ -73,7 +73,7 @@ However, it does a lot of work we didn't ask for. For each row, `Save(…, SaveA
 - invalidates content caches, locally and across instances
 - queues the item for indexing
 
-For one editorial change that is the whole point. For 250,000 rows of machine-generated feed data, it is 250,000 version rows of history nobody will ever open.
+For one editorial change that is the whole point. For 250,000 rows of machine-generated feed data it is 250,000 version rows nobody will ever open, and 250,000 trips through a pipeline that has nothing to check.
 
 It is also 250,000 trips through a pipeline where no stage matters for a row that came out of a spreadsheet.
 
@@ -103,26 +103,26 @@ It is older than the content model, and it is still present and not deprecated i
 
 I kept seeing the speed-up claimed without numbers, so I measured it.
 
-I used two scheduled jobs, one per API (the DTO-side job runs in three variants, details in Part 5). Both use the same catalog content type, generated rows, batch loop, and throwaway category. The only difference is what happens inside each row's write.
+I used two scheduled jobs, one per API (details in Part 5). Both use the same catalog content type, generated rows, batch loop, and throwaway category. The only difference is what happens inside each row's write.
 
 We will get to both jobs in Part 5, so you can run them and get a number that is true for your database.
 
-Each run writes 5,000 variants into an empty category, with prices excluded on both sides. The DTO API column below shows one of the three DTO variants (details in Part 5).
+Each job writes 5,000, then 50,000, then 500,000 rows. The table below is the 5,000-row volume, written into an empty category, with prices excluded on both sides.
 
 I ran it four times over five days, because the first result deserved a second opinion, and the second one disagreed with the first:
 
 | 5,000 rows | Content API | DTO API | Ratio (total) | Ratio (median batch) |
 | ---------- | ---------- | ---------- | ---------- | ---------- |
-| Pair A (31 Aug) | 64.05 min | 19.59 min | 3.27× | 3.15× |
-| Pair B (1–2 Sep) | 59.92 min | 21.87 min | 2.74× | 2.72× |
-| Pair C (3–4 Sep) | 64.66 min | 21.28 min | 3.04× | 3.08× |
-| Pair D (4 Sep) | 62.11 min | 22.03 min | 2.82× | 2.90× |
+| Pair A (31 Aug) | 64.05 min | 19.59 min | 3.27x | 3.14x |
+| Pair B (1-2 Sep) | 59.92 min | 21.87 min | 2.74x | 2.72x |
+| Pair C (3-4 Sep) | 64.66 min | 21.28 min | 3.04x | 3.08x |
+| Pair D (4 Sep) | 62.11 min | 22.03 min | 2.82x | 2.90x |
 
 So it is about three times faster, which is a lot less than the folklore says.
 
-The four pairs landed between 2.74× and 3.27×, averaging just under 3×. I recommend treating that spread as the result.
+The four pairs landed between 2.74x and 3.27x, averaging just under 3x. I recommend treating that spread as the result.
 
-No single figure here is a constant. If I had run it once, I would have published whichever number I happened to get.
+If I had run it once, I would have published whichever number I happened to get.
 
 ### Which pairs can we trust most?
 
@@ -130,17 +130,11 @@ Pairs C and D, since they are the only ones where both arms started on a freshly
 
 In Pair A neither arm did, and in Pair B only the DTO arm did.
 
-As Part 5 explains at some length, that matters more than anything else I measured.
+As Part 5 explains, that matters more than anything else I measured.
 
 Still, all four pairs ran on fairly young processes, which is why they agree so closely.
 
-### Total vs. median
-
-Within a pair, total and median are one result, two ways. Throughput is the total over the row count, and the batch times almost sum to the total.
-
-In Pair A that is 3,842.6 s of batches against a recorded 3,843.2 s. The 0.6 s gap is the per-batch progress write, which is inside the run clock but outside the batch clock.
-
-So the median is a second statistic on the same dataset. It only tells us that no single outlier batch is dragging the mean. The four pairs are what counts as replication here.
+The median is a second statistic on the same dataset, so the four pairs are what counts as replication here.
 
 ### What can we take from it?
 
@@ -152,11 +146,11 @@ Prices were excluded from both sides on purpose, because `IPriceService` is the 
 
 If most of your per-row cost is the price write, the layer you write entries through matters proportionally less.
 
-So the DTO path is about 3× faster, and it stops writing a version row for every product we never intend to version. The price for that is the next section.
+So the DTO path is about 3x faster, and it stops writing a version row for every product we never intend to version. The price for that is the next section.
 
 ## What do we give up?
 
-This belongs right next to the speed argument, because I have watched people discover it the expensive way.
+I put this right next to the speed argument, because I have watched people discover it the expensive way.
 
 ### Rollback
 
@@ -186,7 +180,7 @@ I scanned the Graph assemblies in my own solution and found nothing subscribing 
 
 What remains is the scheduled indexing job. That would mean the catalog is stale in search for up to one job interval after every import.
 
-This is a conclusion from evidence, and I haven't measured it. I haven't timed a write end to end, and I won't present a deduction as a stopwatch result.
+This is a conclusion from evidence, and I haven't measured it. I haven't timed a write end to end.
 
 I recommend doing that timing on a test environment before you rely on it. If it holds, "search is up to an interval behind the catalog" is something your business stakeholders need to know before go-live.
 
@@ -204,9 +198,9 @@ In [Part 2]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-par
 
 ## Summary
 
-For bulk catalog writes in Optimizely Commerce, the low-level DTO API is the right layer. It writes only the rows we asked for, with no version and no publish pipeline per row. Measured across four independent pairs, it is about 3× faster, and this is what we pay for it:
+For bulk catalog writes in Optimizely Commerce, the low-level DTO API is the right layer. It writes only the rows we asked for, with no version and no publish pipeline per row. Measured across four independent pairs, it is about 3x faster, and this is what we pay for it:
 
-- 2.7–3.3× faster on wall-clock time, so about 3×. A nice win, but smaller than the folklore suggests.
+- 2.7-3.3x faster on wall-clock time, so about 3x. A nice win, but smaller than the folklore suggests.
 - No version history, so no content-version rollback when last night's feed was wrong.
 - No publish events, so nothing downstream hears the import unless we raise something ourselves.
 - No content-type validation, so every check we care about is ours to write.
@@ -224,4 +218,4 @@ Thank you for reading, and stay tuned for Part 2.
 - [Part 2: The Writer]({% post_url 2026-10-07-writing-a-catalog-entry-the-low-level-way-part-2-the-writer %})
 - [Part 3: Error Handling and Event Batching]({% post_url 2026-10-16-surviving-a-dirty-feed-part-3-error-handling-and-event-batching %})
 - [Part 4: Counting Round Trips]({% post_url 2026-10-21-the-low-level-api-is-not-automatically-fast-part-4-counting-round-trips %})
-- Part 5: Process Uptime and the Benchmark - coming soon
+- [Part 5: Process Uptime and the Benchmark]({% post_url 2026-10-28-what-mattered-more-than-the-api-part-5-process-uptime-and-the-benchmark %})
