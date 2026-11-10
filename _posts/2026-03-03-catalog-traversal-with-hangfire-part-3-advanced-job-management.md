@@ -438,6 +438,8 @@ Do you have other Hangfire patterns you've found useful for Optimizely Commerce?
 
 Thank you for reading, and I hope this series helps you build robust, scalable catalog processing solutions.
 
+## This Post is Part of a Series
+
 - [Part 1: Building the Service]({% post_url 2026-02-18-memory-efficient-catalog-traversal-in-optimizely-commerce-part-1-building-the-service %})
 - [Part 2: Real-World Scheduled Job Patterns]({% post_url 2026-02-24-catalog-traversal-in-action-part-2-real-world-scheduled-job-patterns %})
 - Part 3: Hangfire Integration - (this post)
